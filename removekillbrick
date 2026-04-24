@@ -1,0 +1,33 @@
+local function neutralizePart(part)
+    if not part:IsA("BasePart") then return end
+
+    -- remove scripts inside the part
+    for , child in ipairs(part:GetChildren()) do
+        if child:IsA("Script") or child:IsA("LocalScript") then
+            child:Destroy()
+        end
+    end
+
+    -- disable touch damage (override)
+    part.Touched:Connect(function() end)
+
+    local name = string.lower(part.Name)
+    if name:find("kill") or name:find("lava") or name:find("death") then
+        part.CanTouch = false
+        part.CanCollide = false
+        part.Transparency = 0.5
+    end
+end
+
+-- scan EVERYTHING
+for , obj in ipairs(workspace:GetDescendants()) do
+    neutralizePart(obj)
+end
+
+-- keep scanning new stuff
+workspace.DescendantAdded:Connect(function(obj)
+    task.wait()
+    neutralizePart(obj)
+end)
+
+print("All killbricks neutralized 😈")
