@@ -1,0 +1,238 @@
+-- 🔥 CHECKPOINT / MOVEMENT PANEL
+
+task.wait(0.1)
+
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+--------------------------------------------------
+-- UI
+--------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "MovementPanel"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 330, 0, 400)
+frame.Position = UDim2.new(0.5, -160, 0.5, -160)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+
+-- top bar
+local topBar = Instance.new("Frame", frame)
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+local title = Instance.new("TextLabel", topBar)
+title.Size = UDim2.new(1,-30,1,0)
+title.Position = UDim2.new(0,5,0,0)
+title.Text = "Checkpoint Panel"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+
+-- close
+local close = Instance.new("TextButton", topBar)
+close.Size = UDim2.new(0,30,1,0)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+--------------------------------------------------
+-- DRAG
+--------------------------------------------------
+local dragging, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--------------------------------------------------
+-- BUTTON CREATOR
+--------------------------------------------------
+local function makeButton(text, y)
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(0,280,0,35)
+	btn.Position = UDim2.new(0.5,-140,0,y)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(70,130,255)
+	btn.TextColor3 = Color3.new(1,1,1)
+	return btn
+end
+
+--------------------------------------------------
+-- 🔽 DROPDOWN (CHECKPOINTS)
+--------------------------------------------------
+local dropdown = Instance.new("ScrollingFrame", frame)
+dropdown.Size = UDim2.new(0,280,0,100)
+dropdown.Position = UDim2.new(0.5,-140,0,40)
+dropdown.CanvasSize = UDim2.new(0,0,0,0)
+dropdown.BackgroundColor3 = Color3.fromRGB(35,35,35)
+
+local layout = Instance.new("UIListLayout", dropdown)
+
+local function loadCheckpoints()
+	for _,v in pairs(dropdown:GetChildren()) do
+	if not v:IsA("UIListLayout") then
+		v:Destroy()
+	end
+end
+	
+	local folder = workspace:FindFirstChild("Nests")
+	if not folder then return end
+
+	local ySize = 0
+
+	-- sort numerically (VERY IMPORTANT)
+	local nests = folder:GetChildren()
+	table.sort(nests, function(a,b)
+		return tonumber(a.Name) < tonumber(b.Name)
+	end)
+
+	for _,v in pairs(nests) do
+		if v:IsA("BasePart") or v:IsA("Model") then
+			
+			local btn = Instance.new("TextButton", dropdown)
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Nest " .. v.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+
+			btn.MouseButton1Click:Connect(function()
+				local char = player.Character
+				if not char then return end
+				
+				local root = char:FindFirstChild("HumanoidRootPart")
+				if not root then return end
+
+				-- handle model or part
+				local target = v:IsA("Model") and v:GetPivot() or v.CFrame
+				root.CFrame = target + Vector3.new(0,3,0)
+			end)
+
+			ySize += 30
+		end
+	end
+
+	dropdown.CanvasSize = UDim2.new(0,0,0,ySize)
+end
+
+loadCheckpoints()
+
+--------------------------------------------------
+-- 🦘 INFINITE JUMP
+--------------------------------------------------
+local infJumpBtn = makeButton("Infinite Jump", 150)
+
+local infJump = false
+
+infJumpBtn.MouseButton1Click:Connect(function()
+	infJump = not infJump
+	infJumpBtn.Text = infJump and "Inf Jump ON" or "Infinite Jump"
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infJump then
+		local char = player.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+--------------------------------------------------
+-- 🏃 WALKSPEED
+--------------------------------------------------
+local speedBox = Instance.new("TextBox", frame)
+speedBox.Size = UDim2.new(0,120,0,30)
+speedBox.Position = UDim2.new(0.5,-60,0,200)
+speedBox.Text = "16"
+speedBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+speedBox.TextColor3 = Color3.new(1,1,1)
+
+local speedBtn = makeButton("Apply WalkSpeed", 230)
+
+local speedLoop = false
+
+speedBtn.MouseButton1Click:Connect(function()
+	speedLoop = not speedLoop
+	speedBtn.Text = speedLoop and "Speed ON" or "Apply WalkSpeed"
+
+	if speedLoop then
+		task.spawn(function()
+			while speedLoop do
+				local char = player.Character
+				if char and char:FindFirstChild("Humanoid") then
+					local val = tonumber(speedBox.Text)
+					if val then
+						char.Humanoid.WalkSpeed = val
+					end
+				end
+				task.wait(0.2)
+			end
+		end)
+	end
+end)
+
+--------------------------------------------------
+-- 🦘 JUMP POWER
+--------------------------------------------------
+local jumpBox = Instance.new("TextBox", frame)
+jumpBox.Size = UDim2.new(0,120,0,30)
+jumpBox.Position = UDim2.new(0.5,-60,0,270)
+jumpBox.Text = "50"
+jumpBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+jumpBox.TextColor3 = Color3.new(1,1,1)
+
+local jumpBtn = makeButton("Apply JumpPower", 300)
+
+local jumpLoop = false
+
+jumpBtn.MouseButton1Click:Connect(function()
+	jumpLoop = not jumpLoop
+	jumpBtn.Text = jumpLoop and "Jump ON" or "Apply JumpPower"
+
+	if jumpLoop then
+		task.spawn(function()
+			while jumpLoop do
+				local char = player.Character
+				if char and char:FindFirstChild("Humanoid") then
+					local val = tonumber(jumpBox.Text)
+					if val then
+						char.Humanoid.JumpPower = val
+					end
+				end
+				task.wait(0.2)
+			end
+		end)
+	end
+end)
+
+print("Checkpoint Panel Loaded 😈")
