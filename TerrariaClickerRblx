@@ -1,0 +1,176 @@
+-- Terraria Clicker Script OP keyless 2026 😈
+-- discord.gg/A5NEZNPMCS
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "CustomUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 230)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Terraria Clicker, Roblox Script"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = true
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+-- Buttons
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,50)
+autoClickBtn.Text = "Auto Click: OFF"
+autoClickBtn.Parent = frame
+
+local fullbrightBtn = Instance.new("TextButton")
+fullbrightBtn.Size = UDim2.new(1,-20,0,40)
+fullbrightBtn.Position = UDim2.new(0,10,0,100)
+fullbrightBtn.Text = "Fullbright: OFF"
+fullbrightBtn.Parent = frame
+
+local bossBtn = Instance.new("TextButton")
+bossBtn.Size = UDim2.new(1,-20,0,40)
+bossBtn.Position = UDim2.new(0,10,0,150)
+bossBtn.Text = "Auto Boss: OFF"
+bossBtn.Parent = frame
+
+--// Dragging
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Close
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+-- Minimize (Right Alt)
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+--// Auto Click
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "Auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
+				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
+				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
+			end
+		end)
+	end
+end)
+
+--// Fullbright
+local fullbright = false
+
+fullbrightBtn.MouseButton1Click:Connect(function()
+	fullbright = not fullbright
+	fullbrightBtn.Text = "Fullbright: " .. (fullbright and "ON" or "OFF")
+
+	if fullbright then
+		task.spawn(function()
+			while fullbright do
+				Lighting.Brightness = 2
+				Lighting.ClockTime = 14
+				Lighting.FogEnd = 100000
+				Lighting.GlobalShadows = false
+				task.wait()
+			end
+		end)
+	end
+end)
+
+ -- Auto Boss
+local autoBoss = false
+
+bossBtn.MouseButton1Click:Connect(function()
+	autoBoss = not autoBoss
+	bossBtn.Text = "Auto Boss: " .. (autoBoss and "ON" or "OFF")
+
+	if autoBoss then
+		task.spawn(function()
+			while autoBoss do
+				RS:WaitForChild("Events"):WaitForChild("PlayerBossClick"):InvokeServer()
+				task.wait()
+			end
+		end)
+	end
+end)
+
+print("discord.gg/A5NEZNPMCS")
+
+print("Subscribe @ActusisGames On Youtube 🙏")
+
+print("Does Everything Work? 👍")
+
+print("Full Script Loaded! 😈")
