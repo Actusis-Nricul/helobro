@@ -1,0 +1,379 @@
+print("🔥 CLEAN SCRIPT LOADED 🔥")
+
+local allowedPlaces = {
+	[9110459155] = true,
+	[88838146343178] = true
+}
+
+if not allowedPlaces[game.PlaceId] then return end
+
+--// SERVICES
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+--// CHARACTER
+local character, humanoidRootPart
+
+local function updateCharacter(char)
+	character = char
+	humanoidRootPart = char:WaitForChild("HumanoidRootPart", 5)
+end
+
+updateCharacter(player.Character or player.CharacterAdded:Wait())
+player.CharacterAdded:Connect(updateCharacter)
+
+--// UI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ObbyUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 260, 0, 440)
+frame.Position = UDim2.new(0.3,0,0.3,0)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Active = true
+
+-- TOP BAR
+local top = Instance.new("TextLabel", frame)
+top.Size = UDim2.new(1,0,0,30)
+top.Text = "SteamHappy Script OP"
+top.BackgroundColor3 = Color3.fromRGB(50,50,50)
+top.TextColor3 = Color3.new(1,1,1)
+
+-- CLOSE
+local close = Instance.new("TextButton", frame)
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200,50,50)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+-- DRAG
+local dragging, startPos, startInput
+
+top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		startInput = input.Position
+		startPos = frame.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - startInput
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+-- BUTTON CREATOR
+local function createButton(text, y)
+	local b = Instance.new("TextButton", frame)
+	b.Size = UDim2.new(1,-10,0,30)
+	b.Position = UDim2.new(0,5,0,y)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(70,70,70)
+	b.TextColor3 = Color3.new(1,1,1)
+	return b
+end
+
+-- BUTTONS
+local tBtn = createButton("T Teleport: OFF", 40)
+local noclipBtn = createButton("Noclip", 80)
+local jumpBtn = createButton("Infinite Jump", 120)
+local zoomBtn = createButton("Infinite Zoom", 160)
+local cleanBtn = createButton("Easy Pyramid", 200)
+local fullbrightBtn = createButton("Fullbright", 240)
+local killBtn = createButton("Remove Killbricks", 280)
+local collectBtn = createButton("Ez Stage 33 (Collect Mockings)", 320)
+local pushBtn = createButton("Perfect Push Stage 35 (ROCK STAGE)", 360)
+local shackBtn = createButton("Go To Shack (Stage 37 Boss fight)", 400)
+
+
+--// T TELEPORT
+local tTeleport = false
+
+tBtn.MouseButton1Click:Connect(function()
+	tTeleport = not tTeleport
+	tBtn.Text = tTeleport and "T Teleport: ON" or "T Teleport: OFF"
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	
+	if input.KeyCode == Enum.KeyCode.T and tTeleport then
+		if humanoidRootPart and mouse and mouse.Hit then
+			humanoidRootPart.Velocity = Vector3.zero
+			humanoidRootPart.CFrame = mouse.Hit + Vector3.new(0,5,0)
+		end
+	end
+end)
+
+-- NOCLIP
+RunService.Stepped:Connect(function()
+	if noclip and character then
+		for _, v in pairs(character:GetDescendants()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+-- INFINITE JUMP
+local infJump = false
+
+jumpBtn.MouseButton1Click:Connect(function()
+	infJump = not infJump
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infJump and character then
+		character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+
+-- ZOOM
+zoomBtn.MouseButton1Click:Connect(function()
+	player.CameraMaxZoomDistance = 1000
+end)
+
+ -- easy pyramid
+cleanBtn.MouseButton1Click:Connect(function()
+
+	for _, obj in pairs(workspace:GetDescendants()) do
+		local name = string.lower(obj.Name)
+
+		-- 🔥 REMOVE ALL FLAMES (NO MATTER WHERE)
+		if string.find(name, "flame") then
+			if obj:IsA("Model") or obj:IsA("BasePart") then
+				obj:Destroy()
+			end
+		end
+
+		if obj:IsA("Fire") then
+			obj:Destroy()
+		end
+
+		if obj:IsA("ParticleEmitter") then
+			if string.find(name, "flame") then
+				obj:Destroy()
+			end
+		end
+
+		-- 💀 ONLY DISABLE CLEAR HAZARDS (NOT DELETE STRUCTURE)
+		if string.find(name, "spike")
+		or string.find(name, "axe")
+		or string.find(name, "trip") then
+			
+			if obj:IsA("BasePart") then
+				obj.CanTouch = false
+				obj.Transparency = 0.5
+			end
+		end
+
+	end
+
+	print("🏜️ Easy Pyramid (flames gone + hazards disabled)")
+end)
+
+ -- remove death stuff
+killBtn.MouseButton1Click:Connect(function()
+
+	for _, obj in pairs(workspace:GetDescendants()) do
+		local name = string.lower(obj.Name)
+
+		-- 💀 LANDMINES
+		if string.find(name, "landmine") then
+			if obj:IsA("BasePart") then
+				obj.CanTouch = false
+				obj.Transparency = 0.7
+			end
+		end
+
+		-- 🌪️ TORNADOS
+		if string.find(name, "tornado") then
+			if obj:IsA("BasePart") then
+				obj.CanTouch = false
+				obj.Transparency = 0.7
+			end
+		end
+
+		-- 🌵 CACTUS DAMAGE
+		if string.find(name, "cactus") or string.find(name, "stab") then
+			if obj:IsA("BasePart") then
+				obj.CanTouch = false
+			end
+		end
+
+		-- 🏜️ QUICKSAND
+		if string.find(name, "quicksand") then
+			if obj:IsA("BasePart") then
+				obj.CanCollide = true
+				obj.CanTouch = false
+				obj.Transparency = 0.5
+			end
+		end
+
+		-- 💥 EXPLOSIONS
+		if obj:IsA("Explosion") then
+			obj:Destroy()
+		end
+
+		-- 🔥 FIRE / PARTICLES
+		if obj:IsA("Fire") then
+			obj:Destroy()
+		end
+
+		-- 💀 GENERIC DAMAGE PARTS
+		if obj:IsA("BasePart") then
+			if string.find(name, "kill")
+			or string.find(name, "lava")
+			or string.find(name, "damage")
+			or string.find(name, "spike")
+			or string.find(name, "trap") then
+				
+				obj.CanTouch = false
+				obj.Transparency = 0.6
+			end
+		end
+
+		-- 🧠 DISABLE TOUCH SCRIPTS
+		if obj:IsA("Script") then
+			local parent = obj.Parent
+			if parent and parent:IsA("BasePart") then
+				obj.Disabled = true
+			end
+		end
+
+		-- ❌ REMOVE TOUCHINTEREST (VERY IMPORTANT)
+		if obj:IsA("TouchTransmitter") then
+			obj:Destroy()
+		end
+
+	end
+
+	print("💀 ALL death sources removed (landmines, tornados, cactus, quicksand 😈)")
+
+end)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Rawbr10/Roblox-Scripts/refs/heads/main/God%20Mode%20Script%20Universal"))()
+
+print("godmode success! (turn off when fighting final boss)")
+
+collectBtn.MouseButton1Click:Connect(function()
+	local stage = workspace:FindFirstChild("Stage_33")
+	if not stage then
+		warn("Stage_33 not found")
+		return
+	end
+
+	local folder = stage:FindFirstChild("Collect_Mock")
+	if not folder then
+		warn("Collect_Mock not found")
+		return
+	end
+
+	for _, obj in pairs(folder:GetDescendants()) do
+		if obj.Name == "Mocking" and obj:IsA("BasePart") then
+			humanoidRootPart.CFrame = obj.CFrame + Vector3.new(0,3,0)
+			task.wait(0.05)
+		end
+	end
+
+	print("⚡ All mockings collected")
+end)
+
+ -- easy stage 35!!
+local pushing = false
+
+pushBtn.MouseButton1Click:Connect(function()
+	pushing = not pushing
+	pushBtn.Text = pushing and "Perfect Push: ON" or "Perfect Push: OFF"
+end)
+
+RunService.Heartbeat:Connect(function()
+
+	if not pushing or not character or not humanoidRootPart then return end
+
+	local stage = workspace:FindFirstChild("Stage_35")
+	if not stage then return end
+
+	local temp = stage:FindFirstChild("Temp")
+	if not temp then return end
+
+	local ballModel = temp:FindFirstChild("sisyphusball")
+	if not ballModel then return end
+
+	local ball = ballModel:FindFirstChild("steamhappy")
+	if not ball then return end
+
+	-- 🧠 SAFE DIRECTION (adjust if needed)
+	local pushDir = Vector3.new(0, 0, 1)
+
+	-- stay behind the ball
+	local behind = ball.Position - pushDir * 6 + Vector3.new(0,2,0)
+	humanoidRootPart.CFrame = CFrame.new(behind, ball.Position)
+
+	-- 🚀 GENTLE PUSH (NO YEETING)
+	ball.AssemblyLinearVelocity = Vector3.new(
+		pushDir.X * 25,
+		3,
+		pushDir.Z * 25
+	)
+
+end)
+
+ -- stage 37 boss steammocking 😈
+shackBtn.MouseButton1Click:Connect(function()
+
+	local stage = workspace:FindFirstChild("Stage_37")
+	if not stage then
+		warn("Stage_37 not found")
+		return
+	end
+
+	local shack = stage:FindFirstChild("Shack")
+	if not shack then
+		warn("Shack not found")
+		return
+	end
+
+	-- find best top part
+	local topPart = nil
+
+	for _, obj in pairs(shack:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			topPart = obj
+		end
+	end
+
+	if topPart and humanoidRootPart then
+		-- 🛖 teleport slightly above so you don't clip
+		humanoidRootPart.CFrame = topPart.CFrame + Vector3.new(0, 8, 0)
+		print("🛖 On the shack, time to beam the boss 😈")
+	else
+		warn("No valid part found on shack")
+	end
+
+end)
