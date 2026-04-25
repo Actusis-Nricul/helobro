@@ -1,0 +1,195 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- === GUI (persists after death) ===
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ESP_UI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- === MAIN FRAME ===
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 260, 0, 160)
+Main.Position = UDim2.new(0.5, -130, 0.5, -80)
+Main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Main.Parent = ScreenGui
+
+-- === DRAG BAR ===
+local Top = Instance.new("Frame")
+Top.Size = UDim2.new(1,0,0,30)
+Top.BackgroundColor3 = Color3.fromRGB(45,45,45)
+Top.Parent = Main
+
+-- === TITLE ===
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -30, 1, 0)
+Title.Position = UDim2.new(0,5,0,0)
+Title.BackgroundTransparency = 1
+Title.Text = "ESP PANEL"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Top
+
+-- === CLOSE BUTTON ===
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0,30,1,0)
+Close.Position = UDim2.new(1,-30,0,0)
+Close.Text = "X"
+Close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+Close.TextColor3 = Color3.new(1,1,1)
+Close.Parent = Top
+
+Close.MouseButton1Click:Connect(function()
+	Main.Visible = false
+end)
+
+-- === DRAGGING ===
+local dragging, dragStart, startPos
+
+Top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+	end
+end)
+
+Top.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- === BUTTONS ===
+local ESPBtn = Instance.new("TextButton")
+ESPBtn.Size = UDim2.new(1, -20, 0, 45)
+ESPBtn.Position = UDim2.new(0,10,0,40)
+ESPBtn.Text = "ESP: OFF"
+ESPBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+ESPBtn.TextColor3 = Color3.new(1,1,1)
+ESPBtn.Parent = Main
+
+local FriendBtn = Instance.new("TextButton")
+FriendBtn.Size = UDim2.new(1, -20, 0, 45)
+FriendBtn.Position = UDim2.new(0,10,0,95)
+FriendBtn.Text = "FRIENDS ESP: OFF"
+FriendBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+FriendBtn.TextColor3 = Color3.new(1,1,1)
+FriendBtn.Parent = Main
+
+-- === ESP SYSTEM ===
+local ESP_ON = false
+local FRIENDS_ONLY = false
+local Cache = {}
+
+local function removeESP(plr)
+	if Cache[plr] then
+		for _, v in pairs(Cache[plr]) do
+			if v then v:Destroy() end
+		end
+		Cache[plr] = nil
+	end
+end
+
+local function createESP(plr)
+	if not plr.Character or not plr.Character:FindFirstChild("Head") then return end
+	if Cache[plr] then return end
+
+	local char = plr.Character
+
+	local hl = Instance.new("Highlight")
+	hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	hl.FillTransparency = 0.5
+	hl.OutlineColor = Color3.new(1,1,1)
+	hl.Parent = char
+
+	local bill = Instance.new("BillboardGui")
+	bill.Size = UDim2.new(0,100,0,30)
+	bill.AlwaysOnTop = true
+	bill.StudsOffset = Vector3.new(0,2,0)
+	bill.Parent = char.Head
+
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(1,0,1,0)
+	text.BackgroundTransparency = 1
+	text.TextScaled = true
+	text.Font = Enum.Font.SourceSansBold
+	text.TextColor3 = Color3.new(1,1,1)
+	text.TextStrokeTransparency = 0
+	text.Text = plr.Name
+	text.Parent = bill
+
+	Cache[plr] = {hl, bill}
+end
+
+local function clearAll()
+	for plr,_ in pairs(Cache) do
+		removeESP(plr)
+	end
+end
+
+-- === LOOP (EVERY FRAME) ===
+RunService.RenderStepped:Connect(function()
+	if not ESP_ON then return end
+
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= LocalPlayer then
+			
+			if FRIENDS_ONLY and not LocalPlayer:IsFriendsWith(plr.UserId) then
+				removeESP(plr)
+				continue
+			end
+
+			if plr.Character and plr.Character:FindFirstChild("Head") then
+				createESP(plr)
+
+				local hl = Cache[plr] and Cache[plr][1]
+				if hl then
+					hl.FillColor = FRIENDS_ONLY and Color3.fromRGB(0,255,100) or Color3.fromRGB(255,0,0)
+				end
+			else
+				removeESP(plr)
+			end
+		end
+	end
+end)
+
+-- === BUTTON LOGIC ===
+ESPBtn.MouseButton1Click:Connect(function()
+	ESP_ON = not ESP_ON
+	FRIENDS_ONLY = false
+
+	ESPBtn.Text = ESP_ON and "ESP: ON" or "ESP: OFF"
+
+	if not ESP_ON then
+		clearAll()
+	end
+end)
+
+FriendBtn.MouseButton1Click:Connect(function()
+	ESP_ON = not ESP_ON
+	FRIENDS_ONLY = true
+
+	FriendBtn.Text = ESP_ON and "FRIENDS ESP: ON" or "FRIENDS ESP: OFF"
+
+	if not ESP_ON then
+		clearAll()
+	end
+end)
