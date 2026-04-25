@@ -1,0 +1,176 @@
+ -- 👨➡️👨 teleports finder 😈
+ -- works really good in doodle brainrots if your tryna max that game
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function getCharacter()
+	return player.Character or player.CharacterAdded:Wait()
+end
+
+-- UI ROOT
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- MAIN FRAME
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 260, 0, 300)
+main.Position = UDim2.new(0.5, -130, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.Parent = gui
+
+-- DRAG BAR (BIG GRABBABLE AREA)
+local dragBar = Instance.new("TextLabel")
+dragBar.Size = UDim2.new(1, 0, 0, 40)
+dragBar.Text = "Teleport Finder"
+dragBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+dragBar.TextColor3 = Color3.new(1,1,1)
+dragBar.Parent = main
+
+-- MAKE DRAGGABLE
+local dragging = false
+local dragInput, mousePos, framePos
+
+dragBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		mousePos = input.Position
+		framePos = main.Position
+	end
+end)
+
+dragBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+dragBar.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - mousePos
+		main.Position = UDim2.new(
+			framePos.X.Scale,
+			framePos.X.Offset + delta.X,
+			framePos.Y.Scale,
+			framePos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 40, 0, 40)
+closeButton.Position = UDim2.new(1, -40, 0, 0)
+closeButton.Text = "X"
+closeButton.TextScaled = true
+closeButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+closeButton.TextColor3 = Color3.new(1,1,1)
+closeButton.Parent = dragBar
+
+closeButton.MouseEnter:Connect(function()
+	closeButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+end)
+
+closeButton.MouseLeave:Connect(function()
+	closeButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+	main.Visible = false
+end)
+
+-- FIND BUTTON
+local findButton = Instance.new("TextButton")
+findButton.Size = UDim2.new(1, 0, 0, 40)
+findButton.Position = UDim2.new(0, 0, 0, 40)
+findButton.Text = "Find Teleports"
+findButton.Parent = main
+
+-- LIST FRAME
+local listFrame = Instance.new("Frame")
+listFrame.Size = UDim2.new(1, 0, 1, -80)
+listFrame.Position = UDim2.new(0, 0, 0, 80)
+listFrame.BackgroundTransparency = 1
+listFrame.Parent = main
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = listFrame
+
+-- FIND TELEPORTERS (SMARTER)
+local function getTeleporters()
+	local found = {}
+	local character = getCharacter()
+	local hrp = character:WaitForChild("HumanoidRootPart")
+
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			
+			-- must have script
+			if obj:FindFirstChildOfClass("Script") 
+			or obj:FindFirstChildOfClass("LocalScript") then
+				
+				-- ignore super tiny parts
+				if obj.Size.Magnitude > 3 then
+					
+					-- ignore parts VERY close to player (likely exits)
+					if (obj.Position - hrp.Position).Magnitude > 20 then
+						table.insert(found, obj)
+					end
+				end
+			end
+		end
+	end
+
+	return found
+end
+
+-- CLEAR LIST
+local function clearList()
+	for _, child in pairs(listFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+end
+
+-- CREATE BUTTONS
+local function createList(parts)
+	clearList()
+
+	for i, part in ipairs(parts) do
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(1, 0, 0, 35)
+		btn.Text = part.Name .. " [" .. i .. "]"
+		btn.Parent = listFrame
+
+		btn.MouseButton1Click:Connect(function()
+			local character = getCharacter()
+			local hrp = character:WaitForChild("HumanoidRootPart")
+
+			local oldPos = hrp.Position
+
+			-- step onto pad
+			hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+
+			wait(0.6)
+
+			-- if it DIDN'T move you far, ignore it (probably exit pad)
+			if (hrp.Position - oldPos).Magnitude < 50 then
+				warn("❌ Not a real teleporter:", part.Name)
+			else
+				print("✅ Real teleporter:", part.Name)
+			end
+		end)
+	end
+end
+
+-- CLICK
+findButton.MouseButton1Click:Connect(function()
+	print("🔍 scanning...")
+
+	local parts = getTeleporters()
+
+	print("found:", #parts)
+
+	createList(parts)
+end)
