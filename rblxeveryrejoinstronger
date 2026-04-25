@@ -1,0 +1,173 @@
+-- DEV PANEL FULL SCRIPT 😈
+
+task.wait(0.1)
+
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+
+--------------------------------------------------
+-- UI
+--------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "Script"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 260)
+frame.Position = UDim2.new(0.5, -160, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.Parent = gui
+
+-- top bar (drag area)
+local topBar = Instance.new("Frame", frame)
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+local title = Instance.new("TextLabel", topBar)
+title.Size = UDim2.new(1,-30,1,0)
+title.Position = UDim2.new(0,5,0,0)
+title.Text = "Script"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+
+-- close
+local close = Instance.new("TextButton", topBar)
+close.Size = UDim2.new(0,30,1,0)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(200,60,60)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+--------------------------------------------------
+-- DRAG SYSTEM
+--------------------------------------------------
+local dragging, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--------------------------------------------------
+-- BUTTON CREATOR
+--------------------------------------------------
+local function makeButton(text, y)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0,280,0,40)
+	btn.Position = UDim2.new(0.5,-140,0,y)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(70,130,255)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Parent = frame
+	return btn
+end
+
+--------------------------------------------------
+-- 🟡 ORB COLLECTOR
+--------------------------------------------------
+local orbBtn = makeButton("Collect Orbs", 40)
+
+orbBtn.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if not char then return end
+	
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local orbs = {}
+
+	for _,v in pairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") and string.lower(v.Name):find("orb") then
+			table.insert(orbs, v)
+		end
+	end
+
+	table.sort(orbs, function(a,b)
+		return a.Size.Magnitude > b.Size.Magnitude
+	end)
+
+	for _,orb in ipairs(orbs) do
+		if orb.Position.Magnitude < 10000 then
+			root.CFrame = orb.CFrame + Vector3.new(0,3,0)
+			task.wait(0.5)
+		end
+	end
+end)
+
+--------------------------------------------------
+-- 🟦 FLY SYSTEM
+--------------------------------------------------
+local flyBtn = makeButton("Toggle Fly", 90)
+
+local speedBox = Instance.new("TextBox", frame)
+speedBox.Size = UDim2.new(0,120,0,30)
+speedBox.Position = UDim2.new(0.5,-60,0,140)
+speedBox.Text = "50"
+speedBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+speedBox.TextColor3 = Color3.new(1,1,1)
+
+local flying = false
+local velocity
+
+flyBtn.MouseButton1Click:Connect(function()
+	flying = not flying
+	flyBtn.Text = flying and "Disable Fly" or "Toggle Fly"
+
+	local char = player.Character
+	if not char then return end
+	
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	if flying then
+		velocity = Instance.new("BodyVelocity")
+		velocity.MaxForce = Vector3.new(1e9,1e9,1e9)
+		velocity.Parent = root
+
+		RunService.RenderStepped:Connect(function()
+			if not flying then return end
+			
+			local speed = tonumber(speedBox.Text) or 50
+			local move = Vector3.zero
+
+			if UIS:IsKeyDown(Enum.KeyCode.W) then move += workspace.CurrentCamera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.S) then move -= workspace.CurrentCamera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.A) then move -= workspace.CurrentCamera.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.D) then move += workspace.CurrentCamera.CFrame.RightVector end
+
+			velocity.Velocity = move * speed
+		end)
+	else
+		if velocity then velocity:Destroy() end
+	end
+end)
+
+print("script work")
