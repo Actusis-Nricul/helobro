@@ -1,0 +1,201 @@
+local UIS = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+-- UI
+local gui = Instance.new("ScreenGui")
+gui.Name = "DevPanel"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 260)
+frame.Position = UDim2.new(0.5, -150, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Drag bar
+local dragBar = Instance.new("TextLabel")
+dragBar.Size = UDim2.new(1,0,0,30)
+dragBar.Text = "DEV PANEL"
+dragBar.BackgroundColor3 = Color3.fromRGB(50,50,50)
+dragBar.Parent = frame
+
+-- Dragging
+local dragging, dragInput, startPos, startFramePos
+
+dragBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		startPos = input.Position
+		startFramePos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+dragBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - startPos
+		frame.Position = startFramePos + UDim2.new(0, delta.X, 0, delta.Y)
+	end
+end)
+
+-- Close
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+-- Minimize
+UIS.InputBegan:Connect(function(input, gpe)
+	if not gpe and input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+--------------------------------------------------
+-- BUTTON LAYOUT HELPER
+--------------------------------------------------
+local y = 40
+local function createButton(text)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.9,0,0,30)
+	btn.Position = UDim2.new(0.05,0,0,y)
+	btn.Text = text
+	btn.Parent = frame
+	y += 35
+	return btn
+end
+
+local function createBox(placeholder)
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(0.9,0,0,30)
+	box.Position = UDim2.new(0.05,0,0,y)
+	box.PlaceholderText = placeholder
+	box.Parent = frame
+	y += 35
+	return box
+end
+
+--------------------------------------------------
+-- CREATE BUTTONS
+--------------------------------------------------
+
+local speedBtn = createButton("Speed: OFF")
+local speedBox = createBox("Enter WalkSpeed")
+local tpBtn = createButton("TP to Stage 13 Win")
+
+-- SPEED SYSTEM (fixed)
+local speedEnabled = false
+local desiredSpeed = 16
+
+-- APPLY FUNCTION (this is the magic)
+local function applySpeed()
+    local char = player.Character
+    if not char then return end
+
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    if speedEnabled then
+        humanoid.WalkSpeed = desiredSpeed
+    else
+        humanoid.WalkSpeed = 16
+    end
+end
+
+-- LOOP (keeps it enforced)
+task.spawn(function()
+    while true do
+        task.wait() -- adjust if you want faster/slower enforcement
+        applySpeed()
+    end
+end)
+
+-- ALSO reapply on respawn
+player.CharacterAdded:Connect(function()
+    task.wait()
+    applySpeed()
+end)
+
+-- Button toggle
+speedBtn.MouseButton1Click:Connect(function()
+    speedEnabled = not speedEnabled
+    speedBtn.Text = "Speed: " .. (speedEnabled and "ON" or "OFF")
+
+    desiredSpeed = tonumber(speedBox.Text) or 16
+    applySpeed()
+end)
+
+-- Update speed when typing
+speedBox.FocusLost:Connect(function()
+    local val = tonumber(speedBox.Text)
+    if val then
+        desiredSpeed = val
+    end
+end)
+
+--------------------------------------------------
+-- INFINITE JUMP
+--------------------------------------------------
+local infiniteJump = false
+local jumpBtn = createButton("Infinite Jump: OFF")
+
+jumpBtn.MouseButton1Click:Connect(function()
+	infiniteJump = not infiniteJump
+	jumpBtn.Text = "Infinite Jump: " .. (infiniteJump and "ON" or "OFF")
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infiniteJump then
+		local char = player.Character
+		if not char then return end
+
+		local humanoid = char:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+tpBtn.Text = "TP to Stage 13 Win"
+
+tpBtn.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if not char then return end
+
+	local root = char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+
+	local stage = workspace:FindFirstChild("Structure")
+if not stage then return end
+
+local stage13 = stage:FindFirstChild("Stage13")
+if not stage13 then return end
+
+local winPart = stage13:FindFirstChild("WinBlock12")
+
+	if winPart then
+		root.CFrame = winPart.CFrame + Vector3.new(0, 3, 0)
+		print("TP success →", winPart:GetFullName())
+	else
+		warn("WinBlock12 not found")
+	end
+	print("Found:", winPart)
+end)
+
