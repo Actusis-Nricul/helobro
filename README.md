@@ -5,7 +5,7 @@ helobro in this respitory I will have a bunch of scripts that I have made into l
 all of them you can use idc its all open source keyless too!
 
 
-if you want to join my discord for more updated scripts and over 100 scripts, then the link is discord.gg/A5NEZNPMCS
+if you want to join my discord for more updated scripts and over 100 scripts, then the link is https://www.discord.gg/A5NEZNPMCS
 
 if you need a executor then I have a link below for a free one
 
