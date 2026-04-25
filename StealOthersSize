@@ -1,0 +1,190 @@
+--// CONFIG
+local TARGET_PLACE_ID = 107703642762425
+if game.PlaceId ~= TARGET_PLACE_ID then return end
+
+--// SERVICES
+local player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+--// CHARACTER
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+local mouse = player:GetMouse()
+
+--// UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 25, 0, 25)
+closeBtn.Position = UDim2.new(1, -30, 0, 5)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.Parent = frame
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+
+frame.Size = UDim2.new(0, 260, 0, 400)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local function createButton(text, y)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(1, -10, 0, 35)
+    b.Position = UDim2.new(0, 5, 0, y)
+    b.Text = text
+    b.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Parent = frame
+    return b
+end
+
+-- Buttons
+local purpleBtn = createButton("Collect Purple Coins", 35)
+local tpBtn = createButton("Go to Teleports", 75)
+local jumpBtn = createButton("Infinite Jump: OFF", 115)
+local noclipBtn = createButton("Noclip: OFF", 155)
+local killBtn = createButton("Remove Killbricks", 195)
+local tpCursorBtn = createButton("TP To Cursor (T): OFF", 235)
+local zoomBtn = createButton("Infinite Zoom: OFF", 275)
+
+-- STATES
+local infiniteJump = false
+local noclip = false
+local tpToCursor = false
+local infZoom = false
+
+--// PURPLE COINS
+local function collectPurple()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Name:lower():find("coin") then
+            hrp.CFrame = obj.CFrame + Vector3.new(0,2,0)
+            task.wait(0.15)
+        end
+    end
+end
+
+--// TELEPORTS
+local function moveNearTeleports()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Name:lower():find("teleport") then
+            local offset = obj.CFrame.LookVector * -(obj.Size.Z/2 + 3)
+            local pos = obj.Position + offset
+            pos = Vector3.new(pos.X, hrp.Position.Y, pos.Z)
+            hrp.CFrame = CFrame.new(pos)
+            task.wait(0.4)
+        end
+    end
+end
+
+--// INFINITE JUMP
+UIS.JumpRequest:Connect(function()
+    if infiniteJump and character:FindFirstChild("Humanoid") then
+        character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+--// BETTER NOCLIP
+local function applyNoclip(char)
+    for _, v in pairs(char:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.CanCollide = false
+        end
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+    if noclip and character then
+        applyNoclip(character)
+    end
+end)
+
+character.DescendantAdded:Connect(function(v)
+    if noclip and v:IsA("BasePart") then
+        v.CanCollide = false
+    end
+end)
+
+ -- remove killbricks
+local function removeKillbricks()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        
+        -- Disable harmful parts
+        if obj:IsA("BasePart") then
+            local name = obj.Name:lower()
+
+            if name:find("kill") or name:find("lava") or name:find("damage") or name:find("dead") then
+                obj.CanTouch = false
+                obj.CanCollide = false
+                obj.Transparency = 0.5
+            end
+        end
+
+        -- Destroy scripts inside parts (THIS is the big one)
+        if obj:IsA("Script") or obj:IsA("LocalScript") then
+            local name = obj.Name:lower()
+            if name:find("kill") or name:find("damage") then
+                obj:Destroy()
+            end
+        end
+    end
+end
+
+--// TP TO CURSOR
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.T and tpToCursor then
+        if mouse.Hit then
+            hrp.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0,3,0))
+        end
+    end
+end)
+
+--// ZOOM
+local function updateZoom()
+    player.CameraMaxZoomDistance = infZoom and 100000 or 128
+end
+
+--// BUTTONS
+purpleBtn.MouseButton1Click:Connect(collectPurple)
+tpBtn.MouseButton1Click:Connect(moveNearTeleports)
+
+jumpBtn.MouseButton1Click:Connect(function()
+    infiniteJump = not infiniteJump
+    jumpBtn.Text = infiniteJump and "ON" or "OFF"
+end)
+
+noclipBtn.MouseButton1Click:Connect(function()
+    noclip = not noclip
+    noclipBtn.Text = noclip and "ON" or "OFF"
+end)
+
+killBtn.MouseButton1Click:Connect(removeKillbricks)
+
+tpCursorBtn.MouseButton1Click:Connect(function()
+    tpToCursor = not tpToCursor
+    tpCursorBtn.Text = tpToCursor and "ON" or "OFF"
+end)
+
+zoomBtn.MouseButton1Click:Connect(function()
+    infZoom = not infZoom
+    updateZoom()
+    zoomBtn.Text = infZoom and "ON" or "OFF"
+end)
+
+--// RESPAWN FIX
+player.CharacterAdded:Connect(function(char)
+    character = char
+    hrp = character:WaitForChild("HumanoidRootPart")
+end)
