@@ -1,0 +1,186 @@
+-- Clone Tycoon 2 Script OP keyless 2026 😈
+-- discord.gg/A5NEZNPMCS
+
+--// Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local PointsService = game:GetService("PointsService")
+
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "LimeUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 260)
+frame.Position = UDim2.new(0.5, -160, 0.5, -130)
+frame.BackgroundColor3 = Color3.fromRGB(0,255,0)
+frame.Parent = gui
+
+--// Title (drag bar)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "Clone Tycoon 2"
+title.BackgroundColor3 = Color3.fromRGB(0,200,0)
+title.TextColor3 = Color3.new(0,0,0)
+title.Parent = frame
+
+--// Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = title
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+--// Minimize (Right Alt)
+UserInputService.InputBegan:Connect(function(input,gp)
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+--// Dragging
+local dragging = false
+local dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--// CONSTANT WALK SPEED
+local speedOn = false
+local speedValue = 16
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0,100,0,25)
+speedBox.Position = UDim2.new(0,10,0,40)
+speedBox.PlaceholderText = "Speed"
+speedBox.Parent = frame
+
+local speedBtn = Instance.new("TextButton")
+speedBtn.Size = UDim2.new(0,120,0,25)
+speedBtn.Position = UDim2.new(0,120,0,40)
+speedBtn.Text = "Speed: OFF"
+speedBtn.Parent = frame
+
+speedBtn.MouseButton1Click:Connect(function()
+	speedOn = not speedOn
+	speedBtn.Text = speedOn and "Speed: ON" or "Speed: OFF"
+	
+	local num = tonumber(speedBox.Text)
+	if num then
+		speedValue = num
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if speedOn then
+		local char = player.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char.Humanoid.WalkSpeed = speedValue
+		end
+	end
+end)
+
+--// RESOURCE FUNCTION
+local function giveOre(name, amount)
+	local inv = player:FindFirstChild("Inventory")
+	if not inv then return end
+	
+	local ore = inv:FindFirstChild(name)
+	if ore and ore:IsA("IntValue") then
+		amount = math.clamp(amount, 0, 100)
+		ore.Value = amount
+	end
+end
+
+--// CREATE ORE BUTTONS
+local ores = {"Coal","Iron","Gold","Diamonds","Stone"}
+local inputs = {}
+
+for i,ore in ipairs(ores) do
+	local y = 70 + (i-1)*30
+	
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(0,60,0,25)
+	box.Position = UDim2.new(0,10,0,y)
+	box.PlaceholderText = ore
+	box.Parent = frame
+	
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0,120,0,25)
+	btn.Position = UDim2.new(0,80,0,y)
+	btn.Text = ore
+	btn.Parent = frame
+	
+	btn.MouseButton1Click:Connect(function()
+		local num = tonumber(box.Text)
+		if num then
+			giveOre(ore, num)
+		end
+	end)
+end
+
+--// GEMS
+local gemBox = Instance.new("TextBox")
+gemBox.Size = UDim2.new(0,80,0,25)
+gemBox.Position = UDim2.new(0,10,0,220)
+gemBox.PlaceholderText = "Gems"
+gemBox.Parent = frame
+
+local gemBtn = Instance.new("TextButton")
+gemBtn.Size = UDim2.new(0,120,0,25)
+gemBtn.Position = UDim2.new(0,100,0,220)
+gemBtn.Text = "Give Gems"
+gemBtn.Parent = frame
+
+gemBtn.MouseButton1Click:Connect(function()
+	local num = tonumber(gemBox.Text)
+	if num then
+		num = math.clamp(num,0,100)
+		
+		local gems = player:FindFirstChild("Gems")
+		if gems and gems:IsA("IntValue") then
+			gems.Value = num
+		end
+	end
+end)
+
+print("discord.gg/A5NEZNPMCS")
+
+print("Subscribe @ActusisGames On Youtube 🙏")
+
+print("Does Everything Work? 👍")
+
+print("Full Script Loaded! 😈")
