@@ -7,7 +7,9 @@ all of them you can use idc its all open source keyless too!
 
 if you want to join my discord for more updated scripts and over 100 scripts, then the link is discord.gg/A5NEZNPMCS
 
+if you need a executor then I have a link below for a free one
 
+https://www.mediafire.com/file/o3pti4297jm20op/Xeno-v1.3.30.exe/file
 
 
 
