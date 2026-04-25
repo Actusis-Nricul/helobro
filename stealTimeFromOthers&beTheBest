@@ -1,0 +1,397 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- =========================
+-- UI SETUP
+-- =========================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ControlUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 300, 0, 190)
+main.Position = UDim2.new(0.5, -150, 0.5, -95)
+main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1, 0, 0, 30)
+top.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+top.BorderSizePixel = 0
+top.Parent = main
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -30, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Control Panel"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = top
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 1, 0)
+close.Position = UDim2.new(1, -30, 0, 0)
+close.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+close.BorderSizePixel = 0
+close.Text = "X"
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
+close.Font = Enum.Font.SourceSansBold
+close.TextSize = 18
+close.Parent = top
+
+close.MouseButton1Click:Connect(function()
+	main.Visible = false
+end)
+
+-- =========================
+-- DRAGGING
+-- =========================
+
+local dragging = false
+local dragStart
+local startPos
+
+top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+	end
+end)
+
+top.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- =========================
+-- RIGHT ALT MINIMIZE
+-- =========================
+
+UIS.InputBegan:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		main.Visible = not main.Visible
+	end
+end)
+
+-- =========================
+-- HELPERS
+-- =========================
+
+local function createToggle(text, y, callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -20, 0, 30)
+	btn.Position = UDim2.new(0, 10, 0, y)
+	btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	btn.BorderSizePixel = 0
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.Text = text .. ": OFF"
+	btn.Parent = main
+
+	local state = false
+	btn.MouseButton1Click:Connect(function()
+		state = not state
+		btn.Text = text .. ": " .. (state and "ON" or "OFF")
+		if callback then
+			callback(state)
+		end
+	end)
+
+	return btn
+end
+
+local function getChar()
+	return player.Character
+end
+
+local function getHRP(char)
+	return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function getHumanoid(char)
+	return char and char:FindFirstChildOfClass("Humanoid")
+end
+
+local function getSafePlate()
+	local terrain = workspace:FindFirstChild("Terrain")
+	if not terrain then
+		return nil
+	end
+
+	local spawnFolder = terrain:FindFirstChild("Spawn")
+	if not spawnFolder then
+		return nil
+	end
+
+	return spawnFolder:FindFirstChild("SafePlate")
+end
+
+local function isInSafeZone(char)
+	local hrp = getHRP(char)
+	local safe = getSafePlate()
+
+	if not hrp or not safe or not safe:IsA("BasePart") then
+		return false
+	end
+
+	local rel = safe.CFrame:PointToObjectSpace(hrp.Position)
+	local half = safe.Size * 0.5
+	local marginXZ = 12
+	local marginY = 18
+
+	return math.abs(rel.X) <= half.X + marginXZ
+		and math.abs(rel.Z) <= half.Z + marginXZ
+		and rel.Y >= -half.Y - marginY
+		and rel.Y <= half.Y + marginY
+end
+
+local function findSwordTool()
+	local char = getChar()
+	local backpack = player:FindFirstChild("Backpack")
+
+	local function scan(container)
+		if not container then
+			return nil
+		end
+
+		for _, obj in ipairs(container:GetChildren()) do
+			if obj:IsA("Tool") then
+				local name = obj.Name:lower()
+				if name:find("sword") or name:find("blade") or name:find("classic") or name:find("og") then
+					return obj
+				end
+			end
+		end
+
+		for _, obj in ipairs(container:GetChildren()) do
+			if obj:IsA("Tool") then
+				return obj
+			end
+		end
+
+		return nil
+	end
+
+	return scan(char) or scan(backpack)
+end
+
+local function equipSword()
+	local char = getChar()
+	local hum = getHumanoid(char)
+	if not char or not hum then
+		return nil
+	end
+
+	local tool = findSwordTool()
+	if tool and tool.Parent ~= char then
+		pcall(function()
+			hum:EquipTool(tool)
+		end)
+	end
+
+	return tool
+end
+
+local function getNearestTarget(maxDist)
+	local char = getChar()
+	local hrp = getHRP(char)
+	if not hrp then
+		return nil, nil
+	end
+
+	local nearestPlayer = nil
+	local nearestDist = nil
+
+	for _, other in ipairs(Players:GetPlayers()) do
+		if other ~= player and other.Character then
+			local oChar = other.Character
+			local oHum = getHumanoid(oChar)
+			local oHRP = getHRP(oChar)
+
+			if oHum and oHRP and oHum.Health > 0 and not isInSafeZone(oChar) then
+				local dist = (hrp.Position - oHRP.Position).Magnitude
+				if dist <= maxDist and (nearestDist == nil or dist < nearestDist) then
+					nearestPlayer = other
+					nearestDist = dist
+				end
+			end
+		end
+	end
+
+	return nearestPlayer, nearestDist
+end
+
+-- =========================
+-- SWORD AURA
+-- =========================
+
+local swordAuraEnabled = false
+local swordAuraToken = 0
+local ATTACK_RANGE = 12
+
+createToggle("Sword Aura", 40, function(state)
+	swordAuraEnabled = state
+	swordAuraToken += 1
+
+	if not state then
+		return
+	end
+
+	local myToken = swordAuraToken
+
+	task.spawn(function()
+		while swordAuraEnabled and swordAuraToken == myToken do
+			local char = getChar()
+			local hrp = getHRP(char)
+
+			if not char or not hrp then
+				task.wait(0.2)
+				continue
+			end
+
+			-- Hard stop inside safe zone so it doesn't lag spam at spawn.
+			if isInSafeZone(char) then
+				task.wait(0.25)
+				continue
+			end
+
+			local tool = equipSword()
+			local targetPlayer, dist = getNearestTarget(ATTACK_RANGE)
+
+			if tool and targetPlayer and dist then
+				local targetChar = targetPlayer.Character
+				local targetHRP = getHRP(targetChar)
+
+				if targetChar and targetHRP and not isInSafeZone(targetChar) then
+					local hum = getHumanoid(char)
+					if hum then
+						-- Face target, step in a tiny bit, swing, then return.
+						local original = hrp.CFrame
+						local targetPos = targetHRP.Position + (targetHRP.CFrame.LookVector * 2) + Vector3.new(0, 1.5, 0)
+						local faceTarget = CFrame.new(targetPos, targetHRP.Position)
+
+						local tween = TweenService:Create(
+							hrp,
+							TweenInfo.new(0.12, Enum.EasingStyle.Linear),
+							{ CFrame = faceTarget }
+						)
+
+						tween:Play()
+						tween.Completed:Wait()
+
+						task.wait(0.05)
+						pcall(function()
+							tool:Activate()
+						end)
+
+						task.wait(0.18)
+
+						if hrp.Parent then
+							hrp.CFrame = original
+						end
+					end
+				end
+			end
+
+			task.wait(0.18)
+		end
+	end)
+end)
+
+-- =========================
+-- NOCLIP
+-- =========================
+
+local noclip = false
+
+createToggle("Noclip", 80, function(state)
+	noclip = state
+end)
+
+RunService.Stepped:Connect(function()
+	if not noclip then
+		return
+	end
+
+	local char = getChar()
+	if not char then
+		return
+	end
+
+	for _, obj in ipairs(char:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			obj.CanCollide = false
+		end
+	end
+end)
+
+-- =========================
+-- SAFE ZONE TELEPORT
+-- =========================
+
+local function tweenToSafeZone()
+	local char = getChar() or player.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local safe = getSafePlate()
+
+	if safe and safe:IsA("BasePart") then
+		local lift = (safe.Size.Y * 0.5) + 10
+		local goal = safe.CFrame + Vector3.new(0, lift, 0)
+
+		local tween = TweenService:Create(
+			hrp,
+			TweenInfo.new(1.35, Enum.EasingStyle.Linear),
+			{ CFrame = goal }
+		)
+
+		tween:Play()
+	end
+end
+
+local safeBtn = Instance.new("TextButton")
+safeBtn.Size = UDim2.new(1, -20, 0, 30)
+safeBtn.Position = UDim2.new(0, 10, 0, 120)
+safeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+safeBtn.BorderSizePixel = 0
+safeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+safeBtn.Font = Enum.Font.SourceSansBold
+safeBtn.TextSize = 18
+safeBtn.Text = "Go To Safe Zone"
+safeBtn.Parent = main
+
+safeBtn.MouseButton1Click:Connect(function()
+	tweenToSafeZone()
+end)
+
+-- Re-equip after respawn if aura is on.
+player.CharacterAdded:Connect(function()
+	task.wait(0.3)
+	if swordAuraEnabled then
+		equipSword()
+	end
+end)
