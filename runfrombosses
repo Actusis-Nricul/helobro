@@ -1,0 +1,363 @@
+local player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local flying = false
+local noclip = false
+local flySpeed = 50
+
+local bv, bg
+
+-- 🧱 GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ControlPanel"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 260, 0, 330)
+main.Position = UDim2.new(0.1, 0, 0.2, 0)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+
+-- 🟦 Top bar
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1, 0, 0, 30)
+top.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+top.Parent = main
+Instance.new("UICorner", top).CornerRadius = UDim.new(0, 10)
+
+local title = Instance.new("TextLabel")
+title.Text = "Control Panel"
+title.Size = UDim2.new(1, -60, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.Parent = top
+
+-- ❌ Close
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 25, 0, 25)
+close.Position = UDim2.new(1, -30, 0, 2)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+close.TextColor3 = Color3.new(1,1,1)
+close.Parent = top
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	main.Visible = false
+end)
+
+local minimize = Instance.new("TextButton")
+minimize.Size = UDim2.new(0, 25, 0, 25)
+minimize.Position = UDim2.new(1, -60, 0, 2)
+minimize.Text = "-"
+minimize.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimize.TextColor3 = Color3.new(1,1,1)
+minimize.Parent = top
+Instance.new("UICorner", minimize)
+
+-- 🔽 Minimize
+local minimized = false
+local fullSize = UDim2.new(0, 260, 0, 170)
+local minimizedSize = UDim2.new(0, 260, 0, 30)
+
+minimize.MouseButton1Click:Connect(function()
+	minimized = not minimized
+
+	if minimized then
+		-- hide everything except top bar
+		for _, v in pairs(main:GetChildren()) do
+			if v ~= top then
+				v.Visible = false
+			end
+		end
+
+		main.Size = minimizedSize
+	else
+		-- show everything again
+		for _, v in pairs(main:GetChildren()) do
+			if v ~= top then
+				v.Visible = true
+			end
+		end
+
+		main.Size = fullSize
+	end
+end)
+
+-- 🧲 Drag (top bar only)
+local dragging, dragStart, startPos
+
+top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+-- 🔘 Fly button
+local flyBtn = Instance.new("TextButton")
+flyBtn.Size = UDim2.new(0.9, 0, 0, 35)
+flyBtn.Position = UDim2.new(0.05, 0, 0, 45)
+flyBtn.Text = "Fly: OFF"
+flyBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+flyBtn.TextColor3 = Color3.new(1,1,1)
+flyBtn.Parent = main
+Instance.new("UICorner", flyBtn)
+
+-- 🔤 Speed input
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0.9, 0, 0, 30)
+speedBox.Position = UDim2.new(0.05, 0, 0, 85)
+speedBox.PlaceholderText = "Speed (1k / 1m)"
+speedBox.BackgroundColor3 = Color3.fromRGB(40,40,40)
+speedBox.TextColor3 = Color3.new(1,1,1)
+speedBox.Parent = main
+Instance.new("UICorner", speedBox)
+
+-- 👻 Noclip
+local noclipBtn = Instance.new("TextButton")
+noclipBtn.Size = UDim2.new(0.9, 0, 0, 30)
+noclipBtn.Position = UDim2.new(0.05, 0, 0, 120)
+noclipBtn.Text = "Noclip: OFF"
+noclipBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+noclipBtn.TextColor3 = Color3.new(1,1,1)
+noclipBtn.Parent = main
+Instance.new("UICorner", noclipBtn)
+
+-- 🧠 Parse speed
+local function parse(text)
+	text = text:lower()
+	local mult = 1
+	if text:find("k") then
+		text = text:gsub("k","")
+		mult = 1000
+	elseif text:find("m") then
+		text = text:gsub("m","")
+		mult = 1000000
+	end
+	local num = tonumber(text)
+	if num then
+		return math.clamp(num * mult,1,1000000)
+	end
+end
+
+-- 🕊️ Fly toggle
+flyBtn.MouseButton1Click:Connect(function()
+	flying = not flying
+	local char = player.Character
+	if not char then return end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	if flying then
+		flyBtn.Text = "Fly: ON"
+		flyBtn.BackgroundColor3 = Color3.fromRGB(0,170,100)
+
+		local val = parse(speedBox.Text)
+		if val then flySpeed = val end
+
+		bv = Instance.new("BodyVelocity")
+		bv.MaxForce = Vector3.new(1e9,1e9,1e9)
+		bv.Parent = hrp
+
+		bg = Instance.new("BodyGyro")
+		bg.MaxTorque = Vector3.new(1e9,1e9,1e9)
+		bg.Parent = hrp
+	else
+		flyBtn.Text = "Fly: OFF"
+		flyBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+
+		if bv then bv:Destroy() end
+		if bg then bg:Destroy() end
+	end
+end)
+
+-- 👻 Noclip toggle
+noclipBtn.MouseButton1Click:Connect(function()
+	noclip = not noclip
+	noclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
+end)
+
+-- 🎮 Movement
+local ctrl = {f=0,b=0,l=0,r=0,u=0,d=0}
+
+UIS.InputBegan:Connect(function(i,g)
+	if g then return end
+	if i.KeyCode == Enum.KeyCode.W then ctrl.f=1 end
+	if i.KeyCode == Enum.KeyCode.S then ctrl.b=-1 end
+	if i.KeyCode == Enum.KeyCode.A then ctrl.l=-1 end
+	if i.KeyCode == Enum.KeyCode.D then ctrl.r=1 end
+	if i.KeyCode == Enum.KeyCode.Space then ctrl.u=1 end
+	if i.KeyCode == Enum.KeyCode.LeftControl then ctrl.d=-1 end
+end)
+
+UIS.InputEnded:Connect(function(i)
+	if i.KeyCode == Enum.KeyCode.W then ctrl.f=0 end
+	if i.KeyCode == Enum.KeyCode.S then ctrl.b=0 end
+	if i.KeyCode == Enum.KeyCode.A then ctrl.l=0 end
+	if i.KeyCode == Enum.KeyCode.D then ctrl.r=0 end
+	if i.KeyCode == Enum.KeyCode.Space then ctrl.u=0 end
+	if i.KeyCode == Enum.KeyCode.LeftControl then ctrl.d=0 end
+end)
+
+-- 🔁 Loop
+RunService.RenderStepped:Connect(function()
+	local char = player.Character
+	if not char then return end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	-- fly
+	if flying and bv and bg then
+		local cam = workspace.CurrentCamera
+		local move = (cam.CFrame.LookVector*(ctrl.f+ctrl.b)
+			+ cam.CFrame.RightVector*(ctrl.r+ctrl.l)
+			+ Vector3.new(0, ctrl.u+ctrl.d, 0))
+
+		bv.Velocity = move * flySpeed
+		bg.CFrame = cam.CFrame
+	end
+
+	-- noclip
+	if noclip then
+		for _,v in pairs(char:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	else
+		for _,v in pairs(char:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = true
+			end
+		end
+	end
+end)
+
+-- 📂 Get checkpoints
+local world1Folder = workspace:WaitForChild("Worlds"):WaitForChild("1"):WaitForChild("Checkpoints")
+local world2Folder = workspace:WaitForChild("Worlds"):WaitForChild("2"):WaitForChild("Checkpoints")
+
+local function getSorted(folder)
+	local list = {}
+	for _, v in pairs(folder:GetChildren()) do
+		table.insert(list, v)
+	end
+
+	table.sort(list, function(a, b)
+		return tonumber(a.Name) < tonumber(b.Name)
+	end)
+
+	return list
+end
+
+-- 🧱 Dropdown creator
+local function createDropdown(name, yPos, folder)
+	local container = Instance.new("Frame")
+	container.Size = UDim2.new(0.9, 0, 0, 30)
+	container.Position = UDim2.new(0.05, 0, 0, yPos)
+	container.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	container.Parent = main
+	container.ZIndex = 1
+	Instance.new("UICorner", container)
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, 0, 1, 0)
+	button.Text = name .. " ▼"
+	button.BackgroundTransparency = 1
+	button.TextColor3 = Color3.new(1,1,1)
+	button.Parent = container
+	button.ZIndex = 2
+
+	local listFrame
+
+	button.MouseButton1Click:Connect(function()
+
+		-- 🔥 close previous dropdown
+		if currentDropdown and currentDropdown ~= container then
+			local old = currentDropdown:FindFirstChild("DropdownList")
+			if old then old:Destroy() end
+		end
+
+		-- toggle this one
+		if listFrame then
+			listFrame:Destroy()
+			listFrame = nil
+			currentDropdown = nil
+			return
+		end
+
+		currentDropdown = container
+
+		-- 📜 scrolling dropdown
+		listFrame = Instance.new("ScrollingFrame")
+		listFrame.Name = "DropdownList"
+		listFrame.Size = UDim2.new(1, 0, 0, 100)
+		listFrame.Position = UDim2.new(0, 0, 1, 2)
+		listFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+		listFrame.ScrollBarThickness = 4
+		listFrame.CanvasSize = UDim2.new(0,0,0,0)
+		listFrame.Parent = container
+		listFrame.ZIndex = 10
+		Instance.new("UICorner", listFrame)
+
+		local layout = Instance.new("UIListLayout", listFrame)
+		layout.Padding = UDim.new(0, 3)
+
+		layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			listFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+		end)
+
+		for _, checkpoint in pairs(getSorted(folder)) do
+			local item = Instance.new("TextButton")
+			item.Size = UDim2.new(1, -4, 0, 24)
+			item.Text = "Checkpoint " .. checkpoint.Name
+			item.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			item.TextColor3 = Color3.new(1,1,1)
+			item.Parent = listFrame
+			item.ZIndex = 11
+			Instance.new("UICorner", item)
+
+			item.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		char.HumanoidRootPart.CFrame = checkpoint.CFrame + Vector3.new(0,5,0)
+				end
+			end)
+		end
+	end)
+end
+
+local currentDropdown = nil
+
+-- 📍 Create dropdowns
+createDropdown("World 1 Checkpoints", 160, world1Folder)
+createDropdown("World 2 Checkpoints", 250, world2Folder)
+
