@@ -1,0 +1,776 @@
+ -- Z-HUB V4 FULL
+
+local player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+-- number parser (1k, 1m, 1b, 1t)
+local function parseNumber(text)
+	text = string.lower(text or "")
+	local num = tonumber(text:match("[%d%.]+")) or 0
+	if text:find("k") then num *= 1e3 end
+	if text:find("m") then num *= 1e6 end
+	if text:find("b") then num *= 1e9 end
+	if text:find("t") then num *= 1e12 end
+	return num
+end
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "Z-HUB"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 650, 0, 650)
+main.Position = UDim2.new(0.25,0,0.15,0)
+main.BackgroundColor3 = Color3.fromRGB(215,227,235)
+main.Active = true
+main.Draggable = true
+main.Parent = gui
+
+local dragging = false
+local dragStart, startPos
+
+main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+	end
+end)
+
+main.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+-- Close
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "❌"
+close.Parent = main
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+-- Resize handles
+local function resizeHandle(size,pos,mode)
+	local h = Instance.new("Frame")
+	h.Size = size
+	h.Position = pos
+	h.BackgroundTransparency = 1
+	h.Parent = main
+
+	h.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local start = UIS:GetMouseLocation()
+			local startSize = main.Size
+
+			local move, up
+			move = UIS.InputChanged:Connect(function(i)
+				if i.UserInputType == Enum.UserInputType.MouseMovement then
+					local delta = UIS:GetMouseLocation() - start
+
+					main.Size = UDim2.new(
+						0,
+						startSize.X.Offset + (mode=="x" or mode=="xy" and delta.X or 0),
+						0,
+						startSize.Y.Offset + (mode=="y" or mode=="xy" and delta.Y or 0)
+					)
+				end
+			end)
+
+			up = UIS.InputEnded:Connect(function(i)
+				if i.UserInputType == Enum.UserInputType.MouseButton1 then
+					move:Disconnect()
+					up:Disconnect()
+				end
+			end)
+		end
+	end)
+end
+
+resizeHandle(UDim2.new(0,6,1,0), UDim2.new(1,-6,0,0),"x")
+resizeHandle(UDim2.new(1,0,0,6), UDim2.new(0,0,1,-6),"y")
+resizeHandle(UDim2.new(0,12,0,12), UDim2.new(1,-12,1,-12),"xy")
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,30)
+title.Text = "Z-HUB"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundColor3 = Color3.fromRGB(15,15,15)
+title.Parent = main
+
+-- Tabs
+local tabs = {}
+local function createTab(name, pos)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0,130,0,30)
+	btn.Position = UDim2.new(0,pos,0,30)
+	btn.Text = name
+	btn.Parent = main
+
+	local frame = Instance.new("ScrollingFrame")
+	frame.Size = UDim2.new(1,0,1,-60)
+	frame.Position = UDim2.new(0,0,0,60)
+	frame.CanvasSize = UDim2.new(0,0,0,1200)
+	frame.Visible = false
+	frame.Parent = main
+
+	tabs[name] = frame
+
+	btn.MouseButton1Click:Connect(function()
+		for _,f in pairs(tabs) do f.Visible = false end
+		frame.Visible = true
+	end)
+
+	return frame
+end
+
+local dashboard = createTab("Dashboard",0)
+local scripts = createTab("Scripts",130)
+local playersTab = createTab("Players",260)
+local fileTab = createTab("Files",390)
+local miscTab = createTab("Misc + Settings",520)
+
+dashboard.Visible = true
+
+--------------------------------------------------
+-- DASHBOARD
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1,0,0,80)
+label.Text = "Z-HUB"
+label.TextScaled = true
+label.Parent = dashboard
+
+local info = Instance.new("TextLabel")
+info.Size = UDim2.new(1,0,0,40)
+info.Position = UDim2.new(0,0,0,100)
+info.Text = "Made By Actusis/Nricul with 👍 and this took so long please subscribe join discord and join roblox group 🙏 discord.gg/ANwZKq8D6a youtube.com/@ActusisGames roblox.com/communities/950326228/Actusis-Club#!/about"
+info.TextScaled = true
+info.BackgroundTransparency = 1
+info.Parent = dashboard
+
+local colors = {
+	Color3.fromRGB(0,255,255),
+	Color3.fromRGB(255,0,255),
+	Color3.fromRGB(0,255,150)
+}
+
+local function applyColor(col)
+	main.BackgroundColor3 = col
+end
+
+--------------------------------------------------
+-- HELPERS
+
+local function btn(p,t,y)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0,350,0,30)
+	b.Position = UDim2.new(0,80,0,y)
+	b.Text = t
+	b.Parent = p
+	return b
+end
+
+local function box(p,y,ph)
+	local b = Instance.new("TextBox")
+	b.Size = UDim2.new(0,350,0,30)
+	b.Position = UDim2.new(0,80,0,y)
+	b.PlaceholderText = ph
+	b.Parent = p
+	return b
+end
+
+local colorBtn = btn(dashboard,"Shuffle Color",180)
+
+local function hexToColor(hex)
+	hex = hex:gsub("#","")
+	if #hex ~= 6 then return nil end
+
+	local r = tonumber("0x"..hex:sub(1,2))
+	local g = tonumber("0x"..hex:sub(3,4))
+	local b = tonumber("0x"..hex:sub(5,6))
+
+	if r and g and b then
+		return Color3.fromRGB(r,g,b)
+	end
+end
+
+--------------------------------------------------
+-- SCRIPTS TAB
+
+-- Infinite Jump
+local infJump=false
+btn(scripts,"Infinite Jump",0).MouseButton1Click:Connect(function()
+	infJump=not infJump
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infJump and player.Character then
+		player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+
+-- Fly
+local flying=false
+local flyBox=box(scripts,40,"Fly Speed")
+
+btn(scripts,"Toggle Fly",80).MouseButton1Click:Connect(function()
+	flying=not flying
+end)
+
+RunService.RenderStepped:Connect(function()
+	if flying and player.Character then
+		local hrp=player.Character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			local speed=parseNumber(flyBox.Text)
+			local move=Vector3.zero
+
+			if UIS:IsKeyDown(Enum.KeyCode.W) then move+=workspace.CurrentCamera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.S) then move-=workspace.CurrentCamera.CFrame.LookVector end
+			if UIS:IsKeyDown(Enum.KeyCode.A) then move-=workspace.CurrentCamera.CFrame.RightVector end
+			if UIS:IsKeyDown(Enum.KeyCode.D) then move+=workspace.CurrentCamera.CFrame.RightVector end
+
+			hrp.Velocity=move*speed
+		end
+	end
+end)
+
+-- Walkspeed
+local wsBox=box(scripts,120,"WalkSpeed")
+local wsOn=false
+btn(scripts,"Toggle Speed",160).MouseButton1Click:Connect(function()
+	wsOn=not wsOn
+	local hum=player.Character:FindFirstChildOfClass("Humanoid")
+	hum.WalkSpeed=wsOn and parseNumber(wsBox.Text) or 16
+end)
+
+-- JumpPower
+local jpBox=box(scripts,200,"JumpPower")
+local jpOn=false
+btn(scripts,"Toggle JumpPower",240).MouseButton1Click:Connect(function()
+	jpOn=not jpOn
+	local hum=player.Character:FindFirstChildOfClass("Humanoid")
+	hum.JumpPower=jpOn and parseNumber(jpBox.Text) or 50
+end)
+
+-- TP mouse
+local tpMouse=false
+btn(scripts,"Toggle TP Mouse (T)",280).MouseButton1Click:Connect(function()
+	tpMouse=not tpMouse
+end)
+
+UIS.InputBegan:Connect(function(i)
+	if i.KeyCode==Enum.KeyCode.T and tpMouse then
+		local m=player:GetMouse()
+		player.Character.HumanoidRootPart.CFrame=CFrame.new(m.Hit.Position)
+	end
+end)
+
+-- Fling
+local flingBox=box(scripts,320,"Fling Power")
+btn(scripts,"Fling",360).MouseButton1Click:Connect(function()
+	local p=parseNumber(flingBox.Text)
+	player.Character.HumanoidRootPart.Velocity=Vector3.new(p,p,p)
+end)
+
+--------------------------------------------------
+-- PLAYERS TAB
+
+local scroll=Instance.new("ScrollingFrame")
+scroll.Size=UDim2.new(0,350,0,200)
+scroll.Position=UDim2.new(0,80,0,0)
+scroll.Parent=playersTab
+
+scroll.ScrollBarThickness = 6
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = scroll
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y)
+end)
+
+local selected=nil
+
+local function refresh()
+	scroll:ClearAllChildren()
+	local y=0
+	for _,p in pairs(game.Players:GetPlayers()) do
+		if p~=player then
+			local b=Instance.new("TextButton")
+			b.Size=UDim2.new(1,0,0,30)
+			b.Position=UDim2.new(0,0,0,y)
+			b.Text=p.Name
+			b.Parent=scroll
+
+			b.MouseButton1Click:Connect(function()
+				selected=p
+			end)
+
+			y+=30
+		end
+	end
+	scroll.CanvasSize=UDim2.new(0,0,0,y)
+end
+
+btn(playersTab,"Refresh",210).MouseButton1Click:Connect(refresh)
+
+local tween=false
+btn(playersTab,"Toggle TP/Tween",250).MouseButton1Click:Connect(function()
+	tween=not tween
+end)
+
+btn(playersTab,"Go To Player",290).MouseButton1Click:Connect(function()
+	if selected then
+		local hrp=player.Character.HumanoidRootPart
+		local target=selected.Character.HumanoidRootPart
+
+		if tween then
+			TweenService:Create(hrp,TweenInfo.new(1),{CFrame=target.CFrame}):Play()
+		else
+			hrp.CFrame=target.CFrame
+		end
+	end
+end)
+
+-- Headsit
+local headSitConn
+local headSitting = false
+
+btn(playersTab,"Toggle Headsit",330).MouseButton1Click:Connect(function()
+	headSitting = not headSitting
+
+	-- TURN OFF
+	if not headSitting then
+		if headSitConn then
+			headSitConn:Disconnect()
+			headSitConn = nil
+		end
+
+		local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if hum then
+			hum.Sit = false
+		end
+
+		return
+	end
+
+	-- TURN ON
+	if selected and player.Character then
+		headSitConn = RunService.RenderStepped:Connect(function()
+			if not headSitting then return end
+
+			if selected and selected.Character and player.Character then
+				local targetHead = selected.Character:FindFirstChild("Head")
+				local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+				local hum = player.Character:FindFirstChildOfClass("Humanoid")
+
+				if targetHead and hrp and hum then
+					hrp.CFrame = targetHead.CFrame * CFrame.new(0,1.5,0)
+					hum.Sit = true
+				end
+			end
+		end)
+	end
+end)
+
+btn(playersTab,"Fling Player",370).MouseButton1Click:Connect(function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/LgZwZ7ZB",true))()
+end)
+
+local orbiting = false
+local orbitSpeedBox = box(playersTab,410,"Orbit Speed")
+
+btn(playersTab,"Toggle Orbit",450).MouseButton1Click:Connect(function()
+	orbiting = not orbiting
+end)
+
+RunService.RenderStepped:Connect(function()
+	if orbiting and selected and player.Character then
+		local target = selected.Character and selected.Character:FindFirstChild("HumanoidRootPart")
+		local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+
+		if target and hrp then
+			local speed = parseNumber(orbitSpeedBox.Text)
+			local time = tick() * (speed > 0 and speed or 1)
+
+			local radius = 6 -- distance from player
+			local offset = Vector3.new(
+				math.cos(time) * radius,
+				2,
+				math.sin(time) * radius
+			)
+
+			hrp.CFrame = CFrame.new(target.Position + offset)
+		end
+	end
+end)
+
+--------------------------------------------------
+-- FILE TAB
+
+local fileBox=box(fileTab,40,"Write text...")
+
+btn(fileTab,"Write File",90).MouseButton1Click:Connect(function()
+	if writefile then
+		writefile("Z-HUB.txt",fileBox.Text)
+	end
+end)
+
+--------------------------------------------------
+-- MISC + SETTINGS TAB
+--------------------------------------------------
+
+local function hexToRGB(hex)
+	hex = hex:gsub("#","")
+	return tonumber("0x"..hex:sub(1,2)),
+		   tonumber("0x"..hex:sub(3,4)),
+		   tonumber("0x"..hex:sub(5,6))
+end
+
+local function rgbToHex(r,g,b)
+	return string.format("#%02X%02X%02X", r, g, b)
+end
+
+local hexBox = box(miscTab,0,"Enter Hex (#FFFFFF)")
+local rgbBox = box(miscTab,40,"Enter RGB (255,255,255)")
+
+-- HEX → RGB
+btn(miscTab,"Hex → RGB",80).MouseButton1Click:Connect(function()
+	local r,g,b = hexToRGB(hexBox.Text)
+	if r and g and b then
+		rgbBox.Text = r..","..g..","..b
+	end
+end)
+
+-- RGB → HEX
+btn(miscTab,"RGB → Hex",120).MouseButton1Click:Connect(function()
+	local r,g,b = rgbBox.Text:match("(%d+),%s*(%d+),%s*(%d+)")
+	if r then
+		hexBox.Text = rgbToHex(tonumber(r),tonumber(g),tonumber(b))
+	end
+end)
+
+btn(dashboard,"Reset Character",220).MouseButton1Click:Connect(function()
+	if player.Character then
+		player.Character:BreakJoints()
+	end
+end)
+
+btn(dashboard,"Leave Game",260).MouseButton1Click:Connect(function()
+	game:Shutdown()
+end)
+
+-- place in Scripts or Misc tab setup
+local bubbleBox = box(miscTab, 160, "Bubble text (anything)")
+local bubbleOn = false
+local bubbleBillboard
+
+local function makeBubble()
+	if bubbleBillboard then bubbleBillboard:Destroy() end
+	local char = player.Character
+	if not char then return end
+	local head = char:FindFirstChild("Head")
+	if not head then return end
+
+	local bb = Instance.new("BillboardGui")
+	bb.Size = UDim2.new(0, 200, 0, 60)
+	bb.StudsOffset = Vector3.new(0, 3, 0)
+	bb.AlwaysOnTop = true
+	bb.Parent = head
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(1,0,1,0)
+	frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+	frame.BackgroundTransparency = 0.2
+	frame.Parent = bb
+
+	local txt = Instance.new("TextLabel")
+	txt.Size = UDim2.new(1,-10,1,-10)
+	txt.Position = UDim2.new(0,5,0,5)
+	txt.BackgroundTransparency = 1
+	txt.TextColor3 = Color3.new(1,1,1)
+	txt.TextScaled = true
+	txt.TextWrapped = true
+	txt.Text = bubbleBox.Text
+	txt.Parent = frame
+
+	bubbleBillboard = bb
+end
+
+btn(miscTab, "Show/Hide My Bubble", 200).MouseButton1Click:Connect(function()
+	bubbleOn = not bubbleOn
+	if bubbleOn then
+		makeBubble()
+	else
+		if bubbleBillboard then bubbleBillboard:Destroy() bubbleBillboard = nil end
+	end
+end)
+
+-- update text live
+bubbleBox.FocusLost:Connect(function()
+	if bubbleOn then makeBubble() end
+end)
+
+local cloning = false
+local clones = {}
+
+local cloneCountBox = box(scripts,600,"Clone Amount")
+local spacingBox = box(scripts,640,"Spacing (studs)")
+
+local function clearClones()
+	for _,c in ipairs(clones) do
+		c:Destroy()
+	end
+	clones = {}
+end
+
+btn(scripts,"Toggle Local Clones",680).MouseButton1Click:Connect(function()
+	cloning = not cloning
+
+	if not cloning then
+		clearClones()
+		return
+	end
+
+	clearClones()
+
+	local count = math.clamp(parseNumber(cloneCountBox.Text),1,20)
+	local spacing = parseNumber(spacingBox.Text)
+	if spacing <= 0 then spacing = 5 end
+
+	local char = player.Character
+	if not char then return end
+
+	for i = 1, count do
+		local clone = char:Clone()
+
+		-- remove scripts so it doesn't break
+		for _,v in ipairs(clone:GetDescendants()) do
+			if v:IsA("Script") or v:IsA("LocalScript") then
+				v:Destroy()
+			end
+		end
+
+		clone.Parent = workspace
+
+		-- make it stable + climbable
+		for _,part in ipairs(clone:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.Anchored = true
+				part.CanCollide = true
+			end
+		end
+
+		table.insert(clones, clone)
+	end
+end)
+
+-- POSITION THEM (circle around you)
+RunService.RenderStepped:Connect(function()
+	if not cloning then return end
+
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local count = #clones
+	local spacing = parseNumber(spacingBox.Text)
+	if spacing <= 0 then spacing = 5 end
+
+	for i,clone in ipairs(clones) do
+		local cHRP = clone:FindFirstChild("HumanoidRootPart")
+		if cHRP then
+			local angle = (i / count) * math.pi * 2
+			local offset = Vector3.new(
+				math.cos(angle) * spacing,
+				0,
+				math.sin(angle) * spacing
+			)
+
+			cHRP.CFrame = CFrame.new(hrp.Position + offset)
+		end
+	end
+end)
+
+local gravityBox = box(scripts,700,"Gravity")
+
+btn(scripts,"Set Gravity",740).MouseButton1Click:Connect(function()
+	local g = parseNumber(gravityBox.Text)
+	if g then
+		workspace.Gravity = g
+	end
+end)
+
+local timeBox = box(scripts,780,"Time (0–24)")
+
+btn(scripts,"Set Time",820).MouseButton1Click:Connect(function()
+	local t = tonumber(timeBox.Text)
+	if t then
+		game:GetService("Lighting").ClockTime = t
+	end
+end)
+
+local fullbright = false
+local savedTime = game:GetService("Lighting").ClockTime
+
+btn(scripts,"Fullbright: OFF",860).MouseButton1Click:Connect(function(b)
+	fullbright = not fullbright
+	b.Text = "Fullbright: "..(fullbright and "ON" or "OFF")
+
+	local Lighting = game:GetService("Lighting")
+
+	if fullbright then
+		savedTime = Lighting.ClockTime
+		Lighting.Brightness = 5
+		Lighting.ClockTime = 14 -- bright daytime
+		Lighting.FogEnd = 100000
+	else
+		Lighting.Brightness = 2
+		Lighting.ClockTime = savedTime
+	end
+end)
+
+local b = btn(...)
+registerCorner(Instance.new("UICorner", b))
+
+btn(dashboard,"Cyan Theme",300).MouseButton1Click:Connect(function()
+	applyColor(Color3.fromRGB(0,255,255))
+end)
+
+btn(dashboard,"Magenta Theme",340).MouseButton1Click:Connect(function()
+	applyColor(Color3.fromRGB(255,0,255))
+end)
+
+btn(dashboard,"Mint Theme",380).MouseButton1Click:Connect(function()
+	applyColor(Color3.fromRGB(0,255,150))
+end)
+
+local rounded = true
+
+btn(dashboard,"Corners: Round",460).MouseButton1Click:Connect(function(b)
+	rounded = not rounded
+
+	if rounded then
+		b.Text = "Corners: Round"
+		applyCorners(14)
+	else
+		b.Text = "Corners: Sharp"
+		applyCorners(0)
+	end
+end)
+
+local corners = {}
+
+local function registerCorner(inst)
+	table.insert(corners, inst)
+	return inst
+end
+
+local function applyCorners(radius)
+	for _,c in ipairs(corners) do
+		if c and c.Parent then
+			c.CornerRadius = UDim.new(0, radius)
+		end
+	end
+end
+
+local esp = false
+local espOutline = Color3.fromRGB(255,255,255)
+local espFill = Color3.fromRGB(255,0,0)
+
+local function updateESP()
+	for _,plr in pairs(game.Players:GetPlayers()) do
+		if plr ~= player and plr.Character then
+			local char = plr.Character
+			local highlight = char:FindFirstChild("Highlight")
+
+			if esp then
+				if not highlight then
+					highlight = Instance.new("Highlight")
+					highlight.Name = "Highlight"
+					highlight.Parent = char
+				end
+
+				highlight.FillColor = espFill
+				highlight.OutlineColor = espOutline
+				highlight.FillTransparency = 0.5
+			else
+				if highlight then
+					highlight:Destroy()
+				end
+			end
+		end
+	end
+end
+
+task.spawn(function()
+	while true do
+		if esp then
+			updateESP()
+		end
+		task.wait(0.1)
+	end
+end)
+
+game.Players.PlayerAdded:Connect(function(plr)
+	plr.CharacterAdded:Connect(function()
+		task.wait(0.1)
+		updateESP()
+	end)
+end)
+
+btn(scripts,"ESP: OFF",500).MouseButton1Click:Connect(function(b)
+	esp = not esp
+	b.Text = "ESP: "..(esp and "ON" or "OFF")
+	updateESP()
+end)
+
+local outlineBox = box(scripts,540,"Outline Hex (#FFFFFF)")
+local fillBox = box(scripts,580,"Fill Hex (#FF0000)")
+
+outlineBox.FocusLost:Connect(function()
+	local c = hexToColor(outlineBox.Text)
+	if c then
+		espOutline = c
+	else
+		outlineBox.Text = "Invalid"
+	end
+end)
+
+fillBox.FocusLost:Connect(function()
+	local c = hexToColor(fillBox.Text)
+	if c then
+		espFill = c
+	else
+		fillBox.Text = "Invalid"
+	end
+end)
+
+colorBtn.MouseButton1Click:Connect(function()
+	local c = colors[math.random(1,#colors)]
+	applyColor(c)
+end)
