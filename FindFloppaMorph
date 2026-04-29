@@ -1,0 +1,289 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+--// GUI ROOT
+local gui = Instance.new("ScreenGui")
+gui.Name = "MyCoolUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+--// MAIN FRAME (BIG + CLEAN STYLE)
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 520, 0, 500)
+main.Position = UDim2.new(0.5, -260, 0.5, -250)
+main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+main.BorderSizePixel = 0
+main.Parent = gui
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,12)
+
+--// TOP BAR
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,40)
+topBar.BackgroundColor3 = Color3.fromRGB(15,15,15)
+topBar.Parent = main
+
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0,12)
+
+--// TITLE
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-40,1,0)
+title.Position = UDim2.new(0,10,0,0)
+title.BackgroundTransparency = 1
+title.Text = "Find Floppa Morphs"
+title.TextColor3 = Color3.fromRGB(0,255,255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+--// CLOSE
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0.5,-15)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(60,60,60)
+close.TextColor3 = Color3.new(1,1,1)
+close.Parent = topBar
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+--// DRAG SYSTEM
+local dragging, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+	end
+end)
+
+topBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--// MINIMIZE (RIGHT ALT)
+UIS.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		main.Visible = not main.Visible
+	end
+end)
+
+--// CONTAINER
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1, -20, 1, -60)
+container.Position = UDim2.new(0,10,0,50)
+container.BackgroundTransparency = 1
+container.Parent = main
+
+local layout = Instance.new("UIListLayout", container)
+layout.Padding = UDim.new(0,8)
+
+--// SCROLL
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1,0,0,180)
+scroll.BackgroundColor3 = Color3.fromRGB(30,30,30)
+scroll.BorderSizePixel = 0
+scroll.CanvasSize = UDim2.new(0,0,0,0)
+scroll.Parent = container
+
+Instance.new("UICorner", scroll).CornerRadius = UDim.new(0,8)
+
+local scrollLayout = Instance.new("UIListLayout", scroll)
+
+scrollLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scroll.CanvasSize = UDim2.new(0,0,0,scrollLayout.AbsoluteContentSize.Y)
+end)
+
+--// BUTTON MAKER
+local function makeButton(text)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1,0,0,35)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.GothamSemibold
+	b.TextScaled = true
+	b.Parent = container
+	Instance.new("UICorner", b)
+	return b
+end
+
+--// BUTTONS
+local findBtn = makeButton("Find Badge Givers")
+local flyBtn = makeButton("Fly")
+local noclipBtn = makeButton("Noclip")
+local infJumpBtn = makeButton("Infinite Jump")
+local rejoinBtn = makeButton("Rejoin")
+
+scrollLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	scroll.CanvasSize = UDim2.new(0,0,0,scrollLayout.AbsoluteContentSize.Y)
+end)
+
+--// TELEPORT BUTTON CREATOR
+local added = {}
+
+local function createTeleportButton(part)
+	if added[part] then return end
+	added[part] = true
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -5, 0, 30)
+	btn.Text = part.Name
+	btn.Parent = scroll
+
+	btn.MouseButton1Click:Connect(function()
+		local char = player.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0,3,0)
+		end
+	end)
+end
+
+--// SMART SEARCH
+local function isBadgeLike(obj)
+	local name = string.lower(obj.Name)
+
+	if name:find("floppa cube") then
+		return false
+	end
+
+	return (
+		name:find("badge") or
+		name:find("giver") or
+		name:find("floppa") or
+		name:find("Floppa") or
+		name:find("badgegiver") or
+		name:find("floppamorph") or
+		name:find("Harp Floppa")
+	)
+end
+
+findBtn.MouseButton1Click:Connect(function()
+	scroll:ClearAllChildren()
+	layout.Parent = scroll
+	table.clear(added)
+
+	-- PRIORITY FOLDERS
+	local folders = {
+		workspace:FindFirstChild("Floppas"),
+		workspace:FindFirstChild("Badge Givers")
+	}
+
+	for _, folder in pairs(folders) do
+		if folder then
+			for _, obj in ipairs(folder:GetDescendants()) do
+				if isBadgeLike(obj) then
+					local part = obj
+
+					if not obj:IsA("BasePart") then
+						part = obj:FindFirstChildWhichIsA("BasePart", true)
+					end
+
+					if part then
+						createTeleportButton(part)
+					end
+				end
+			end
+		end
+	end
+
+	-- GLOBAL SEARCH (fallback)
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if isBadgeLike(obj) then
+			local part = obj
+
+			if not obj:IsA("BasePart") then
+				part = obj:FindFirstChildWhichIsA("BasePart")
+			end
+
+			if part then
+				createTeleportButton(part)
+			end
+		end
+	end
+
+	task.wait()
+	scroll.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y)
+end)
+
+
+--// FLY
+local flying = false
+flyBtn.MouseButton1Click:Connect(function()
+	flying = not flying
+
+	local char = player.Character
+	if not char then return end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+
+	if flying then
+		local bv = Instance.new("BodyVelocity", hrp)
+		bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+
+		RunService.RenderStepped:Connect(function()
+			if flying then
+				bv.Velocity = workspace.CurrentCamera.CFrame.LookVector * 50
+			end
+		end)
+	else
+		if hrp:FindFirstChildOfClass("BodyVelocity") then
+			hrp:FindFirstChildOfClass("BodyVelocity"):Destroy()
+		end
+	end
+end)
+
+--// NOCLIP
+local noclip = false
+noclipBtn.MouseButton1Click:Connect(function()
+	noclip = not noclip
+end)
+
+RunService.Stepped:Connect(function()
+	if noclip and player.Character then
+		for _, v in pairs(player.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+--// INFINITE JUMP
+local infJump = false
+infJumpBtn.MouseButton1Click:Connect(function()
+	infJump = not infJump
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infJump and player.Character then
+		player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+
+--// REJOIN
+rejoinBtn.MouseButton1Click:Connect(function()
+	TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+end)
