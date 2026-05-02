@@ -1,0 +1,163 @@
+--// SERVICES
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "SAFETY NOT REQUIRED"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 280, 0, 230)
+frame.Position = UDim2.new(0.5, -140, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(255,111,212)
+frame.Parent = gui
+
+--// DRAGGING
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+--// CLOSE BUTTON
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+close.Text = "X"
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+--// BUTTON MAKER
+local function makeBtn(text, y)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0,240,0,30)
+	b.Position = UDim2.new(0,20,0,y)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	b.Parent = frame
+	return b
+end
+
+--// NOCLIP
+local noclip = false
+local noclipBtn = makeBtn("Toggle Noclip", 40)
+
+RunService.Stepped:Connect(function()
+	if noclip and player.Character then
+		for _,v in pairs(player.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+noclipBtn.MouseButton1Click:Connect(function()
+	noclip = not noclip
+end)
+
+--// INFINITE JUMP
+local infJump = false
+local infJumpBtn = makeBtn("Toggle Infinite Jump", 80)
+
+UIS.JumpRequest:Connect(function()
+	if infJump then
+		local char = player.Character
+		if char then
+			local hum = char:FindFirstChildOfClass("Humanoid")
+			if hum then
+				hum:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end
+end)
+
+infJumpBtn.MouseButton1Click:Connect(function()
+	infJump = not infJump
+end)
+
+--// ANTI FLING (no collisions)
+local antiFling = false
+local antiBtn = makeBtn("Toggle Anti-Fling", 120)
+
+RunService.Stepped:Connect(function()
+	if antiFling and player.Character then
+		for _,v in pairs(player.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+				v.Velocity = Vector3.new(0,0,0)
+			end
+		end
+	end
+end)
+
+antiBtn.MouseButton1Click:Connect(function()
+	antiFling = not antiFling
+end)
+
+local moneyBtn = makeBtn("Teleport to Money", 160)
+local exitBtn = makeBtn("Teleport to Door", 200)
+
+--// TELEPORT FUNCTION
+local function teleportTo(part)
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	if part then
+		hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+	end
+end
+
+moneyBtn.MouseButton1Click:Connect(function()
+	local target = workspace.map.entities:FindFirstChild("bobux")
+	if target then
+		teleportTo(target:IsA("Model") and target:FindFirstChildWhichIsA("BasePart") or target)
+	end
+end)
+
+exitBtn.MouseButton1Click:Connect(function()
+	local target = workspace.map.entities:FindFirstChild("exit")
+	if target then
+		teleportTo(target:IsA("Model") and target:FindFirstChildWhichIsA("BasePart") or target)
+	end
+end)
