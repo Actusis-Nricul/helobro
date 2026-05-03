@@ -1,0 +1,157 @@
+--// SERVICES
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local player = Players.LocalPlayer
+
+--// STATE
+local spamEnabled = false
+local jumpEnabled = false
+local clickEnabled = false
+local minimized = false
+
+--// REMOTE
+local remote = game:GetService("ReplicatedStorage"):WaitForChild("AdminEvents"):WaitForChild("GiveKill")
+
+--// UI
+local function createUI()
+    if player.PlayerGui:FindFirstChild("MultiUI") then
+        player.PlayerGui.MultiUI:Destroy()
+    end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "MultiUI"
+    gui.ResetOnSpawn = false
+    gui.Parent = player.PlayerGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 260, 0, 200)
+    frame.Position = UDim2.new(0.5, -130, 0.5, -100)
+    frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    frame.Parent = gui
+
+    -- DRAG
+    local dragging, dragStart, startPos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    -- CLOSE
+    local close = Instance.new("TextButton")
+    close.Size = UDim2.new(0, 30, 0, 30)
+    close.Position = UDim2.new(1, -35, 0, 5)
+    close.Text = "X"
+    close.BackgroundColor3 = Color3.fromRGB(200,50,50)
+    close.Parent = frame
+
+    close.MouseButton1Click:Connect(function()
+        gui.Enabled = false
+    end)
+
+    -- BUTTON MAKER
+    local function makeButton(text, yPos, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0, 200, 0, 40)
+        btn.Position = UDim2.new(0.5, -100, 0, yPos)
+        btn.Text = text .. ": OFF"
+        btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        btn.Parent = frame
+
+        local state = false
+        btn.MouseButton1Click:Connect(function()
+            state = not state
+            btn.Text = text .. (state and ": ON" or ": OFF")
+            callback(state)
+        end)
+    end
+
+    -- BUTTONS
+    makeButton("Kill Spam", 40, function(v) spamEnabled = v end)
+    makeButton("Infinite Jump", 90, function(v) jumpEnabled = v end)
+    makeButton("Auto Click", 140, function(v) clickEnabled = v end)
+
+    -- MINIMIZE
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.RightAlt then
+            minimized = not minimized
+            frame.Visible = not minimized
+        end
+    end)
+end
+
+--// INFINITE JUMP
+UserInputService.JumpRequest:Connect(function()
+    if jumpEnabled then
+        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+--// KILL SPAM (FAST SAFE LOOP)
+RunService.Heartbeat:Connect(function()
+    if spamEnabled then
+        pcall(function()
+            remote:FireServer()
+        end)
+    end
+end)
+
+--// AUTO CLICK (FIXED)
+task.spawn(function()
+    while true do
+        if clickEnabled then
+            local camera = workspace.CurrentCamera
+            if camera then
+                local viewport = camera.ViewportSize
+                local x = viewport.X / 2
+                local y = viewport.Y / 2
+
+                pcall(function()
+                    VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
+                    VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
+                end)
+            end
+
+            task.wait(0.05) -- speed (lower = faster)
+        else
+            task.wait(0.3) -- chill when off (IMPORTANT FIX)
+        end
+    end
+end)
+
+--// RESPAWN
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    createUI()
+end)
+
+--// INIT
+createUI()
