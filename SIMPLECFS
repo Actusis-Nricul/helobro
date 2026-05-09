@@ -1,0 +1,53 @@
+-- Constant WalkSpeed Applier (Every Frame)
+-- Press H to toggle ON/OFF
+-- No UI
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local enabled = false
+local WALK_SPEED = 125
+
+-- Safely get the Humanoid
+local function getHumanoid()
+	local character = player.Character or player.CharacterAdded:Wait()
+	return character:FindFirstChildOfClass("Humanoid")
+end
+
+-- Apply speed every frame while enabled
+RunService.RenderStepped:Connect(function()
+	if not enabled then return end
+
+	local humanoid = getHumanoid()
+	if humanoid and humanoid.WalkSpeed ~= WALK_SPEED then
+		humanoid.WalkSpeed = WALK_SPEED
+	end
+end)
+
+-- Reapply after respawn
+player.CharacterAdded:Connect(function()
+	if enabled then
+		task.wait()
+		local humanoid = getHumanoid()
+		if humanoid then
+			humanoid.WalkSpeed = WALK_SPEED
+		end
+	end
+end)
+
+-- Toggle with H
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+
+	if input.KeyCode == Enum.KeyCode.H then
+		enabled = not enabled
+
+		if enabled then
+			print("WalkSpeed lock enabled (125)")
+		else
+			print("WalkSpeed lock disabled")
+		end
+	end
+end)
