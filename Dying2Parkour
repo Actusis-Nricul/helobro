@@ -1,0 +1,121 @@
+if game.PlaceId~=18803917838 then game.Players.LocalPlayer:Kick("This script only works on Dying2Parkour!")
+end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Dying2Parkour",
+   Icon = 138751136547366, 
+   LoadingTitle = "Loading best script,",
+   LoadingSubtitle = "MADE by Actusis aka Nricul",
+   ShowText = "D2P", 
+   Theme = "Default", 
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = true, 
+        
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = DYING2PARKOURACTUSISNRICUL2026, 
+      FileName = "Dying2ParkourScriptKeyless"
+   },
+
+   Discord = {
+      Enabled = true, 
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = true 
+   },
+
+   KeySystem = true, 
+   KeySettings = {
+      Title = "SCRIPT BY ACTUSIS/NRICUL",
+      Subtitle = "Key System",
+      Note = "Bro, key is DYING2PARKOUR with caps/uppercases", 
+      FileName = "KEYFORDYING2PARKOURBYNRICULORACTUSIS", 
+      SaveKey = true, 
+      GrabKeyFromSite = false, 
+      Key = {"DYING2PARKOUR", "dying2parkour"}
+   }
+})
+
+local MainTab = Window:CreateTab("Main", nil) 
+local Section = MainTab:CreateSection("Main")
+
+local EspTab = Window:CreateTab("Esp", nil) 
+local Section = EspTab:CreateSection("Esp")
+
+local ExtraTab = Window:CreateTab("Misc", nil) 
+local Section = ExtraTab:CreateSection("Misc")
+
+Rayfield:Notify({
+   Title = "Script FULL load!",
+   Content = "Plese Enjoy Script",
+   Duration = 7,
+   Image = nil,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Destroy the Script",
+   Callback = function()
+        Rayfield:Destroy()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Infinity Jump",
+   Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/7pm6kKBa"))()
+   end,
+})
+ 
+local Button = EspTab:CreateButton({
+   Name = "Player Esp all time",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/goodesp"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Delete Annoying Enviroment",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/deleteenviroment"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Delete Annoying Clouds",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/deletecloud"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Load, Walkspeed Working UI",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/deletecloud"))()
+   end,
+})
+
+Label:Set("Press R for speed", nil, Color3.fromRGB(255, 255, 255), false)
+
+local Keybind = ExtraTab:CreateKeybind({
+   Name = "R = QUICK SPEED",
+   CurrentKeybind = "R",
+   HoldToInteract = false,
+   Flag = "PRESSRFORFASTSPEEDDYING2PARKOURSCRIPT",
+   Callback = function(Keybind)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 75
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "HumanFlashLight (LIGHT FROM YOU)",
+   Callback = function()
+        character = game:GetService("Players").LocalPlayer.Character
+        pointLight = Instance.new("PointLight")
+        pointLight.Parent = character.HumanoidRootPart
+        Brightness = 1250
+   end,
+})
