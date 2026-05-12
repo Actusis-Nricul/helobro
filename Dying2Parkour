@@ -1,6 +1,3 @@
-if game.PlaceId~=18803917838 then game.Players.LocalPlayer:Kick("This script only works on Dying2Parkour!")
-end
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
