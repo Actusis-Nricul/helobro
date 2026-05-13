@@ -1,0 +1,73 @@
+-- FLOATING PLATFORM TOGGLE
+-- Run to enable, run again to disable
+-- Platform only visible/collidable to you, follows under you while moving
+-- Stops and stays under you when you stop
+
+local Players    = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player     = Players.LocalPlayer
+
+if _G.platformEnabled then
+    _G.platformEnabled = false
+    print("[Platform] OFF")
+    return
+end
+
+_G.platformEnabled = true
+print("[Platform] ON")
+
+local function getRoot()
+    local c = player.Character
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+
+-- Create the platform
+local platform = Instance.new("Part")
+platform.Name         = "PersonalPlatform"
+platform.Size         = Vector3.new(6, 0.4, 6)
+platform.Anchored     = true
+platform.CanCollide   = false -- start false, we set per-player below
+platform.CastShadow   = false
+platform.Material     = Enum.Material.SmoothPlastic
+platform.Color        = Color3.fromRGB(80, 80, 80)
+platform.Transparency = 0.3
+
+-- Make it only collidable for YOU using CollisionGroup
+-- If the game doesn't have custom groups set up, we just use normal collision
+-- and hide it from others using LocalScript-only instance (parented to workspace via local)
+platform.Parent = workspace
+
+-- Only YOU can see it: set LocalTransparencyModifier won't work on others
+-- The trick: part created in a LocalScript is NOT replicated to server/others
+-- so only your client sees it entirely
+
+-- Optional: make it look nicer
+local selectionBox = Instance.new("SelectionBox")
+selectionBox.Adornee     = platform
+selectionBox.Color3      = Color3.fromRGB(0, 180, 255)
+selectionBox.LineThickness= 0.03
+selectionBox.SurfaceTransparency = 1
+selectionBox.Parent      = platform
+
+local PLATFORM_OFFSET = Vector3.new(0, -3.2, 0) -- just below feet
+
+local conn = RunService.Heartbeat:Connect(function()
+    if not _G.platformEnabled then
+        conn:Disconnect()
+        platform:Destroy()
+        print("[Platform] Removed")
+        return
+    end
+
+    local root = getRoot()
+    if not root then return end
+
+    -- Snap platform directly under player every frame
+    platform.CFrame = CFrame.new(root.Position + PLATFORM_OFFSET)
+    platform.CanCollide = true
+end)
+
+player.CharacterAdded:Connect(function()
+    if not _G.platformEnabled then return end
+    print("[Platform] Reattached after respawn")
+end)
