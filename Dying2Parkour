@@ -95,15 +95,13 @@ local Button = ExtraTab:CreateButton({
    end,
 })
 
-Label:Set("Press R for speed", nil, Color3.fromRGB(255, 255, 255), false)
-
 local Keybind = ExtraTab:CreateKeybind({
-   Name = "R = QUICK SPEED",
-   CurrentKeybind = "R",
+   Name = "Y QUICK SPEED",
+   CurrentKeybind = "Y",
    HoldToInteract = false,
    Flag = "PRESSRFORFASTSPEEDDYING2PARKOURSCRIPT",
    Callback = function(Keybind)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 75
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
    end,
 })
 
