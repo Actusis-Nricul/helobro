@@ -13,7 +13,7 @@ local function spam(path)
     task.spawn(function()
         while true do
             hit:FireServer(path)
-            task.wait(.005)
+            task.wait()
         end
     end)
 end
