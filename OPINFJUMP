@@ -1,192 +1,53 @@
-local Players        = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService     = game:GetService("RunService")
+-- INFINITE JUMP TOGGLE
+-- Run to enable, run again to disable
 
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
---// Shared flag stored in _G so re-running the script toggles it off
-if _G.infiniteJumpEnabled then
-    _G.infiniteJumpEnabled = false
-    print("[InfJump] Disabled")
+-- Toggle off if already running
+if _G.infJump then
+    _G.infJump = false
+    print("[InfJump] OFF")
     return
 end
 
-_G.infiniteJumpEnabled = true
-print("[InfJump] Enabled")
+_G.infJump = true
+print("[InfJump] ON")
 
---// HELPERS
-local function getChar()  return player.Character end
-local function getRoot()
-    local c = getChar(); return c and c:FindFirstChild("HumanoidRootPart")
-end
 local function getHum()
-    local c = getChar(); return c and c:FindFirstChildOfClass("Humanoid")
+    local c = player.Character
+    return c and c:FindFirstChildOfClass("Humanoid")
 end
 
---// BYPASS HELPERS
--- Force-reset jump power and state so stamina/cooldown can't block it
-local function resetJumpState(hum)
-    pcall(function()
-        -- Re-enable jumping in case something disabled it
-        hum:SetAttribute("CanJump", true)
-
-        -- Some games set JumpPower to 0 to block jumping — restore it
-        if hum.JumpPower < 10 then
-            hum.JumpPower = 50
+-- Re-enable jumping the moment the humanoid lands
+local function hookChar(char)
+    local hum = char:WaitForChild("Humanoid")
+    hum.StateChanged:Connect(function(_, new)
+        if not _G.infJump then return end
+        if new == Enum.HumanoidStateType.Landed then
+            hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
         end
-        if hum.JumpHeight < 3 then
-            hum.JumpHeight = 7.2
-        end
-
-        -- Reset FloorMaterial trick: some games check if grounded
-        -- We'll just keep firing Jump = true regardless
     end)
 end
 
--- Wipe any stamina/jump-block values in the character node
-local function clearJumpBlock()
-    local charFolder = workspace:FindFirstChild("Characters")
-    if not charFolder then return end
-    local charNode = charFolder:FindFirstChild(player.Name)
-    if not charNode then return end
+-- Hook current character
+if player.Character then hookChar(player.Character) end
 
-    for _, v in ipairs(charNode:GetChildren()) do
-        local low = v.Name:lower()
-        -- Zero out any stamina or jump cooldown values
-        if low:find("stamina") or low:find("jump") then
-            pcall(function()
-                if v:IsA("NumberValue") or v:IsA("IntValue") then
-                    v.Value = 9999 -- max stamina so jump is always allowed
-                end
-            end)
-        end
-    end
+-- Hook on respawn
+player.CharacterAdded:Connect(function(char)
+    if not _G.infJump then return end
+    hookChar(char)
+end)
 
-    -- Also try the character itself
-    local char = getChar()
-    if char then
-        for _, v in ipairs(char:GetChildren()) do
-            local low = v.Name:lower()
-            if low:find("stamina") or low:find("jump") then
-                pcall(function()
-                    if v:IsA("NumberValue") or v:IsA("IntValue") then
-                        v.Value = 9999
-                    end
-                end)
-            end
-        end
-    end
-end
-
---// HOOK: fire jump every time spacebar is held OR on a loop
--- Two-pronged approach:
--- 1. UserInputService hook: jump the instant spacebar is pressed (responsive)
--- 2. Loop: re-jump every 0.8s while spacebar held (sustain/bypass cooldown)
-
-local jumpConn = nil
-local loopConn = nil
-local spaceHeld = false
-
--- Track spacebar state
-local inputBeganConn = UserInputService.InputBegan:Connect(function(inp, gpe)
+-- Jump every time spacebar pressed
+UIS.InputBegan:Connect(function(inp, gpe)
     if gpe then return end
-    if inp.KeyCode == Enum.KeyCode.Space then
-        spaceHeld = true
-    end
-end)
-
-local inputEndedConn = UserInputService.InputEnded:Connect(function(inp)
-    if inp.KeyCode == Enum.KeyCode.Space then
-        spaceHeld = false
-    end
-end)
-
--- Main jump loop: runs on heartbeat, jumps when space held
-loopConn = RunService.Heartbeat:Connect(function()
-    if not _G.infiniteJumpEnabled then
-        -- Cleanup when disabled
-        loopConn:Disconnect()
-        inputBeganConn:Disconnect()
-        inputEndedConn:Disconnect()
-        return
-    end
-
-    if not spaceHeld then return end
-
+    if not _G.infJump then return end
+    if inp.KeyCode ~= Enum.KeyCode.Space then return end
     local hum = getHum()
-    if not hum then return end
-    if hum.Health <= 0 then return end
-
-    resetJumpState(hum)
-    clearJumpBlock()
-
-    -- Fire jump
-    hum.Jump = true
-end)
-
--- Secondary loop: re-apply every 1s regardless of input
--- This handles cases where the game resets JumpPower or stamina on a timer
-task.spawn(function()
-    while _G.infiniteJumpEnabled do
-        task.wait(1)
-        if not _G.infiniteJumpEnabled then break end
-
-        local hum = getHum()
-        if hum and hum.Health > 0 then
-            resetJumpState(hum)
-            clearJumpBlock()
-        end
-
-        -- Also hook into the Humanoid's StateChanged to re-enable jumping
-        -- right after landing (bypasses jump cooldown)
-        local char = getChar()
-        if char then
-            local h = char:FindFirstChildOfClass("Humanoid")
-            if h then
-                -- Disconnect old state hook if any, make new one
-                if _G.infJumpStateConn then
-                    pcall(function() _G.infJumpStateConn:Disconnect() end)
-                end
-                _G.infJumpStateConn = h.StateChanged:Connect(function(_, new)
-                    if not _G.infiniteJumpEnabled then
-                        pcall(function() _G.infJumpStateConn:Disconnect() end)
-                        return
-                    end
-                    -- The moment we land (Landed state), re-enable jumping immediately
-                    if new == Enum.HumanoidStateType.Landed
-                    or new == Enum.HumanoidStateType.Running
-                    or new == Enum.HumanoidStateType.Freefall then
-                        local hum2 = getHum()
-                        if hum2 then
-                            resetJumpState(hum2)
-                            clearJumpBlock()
-                            -- If space is still held, jump again immediately
-                            if spaceHeld then
-                                task.wait(0.05)
-                                hum2.Jump = true
-                            end
-                        end
-                    end
-                end)
-            end
-        end
+    if hum and hum.Health > 0 then
+        hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        hum.Jump = true
     end
-
-    -- Final cleanup when loop ends
-    pcall(function()
-        if _G.infJumpStateConn then
-            _G.infJumpStateConn:Disconnect()
-            _G.infJumpStateConn = nil
-        end
-    end)
-    print("[InfJump] Fully cleaned up")
-end)
-
--- Handle respawn: re-hook state on new character
-player.CharacterAdded:Connect(function()
-    if not _G.infiniteJumpEnabled then return end
-    task.wait(0.5)
-    -- resetJumpState and clearJumpBlock will naturally pick up new character
-    -- on next heartbeat since getHum/getChar always fetch fresh
-    print("[InfJump] Character respawned, still active")
 end)
