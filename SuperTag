@@ -1,0 +1,111 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "SuperTag Keyless",
+   Icon = 138751136547366, 
+   LoadingTitle = "Super Tag Script Loading",
+   LoadingSubtitle = "By Nricul/Actusis",
+   ShowText = "SUPTAG", 
+   Theme = "AmberGlow", 
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, 
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = true, 
+      FileName = "SUPERTAGFUNSCRIPTKEYLESSACTUSIS"
+   },
+
+   Discord = {
+      Enabled = true, 
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = true 
+   },
+
+   KeySystem = true,
+   KeySettings = {
+      Title = "instant key system (bro I give key free)",
+      Subtitle = "Key System ez",
+      Note = "Key is nokey or NOKEY", 
+      FileName = "NOKEYSUPERTAGSCRIPTNRICUL", 
+      SaveKey = true,
+      GrabKeyFromSite = false, 
+      Key = {"NOKEY", "nokey"}
+   }
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "have fun with script! 👍",
+   Duration = 10,
+   Image = nil,
+})
+
+local MainTab = Window:CreateTab("Normal", nil) 
+local Section = MainTab:CreateSection("Normal")
+
+local ExtraTab = Window:CreateTab("Extra", nil) 
+local Section = ExtraTab:CreateSection("Extra")
+
+local EspTab = Window:CreateTab("Esp", nil) 
+local Section = EspTab:CreateSection("Esp")
+
+local Toggle = ExtraTab:CreateToggle({
+   Name = "Infinity Jump",
+   CurrentValue = false,
+   Flag = "INFINITYJUMPSUPERTAGSCRIPT",
+   Callback = function(Value)
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Esp/Wallhacks",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/goodesp"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Close The Script",
+   Callback = function()
+        Rayfield:Destroy()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Not see The Script",
+   Callback = function()
+        Rayfield:SetVisibility(false)
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "WSA H 100 (walkspeed 100 toggle with H)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CONSTANTWSA"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Platform (under you platform) (execute again to turn off)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/platformunderyou"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Noclip (execute again to turn off)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/opnoclip"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Spam teleport players (use for when you tagger) (execute again to turn off)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/playerspamteleport"))()
+   end,
+})
