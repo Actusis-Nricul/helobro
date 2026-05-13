@@ -122,9 +122,9 @@ autoClickBtn.MouseButton1Click:Connect(function()
 	if autoClick then
 		task.spawn(function()
 			while autoClick do
-				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
-				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
-				RS:WaitForChild("Events"):WaitForChild("PlayerClick"):InvokeServer()
+				game:GetService("ReplicatedStorage").Events.PlayerClick:InvokeServer()
+                game:GetService("ReplicatedStorage").Events.PlayerClick:InvokeServer()
+                game:GetService("ReplicatedStorage").Events.PlayerClick:InvokeServer()
 			end
 		end)
 	end
@@ -160,8 +160,9 @@ bossBtn.MouseButton1Click:Connect(function()
 	if autoBoss then
 		task.spawn(function()
 			while autoBoss do
-				RS:WaitForChild("Events"):WaitForChild("PlayerBossClick"):InvokeServer()
-				task.wait()
+				game:GetService("ReplicatedStorage").Events.PlayerBossClick:InvokeServer()
+                game:GetService("ReplicatedStorage").Events.PlayerBossClick:InvokeServer()
+                game:GetService("ReplicatedStorage").Events.PlayerBossClick:InvokeServer()
 			end
 		end)
 	end
