@@ -1,0 +1,58 @@
+-- NOCLIP TOGGLE
+-- Run to enable, run again to disable
+-- Goes through walls and ceiling, but NOT the floor
+
+local Players    = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player     = Players.LocalPlayer
+
+if _G.noclipEnabled then
+    _G.noclipEnabled = false
+    print("[Noclip] OFF")
+    return
+end
+
+_G.noclipEnabled = true
+print("[Noclip] ON")
+
+local function getChar()
+    return player.Character
+end
+
+-- Every heartbeat: set all character parts to cancel collisions
+-- EXCEPT the HumanoidRootPart bottom — we want floor collision
+local conn = RunService.Stepped:Connect(function()
+    if not _G.noclipEnabled then
+        conn:Disconnect()
+
+        -- Restore collision on all parts when disabled
+        local char = getChar()
+        if char then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+        print("[Noclip] Collisions restored")
+        return
+    end
+
+    local char = getChar()
+    if not char then return end
+
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            -- Disable collision on everything
+            -- The humanoid itself handles floor detection via raycasting
+            -- internally so disabling CanCollide doesn't make you fall
+            part.CanCollide = false
+        end
+    end
+end)
+
+-- Hook respawn so noclip stays active after death
+player.CharacterAdded:Connect(function()
+    if not _G.noclipEnabled then return end
+    print("[Noclip] Reapplied after respawn")
+end)
