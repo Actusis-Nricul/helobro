@@ -1,0 +1,370 @@
+ -- roblox find the icecreams script
+  -- please join discord bro 50 members soon 🙏
+   -- discord.gg/ANwZKq8D6a
+    -- 3 seliware 7 day keys at 75 members 👍
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+
+--====================================================
+-- Character Helpers
+--====================================================
+
+local character, humanoid, rootPart
+
+local function updateCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+end
+
+updateCharacter()
+player.CharacterAdded:Connect(function()
+    updateCharacter()
+end)
+
+--====================================================
+-- GUI Setup
+--====================================================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FindTheIceCreams"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 350)
+frame.Position = UDim2.new(0.5, -200, 0.5, -175)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+-- Drag Bar
+local dragBar = Instance.new("Frame")
+dragBar.Size = UDim2.new(1, 0, 0, 35)
+dragBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+dragBar.BorderSizePixel = 0
+dragBar.Parent = frame
+
+local dragCorner = Instance.new("UICorner")
+dragCorner.CornerRadius = UDim.new(0, 10)
+dragCorner.Parent = dragBar
+
+-- FIX: missing closing quote on title.Text
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -80, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Find Ice Cream"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = dragBar
+
+-- Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 2)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+closeBtn.Parent = dragBar
+
+-- FIX: closeCorner was one-liner with no newline, split it properly
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+-- Container
+local container = Instance.new("Frame")
+container.BackgroundTransparency = 1
+container.Size = UDim2.new(1, -20, 1, -45)
+container.Position = UDim2.new(0, 10, 0, 40)
+container.Parent = frame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 8)
+layout.Parent = container
+
+--====================================================
+-- Draggable
+--====================================================
+
+local dragging = false
+local dragStart
+local startPos
+
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+    frame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+dragBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        updateDrag(input)
+    end
+end)
+
+--====================================================
+-- Minimize with Right Alt
+--====================================================
+
+local minimized = false
+local normalSize = frame.Size
+
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        minimized = not minimized
+
+        if minimized then
+            container.Visible = false
+            TweenService:Create(frame, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 320, 0, 35)
+            }):Play()
+        else
+            container.Visible = true
+            TweenService:Create(frame, TweenInfo.new(0.2), {
+                Size = normalSize
+            }):Play()
+        end
+    end
+end)
+
+--====================================================
+-- Close Button
+--====================================================
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+--====================================================
+-- Toggle Variables
+--====================================================
+
+local infiniteJump = false
+local noclip = false
+local sprint = false
+local badgeFarm = false
+
+--====================================================
+-- Button Creator
+--====================================================
+
+local function createToggleButton(text, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 42)
+    button.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 16
+    button.Text = text .. ": OFF"
+    button.Parent = container
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = button
+
+    local state = false
+
+    button.MouseButton1Click:Connect(function()
+        state = not state
+
+        if state then
+            button.Text = text .. ": ON"
+            button.BackgroundColor3 = Color3.fromRGB(60, 170, 90)
+        else
+            button.Text = text .. ": OFF"
+            button.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+        end
+
+        callback(state)
+    end)
+
+    return button
+end
+
+--====================================================
+-- Infinite Jump
+--====================================================
+
+createToggleButton("Infinite Jump", function(state)
+    infiniteJump = state
+end)
+
+-- FIX: JumpRequest fires when jump is requested, not just on spacebar
+-- Using StateChanged on Landed to re-enable jumping is more reliable
+local function hookInfJump()
+    if not humanoid then return end
+    humanoid.StateChanged:Connect(function(_, new)
+        if infiniteJump and new == Enum.HumanoidStateType.Landed then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        end
+    end)
+end
+hookInfJump()
+player.CharacterAdded:Connect(function()
+    task.wait(0.1)
+    hookInfJump()
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Space and infiniteJump and humanoid then
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        humanoid.Jump = true
+    end
+end)
+
+--====================================================
+-- Noclip
+--====================================================
+
+createToggleButton("Noclip", function(state)
+    noclip = state
+
+    -- Restore collisions immediately when turned off
+    if not state and character then
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end)
+
+--====================================================
+-- Sprint
+--====================================================
+
+createToggleButton("Sprint", function(state)
+    sprint = state
+
+    if not state and humanoid then
+        humanoid.WalkSpeed = 16
+    end
+end)
+
+--====================================================
+-- Get All Badges
+--====================================================
+
+local function findTargets()
+    local targets = {}
+    local seen = {} -- FIX: deduplicate so we don't visit same part twice
+
+    local keywords = {
+        "icecream",
+        "ice cream",
+        "badge",
+        "badgegiver",
+        "badge giver"
+    }
+
+    local function matches(name)
+        local lower = string.lower(name)
+        for _, keyword in ipairs(keywords) do
+            if string.find(lower, keyword, 1, true) then
+                return true
+            end
+        end
+        return false
+    end
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if matches(obj.Name) then
+            local part = nil
+            if obj:IsA("BasePart") then
+                part = obj
+            elseif obj:IsA("Model") then
+                part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+            end
+            if part and not seen[part] then
+                seen[part] = true
+                table.insert(targets, part)
+            end
+        end
+    end
+
+    return targets
+end
+
+createToggleButton("Get All Badges", function(state)
+    badgeFarm = state
+
+    if state then
+        task.spawn(function()
+            local targets = findTargets()
+            print("[BadgeFarm] Found", #targets, "targets")
+
+            for _, target in ipairs(targets) do
+                if not badgeFarm then break end
+
+                updateCharacter()
+
+                if rootPart and target and target.Parent then
+                    rootPart.CFrame = target.CFrame + Vector3.new(0, 3, 0)
+                    task.wait(1)
+                end
+            end
+
+            -- FIX: reset the button state when done
+            badgeFarm = false
+            print("[BadgeFarm] Done")
+        end)
+    end
+end)
+
+--====================================================
+-- Main Loop
+--====================================================
+
+RunService.Stepped:Connect(function()
+    if not character then return end
+
+    -- Noclip
+    if noclip then
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+
+    -- Sprint
+    if sprint and humanoid then
+        humanoid.WalkSpeed = 35
+    end
+end)
