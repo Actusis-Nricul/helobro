@@ -96,3 +96,82 @@ UIS.InputBegan:Connect(function(input, gpe)
 		frame.Visible = not frame.Visible
 	end
 end)
+
+-- Buttons (put the name of your button name, behind each Btn, like autoclickBtn, on all of the Btn for that button section)
+local Btn = Instance.new("TextButton")
+Btn.Size = UDim2.new(1,-20,0,40)
+Btn.Position = UDim2.new(0,10,0,50)
+Btn.Text = "(): OFF"
+Btn.Parent = frame
+
+local brightBtn = Instance.new("TextButton")
+brightBtn.Size = UDim2.new(1,-20,0,40)
+brightBtn.Position = UDim2.new(0,10,0,100)
+brightBtn.Text = "(): OFF"
+brightBtn.Parent = frame
+
+local Btn = Instance.new("TextButton")
+Btn.Size = UDim2.new(1,-20,0,40)
+Btn.Position = UDim2.new(0,10,0,150)
+Btn.Text = "Auto (): OFF"
+Btn.Parent = frame
+
+ -- (enter name of button 1)
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "Auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+				(put the stuff here, replace this)
+			end
+		end)
+	end
+end)
+
+--// Fullbright, (enter name of button 2)
+local fullbright = false
+
+fullbrightBtn.MouseButton1Click:Connect(function()
+	fullbright = not fullbright
+	fullbrightBtn.Text = "Fullbright: " .. (fullbright and "ON" or "OFF")
+
+	if fullbright then
+		task.spawn(function()
+			while fullbright do
+				Lighting.Brightness = 2
+				Lighting.ClockTime = 14
+				Lighting.FogEnd = 100000
+				Lighting.GlobalShadows = false
+				task.wait() -- fullbright, replace if you want but fullbright is good for lots of games
+			end
+		end)
+	end
+end)
+
+ -- (enter name of button 3)
+local autoBoss = false
+
+bossBtn.MouseButton1Click:Connect(function()
+	autoBoss = not autoBoss
+	bossBtn.Text = "Auto Boss: " .. (autoBoss and "ON" or "OFF")
+
+	if autoBoss then
+		task.spawn(function()
+			while autoBoss do
+				(put the stuff here, replace this)
+			end
+		end)
+	end
+end)
+
+print("discord.gg/A5NEZNPMCS") -- replace with your own discord
+
+print("Subscribe @ActusisGames On Youtube 🙏") -- replace with your own yt or tictak
+
+print("Does Everything Work? 👍")
+
+print("Full Script Loaded! 😈")
