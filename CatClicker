@@ -1,0 +1,352 @@
+-- Cat Clicker Script OP keyless 2026 😈
+-- discord.gg/A5NEZNPMCS
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "CatClicker"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 350, 0, 500)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Cat Clicker, Roblox Script"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = true
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,50)
+autoClickBtn.Text = "auto Click: OFF"
+autoClickBtn.Parent = frame
+
+local maxbrightBtn = Instance.new("TextButton")
+maxbrightBtn.Size = UDim2.new(1,-20,0,40)
+maxbrightBtn.Position = UDim2.new(0,10,0,100)
+maxbrightBtn.Text = "MAXbright"
+maxbrightBtn.Parent = frame
+
+local autoRebirthBtn = Instance.new("TextButton")
+autoRebirthBtn.Size = UDim2.new(1,-20,0,40)
+autoRebirthBtn.Position = UDim2.new(0,10,0,150)
+autoRebirthBtn.Text = "auto Rebirth: OFF"
+autoRebirthBtn.Parent = frame
+
+local autoCursorBtn = Instance.new("TextButton")
+autoCursorBtn.Size = UDim2.new(1,-20,0,40)
+autoCursorBtn.Position = UDim2.new(0,10,0,200)
+autoCursorBtn.Text = "auto Cursor Buy: OFF"
+autoCursorBtn.Parent = frame
+
+local autoMrClickerBtn = Instance.new("TextButton")
+autoMrClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoMrClickerBtn.Position = UDim2.new(0,10,0,250)
+autoMrClickerBtn.Text = "auto MrClicker Buy: OFF"
+autoMrClickerBtn.Parent = frame
+
+local autoPresidentClickerBtn = Instance.new("TextButton")
+autoPresidentClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoPresidentClickerBtn.Position = UDim2.new(0,10,0,250)
+autoPresidentClickerBtn.Text = "auto PresidentClicker Buy: OFF"
+autoPresidentClickerBtn.Parent = frame
+
+local autoKingClickerBtn = Instance.new("TextButton")
+autoKingClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoKingClickerBtn.Position = UDim2.new(0,10,0,250)
+autoKingClickerBtn.Text = "auto KingClicker Buy: OFF"
+autoKingClickerBtn.Parent = frame
+
+local autoEmperorClickerBtn = Instance.new("TextButton")
+autoEmperorClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoEmperorClickerBtn.Position = UDim2.new(0,10,0,300)
+autoEmperorClickerBtn.Text = "auto EmperorClicker Buy: OFF"
+autoEmperorClickerBtn.Parent = frame
+
+local autoPopeClickerBtn = Instance.new("TextButton")
+autoPopeClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoPopeClickerBtn.Position = UDim2.new(0,10,0,350)
+autoPopeClickerBtn.Text = "auto PopeClicker Buy: OFF"
+autoPopeClickerBtn.Parent = frame
+
+local autoGodClickerBtn = Instance.new("TextButton")
+autoGodClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoGodClickerBtn.Position = UDim2.new(0,10,0,400)
+autoGodClickerBtn.Text = "auto GodClicker Buy: OFF"
+autoGodClickerBtn.Parent = frame
+
+local autoTheClickerBtn = Instance.new("TextButton")
+autoTheClickerBtn.Size = UDim2.new(1,-20,0,40)
+autoTheClickerBtn.Position = UDim2.new(0,10,0,450)
+autoTheClickerBtn.Text = "auto TheClicker Buy: OFF"
+autoTheClickerBtn.Parent = frame
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+				game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                game:GetService("ReplicatedStorage").Click.Click:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local maxbright = false
+
+maxbrightBtn.MouseButton1Click:Connect(function()
+	maxbright = not maxbright
+	maxbrightBtn.Text = "maxbright: " .. (maxbright and "ON" or "OFF")
+
+	if maxbright then
+		task.spawn(function()
+			while maxbright do
+				Lighting.Brightness = 7
+				Lighting.ClockTime = 14
+				Lighting.FogEnd = 3000000
+				Lighting.GlobalShadows = false
+				task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+	autoRebirth = not autoRebirth
+	autoRebirthBtn.Text = "Auto Rebirth: " .. (autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+		task.spawn(function()
+			while autoRebirth do
+				game:GetService("ReplicatedStorage").Rebirth:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoCursor = false
+
+autoCursorBtn.MouseButton1Click:Connect(function()
+	autoCursor = not autoCursor
+	autoCursorBtn.Text = "Auto Cursor Buy: " .. (autoCursor and "ON" or "OFF")
+
+	if autoCursor then
+		task.spawn(function()
+			while autoCursor do
+				game:GetService("ReplicatedStorage").Shop.aCursor:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoMrClicker = false
+
+autoMrClickerBtn.MouseButton1Click:Connect(function()
+	autoMrClicker = not autoMrClicker
+	autoMrClickerBtn.Text = "Auto MrClicker Buy: " .. (autoMrClicker and "ON" or "OFF")
+
+	if autoMrClicker then
+		task.spawn(function()
+			while autoMrClicker do
+				game:GetService("ReplicatedStorage").Shop.cMrClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoPresidentClicker = false
+
+autoPresidentClickerBtn.MouseButton1Click:Connect(function()
+	autoPresidentClicker = not autoPresidentClicker
+	autoPresidentClickerBtn.Text = "Auto PresidentClicker Buy: " .. (autoPresidentClicker and "ON" or "OFF")
+
+	if autoPresidentClicker then
+		task.spawn(function()
+			while autoPresidentClicker do
+				game:GetService("ReplicatedStorage").Shop.ePresidentClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoKingClicker = false
+
+autoKingClickerBtn.MouseButton1Click:Connect(function()
+	autoKingClicker = not autoKingClicker
+	autoKingClickerBtn.Text = "Auto KingClicker Buy: " .. (autoKingClicker and "ON" or "OFF")
+
+	if autoKingClicker then
+		task.spawn(function()
+			while autoKingClicker do
+				game:GetService("ReplicatedStorage").Shop.gKingClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoEmperorClicker = false
+
+autoEmperorClickerBtn.MouseButton1Click:Connect(function()
+	autoEmperorClicker = not autoEmperorClicker
+	autoEmperorClickerBtn.Text = "Auto EmperorClicker Buy: " .. (autoEmperorClicker and "ON" or "OFF")
+
+	if autoEmperorClicker then
+		task.spawn(function()
+			while autoEmperorClicker do
+				game:GetService("ReplicatedStorage").Shop.iEmperorClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoPopeClicker = false
+
+autoPopeClickerBtn.MouseButton1Click:Connect(function()
+	autoPopeClicker = not autoPopeClicker
+	autoPopeClickerBtn.Text = "Auto PopeClicker Buy: " .. (autoPopeClicker and "ON" or "OFF")
+
+	if autoPopeClicker then
+		task.spawn(function()
+			while autoPopeClicker do
+				game:GetService("ReplicatedStorage").Shop.kPopeClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoGodClicker = false
+
+autoGodClickerBtn.MouseButton1Click:Connect(function()
+	autoGodClicker = not autoGodClicker
+	autoGodClickerBtn.Text = "Auto GodClicker Buy: " .. (autoGodClicker and "ON" or "OFF")
+
+	if autoGodClicker then
+		task.spawn(function()
+			while autoGodClicker do
+				game:GetService("ReplicatedStorage").Shop.mGodClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoTheClicker = false
+
+autoTheClickerBtn.MouseButton1Click:Connect(function()
+	autoTheClicker = not autoTheClicker
+	autoTheClickerBtn.Text = "Auto TheClicker Buy: " .. (autoTheClicker and "ON" or "OFF")
+
+	if autoTheClicker then
+		task.spawn(function()
+			while autoTheClicker do
+				game:GetService("ReplicatedStorage").Shop.oTheClicker:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+print("discord.gg/A5NEZNPMCS")
+
+print("Subscribe @ActusisGames On Youtube 🙏")
+
+print("Does Everything Work? 👍")
+
+print("Full Script Loaded! 😈")
