@@ -1,0 +1,171 @@
+-- Brainrot Clicker Script OP keyless 2026 😈
+-- discord.gg/A5NEZNPMCS
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "PhonkClicker"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 230)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Phonk Clicker, Roblox Script"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = true
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,50)
+autoClickBtn.Text = "auto Click: OFF"
+autoClickBtn.Parent = frame
+
+local rejoinBtn = Instance.new("TextButton")
+rejoinBtn.Size = UDim2.new(1,-20,0,40)
+rejoinBtn.Position = UDim2.new(0,10,0,100)
+rejoinBtn.Text = "Rejoin Game"
+rejoinBtn.Parent = frame
+
+local autoRebirthBtn = Instance.new("TextButton")
+autoRebirthBtn.Size = UDim2.new(1,-20,0,40)
+autoRebirthBtn.Position = UDim2.new(0,10,0,150)
+autoRebirthBtn.Text = "auto Rebirth: OFF"
+autoRebirthBtn.Parent = frame
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+				game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                game:GetService("ReplicatedStorage").Remotes.ClickBrainrot:FireServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local rejoin = false
+
+rejoinBtn.MouseButton1Click:Connect(function()
+	rejoin = not rejoin
+	rejoinBtn.Text = "rejoin"
+
+	if rejoin then
+		task.spawn(function()
+			while rejoin do
+				game:GetService("ReplicatedStorage").Remotes.RequestAFKRejoin:InvokeServer()
+			end
+		end)
+	end
+end)
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+	autoRebirth = not autoRebirth
+	autoRebirthBtn.Text = "Auto Rebirth: " .. (autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+		task.spawn(function()
+			while autoRebirth do
+				game:GetService("ReplicatedStorage").Remotes.Rebirth:InvokeServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+print("discord.gg/A5NEZNPMCS")
+
+print("Subscribe @ActusisGames On Youtube 🙏")
+
+print("Does Everything Work? 👍")
+
+print("Full Script Loaded! 😈")
