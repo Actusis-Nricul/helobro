@@ -1,4 +1,4 @@
-if game.PlaceId~=1686885941 then game.Players.LocalPlayer:Kick("This script only works on Brookhaven 🏡 RP Roblox Game!")end
+if game.PlaceId~=4924922222 then game.Players.LocalPlayer:Kick("This script only works on Brookhaven 🏡 RP Roblox Game!")end
 
 -- ╔══════════════════════════════════════╗
 -- ║        BROOKHAVEN HUB v1.5         ║
