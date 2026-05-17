@@ -1,5 +1,7 @@
+if game.PlaceId~=1686885941 then game.Players.LocalPlayer:Kick("This script only works on Brookhaven 🏡 RP Roblox Game!")end
+
 -- ╔══════════════════════════════════════╗
--- ║        BROOKHAVEN HUB v1.0          ║
+-- ║        BROOKHAVEN HUB v1.5         ║
 -- ╚══════════════════════════════════════╝
 
 local Players         = game:GetService("Players")
@@ -234,7 +236,7 @@ Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0,6)
 local closeBtn = Instance.new("TextButton", titleBar)
 closeBtn.Size             = UDim2.new(0, 28, 0, 28)
 closeBtn.Position         = UDim2.new(1, -31, 0.5, -14)
-closeBtn.Text             = "✕"
+closeBtn.Text             = "X"
 closeBtn.BackgroundColor3 = THEME.RED
 closeBtn.TextColor3       = THEME.TEXT
 closeBtn.Font             = Enum.Font.GothamBold
