@@ -1,0 +1,381 @@
+ -- Parry Parkour Script Simple But Deadly (movie refrence?) 😂
+ -- join the discord please 😀 discord.gg/ANwZKq8D6a
+
+if game.PlaceId~=112407111406060 then game.Players.LocalPlayer:Kick("Only Parry Parkour this script is for! (idc if you wanna use it somewhere else, just remove this whole thing")end
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 340)
+frame.Position = UDim2.new(0.35, 0, 0.25, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+title.BackgroundTransparency = 1
+title.Text = "Funny Chaos Gui"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.Parent = frame
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- OPEN BUTTON
+---------------------------------------------------
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,120,0,40)
+openBtn.Position = UDim2.new(0,10,0.5,0)
+openBtn.Text = "Open Menu"
+openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+openBtn.TextColor3 = Color3.new(1,1,1)
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 18
+openBtn.Parent = gui
+
+Instance.new("UICorner", openBtn)
+
+openBtn.MouseButton1Click:Connect(function()
+	gui.Enabled = true
+end)
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local infiniteJump = false
+local jumpPower = 50
+local platformEnabled = false
+local noclipEnabled = false
+
+local platformPart
+local platformCooldown = false
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text, y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,280,0,40)
+	btn.Position = UDim2.new(0,20,0,y)
+
+	btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 18
+	btn.Text = text
+
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- HEAD PLATFORM
+---------------------------------------------------
+
+local platformBtn = makeButton("Head Platform: OFF", 50)
+
+local function createPlatform()
+
+	if platformPart then
+		platformPart:Destroy()
+	end
+
+	local char = player.Character
+	if not char then return end
+
+	local head = char:FindFirstChild("Head")
+	if not head then return end
+
+	platformPart = Instance.new("Part")
+	platformPart.Name = "SecretPlatform"
+
+	platformPart.Size = Vector3.new(14,1,14)
+
+	platformPart.Material = Enum.Material.SmoothPlastic
+	platformPart.Color = Color3.fromRGB(120,120,120)
+
+	platformPart.Transparency = 0
+	platformPart.CanCollide = true
+	platformPart.Anchored = false
+
+	platformPart.Parent = workspace
+
+	-- keep tightly attached to head
+	local weld = Instance.new("WeldConstraint")
+	weld.Part0 = head
+	weld.Part1 = platformPart
+	weld.Parent = platformPart
+
+	platformPart.Position = head.Position + Vector3.new(0,0.8,0)
+end
+
+platformBtn.MouseButton1Click:Connect(function()
+
+	platformEnabled = not platformEnabled
+
+	if platformEnabled then
+		platformBtn.Text = "Head Platform: ON"
+		createPlatform()
+	else
+		platformBtn.Text = "Head Platform: OFF"
+
+		if platformPart then
+			platformPart:Destroy()
+			platformPart = nil
+		end
+	end
+end)
+
+---------------------------------------------------
+-- PLATFORM HIT DETECTION
+---------------------------------------------------
+
+RunService.RenderStepped:Connect(function()
+
+	if platformEnabled and platformPart and player.Character and not platformCooldown then
+
+		local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			local speed = hrp.AssemblyLinearVelocity.Magnitude
+
+			-- huge push detected
+			if speed > 90 then
+
+				platformCooldown = true
+
+				platformPart:Destroy()
+				platformPart = nil
+
+				-- comes back after 2 seconds
+				task.delay(2,function()
+
+					if platformEnabled then
+						createPlatform()
+					end
+
+					platformCooldown = false
+				end)
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- INFINITE JUMP
+---------------------------------------------------
+
+local infJumpBtn = makeButton("Infinite Jump: OFF", 100)
+
+infJumpBtn.MouseButton1Click:Connect(function()
+
+	infiniteJump = not infiniteJump
+
+	if infiniteJump then
+		infJumpBtn.Text = "Infinite Jump: ON"
+	else
+		infJumpBtn.Text = "Infinite Jump: OFF"
+	end
+end)
+
+UIS.JumpRequest:Connect(function()
+
+	if infiniteJump then
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- BETTER JUMPPOWER SLIDER
+---------------------------------------------------
+
+local jumpLabel = Instance.new("TextLabel")
+jumpLabel.Size = UDim2.new(0,280,0,30)
+jumpLabel.Position = UDim2.new(0,20,0,155)
+
+jumpLabel.BackgroundTransparency = 1
+jumpLabel.TextColor3 = Color3.new(1,1,1)
+
+jumpLabel.Font = Enum.Font.GothamBold
+jumpLabel.TextSize = 18
+jumpLabel.Text = "JumpPower: 50"
+
+jumpLabel.Parent = frame
+
+local slider = Instance.new("Frame")
+slider.Size = UDim2.new(0,280,0,18)
+slider.Position = UDim2.new(0,20,0,195)
+
+slider.BackgroundColor3 = Color3.fromRGB(70,70,70)
+slider.Parent = frame
+
+Instance.new("UICorner", slider)
+
+local knob = Instance.new("Frame")
+knob.Size = UDim2.new(0,30,0,30)
+knob.Position = UDim2.new(0,0,-0.35,0)
+
+knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+knob.Parent = slider
+
+Instance.new("UICorner", knob)
+
+local draggingSlider = false
+
+knob.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		draggingSlider = true
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		draggingSlider = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+
+		local mouseX = input.Position.X
+		local sliderX = slider.AbsolutePosition.X
+		local sliderSize = slider.AbsoluteSize.X
+
+		local percent = math.clamp((mouseX - sliderX) / sliderSize,0,1)
+
+		knob.Position = UDim2.new(percent,-15,-0.35,0)
+
+		jumpPower = math.floor(50 + (percent * 150))
+
+		jumpLabel.Text = "JumpPower: "..jumpPower
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum.JumpPower = jumpPower
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- NOCLIP EXCEPT LEGS
+---------------------------------------------------
+
+local noclipBtn = makeButton("Noclip Body: OFF", 240)
+
+noclipBtn.MouseButton1Click:Connect(function()
+
+	noclipEnabled = not noclipEnabled
+
+	if noclipEnabled then
+		noclipBtn.Text = "Noclip Body: ON"
+	else
+		noclipBtn.Text = "Noclip Body: OFF"
+	end
+end)
+
+RunService.Stepped:Connect(function()
+
+	if noclipEnabled and player.Character then
+
+		for _,v in pairs(player.Character:GetDescendants()) do
+
+			if v:IsA("BasePart") then
+
+				-- keep legs collidable
+				if not string.find(v.Name:lower(),"leg") then
+					v.CanCollide = false
+				end
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- CHARACTER LOAD
+---------------------------------------------------
+
+local function onCharacter(char)
+
+	local hum = char:WaitForChild("Humanoid")
+
+	hum.JumpPower = jumpPower
+
+	if platformEnabled then
+		task.wait(1)
+		createPlatform()
+	end
+end
+
+player.CharacterAdded:Connect(onCharacter)
+
+if player.Character then
+	onCharacter(player.Character)
+end
