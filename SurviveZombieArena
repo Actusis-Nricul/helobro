@@ -1,0 +1,101 @@
+if game.PlaceId ~= 114204398207377 then
+	
+	game.Players.LocalPlayer.Character:BreakJoints()
+
+	task.wait(1.6)
+
+	game.Players.LocalPlayer:Kick("WRONG GAME")
+end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Survive Zombie Arena",
+   Icon = 138751136547366, 
+   LoadingTitle = "Survive Zombie Arena" LOADING",
+   LoadingSubtitle = "By Nricul/Actusis",
+   ShowText = "SZA", 
+   Theme = "Green", 
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, 
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = true, 
+      FileName = "SurviveZombieArena"
+   },
+
+   Discord = {
+      Enabled = true, 
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = false 
+   },
+
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key System Survive Zombie Arena",
+      Subtitle = "Key System ez",
+      Note = "Key is SZA", 
+      FileName = "KEY4SurviveZombieArena", 
+      SaveKey = true,
+      GrabKeyFromSite = false, 
+      Key = {"SZA", "sza"}
+   }
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "have fun with script! 👍",
+   Duration = 10,
+   Image = nil,
+})
+
+local MainTab = Window:CreateTab("Normal", nil) 
+local Section = MainTab:CreateSection("Normal")
+
+local ExtraTab = Window:CreateTab("Misc", nil) 
+local Section = ExtraTab:CreateSection("Misc 👌")
+
+local Button = MainTab:CreateButton({
+   Name = "Load ToraISME Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/main/SurviveZombieArena"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Load Valence Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://valencea.xyz/load"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "INFINITE JUMP",
+   Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/7pm6kKBa"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Esp/Wallhacks",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/ESP"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "HUMANFLASHLIGHT",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/humanflashlight"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Copy Discord",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/JOINDISCORD"))()
+   end,
+})
