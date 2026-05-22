@@ -23,7 +23,7 @@ gui.ResetOnSpawn = false
 gui.Parent = PlayerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 320, 0, 340)
+frame.Size = UDim2.new(0, 320, 0, 520)
 frame.Position = UDim2.new(0.35, 0, 0.25, 0)
 frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 frame.BorderSizePixel = 0
@@ -36,7 +36,7 @@ Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,35)
 title.BackgroundTransparency = 1
-title.Text = "Funny Chaos Gui"
+title.Text = "I Can Afford SynapseZ"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 22
@@ -69,7 +69,7 @@ end)
 local openBtn = Instance.new("TextButton")
 openBtn.Size = UDim2.new(0,120,0,40)
 openBtn.Position = UDim2.new(0,10,0.5,0)
-openBtn.Text = "Open Menu"
+openBtn.Text = "Hide Gui"
 openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
 openBtn.TextColor3 = Color3.new(1,1,1)
 openBtn.Font = Enum.Font.GothamBold
@@ -79,7 +79,7 @@ openBtn.Parent = gui
 Instance.new("UICorner", openBtn)
 
 openBtn.MouseButton1Click:Connect(function()
-	gui.Enabled = true
+	gui.Enabled = false
 end)
 
 ---------------------------------------------------
@@ -248,69 +248,90 @@ UIS.JumpRequest:Connect(function()
 end)
 
 ---------------------------------------------------
--- BETTER JUMPPOWER SLIDER
+-- TEXTBOX
 ---------------------------------------------------
 
-local jumpLabel = Instance.new("TextLabel")
-jumpLabel.Size = UDim2.new(0,280,0,30)
-jumpLabel.Position = UDim2.new(0,20,0,155)
+local jumpBox = Instance.new("TextBox")
+jumpBox.Size = UDim2.new(0,180,0,40)
+jumpBox.Position = UDim2.new(0,20,0,150)
 
-jumpLabel.BackgroundTransparency = 1
-jumpLabel.TextColor3 = Color3.new(1,1,1)
+jumpBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+jumpBox.TextColor3 = Color3.new(1,1,1)
 
-jumpLabel.Font = Enum.Font.GothamBold
-jumpLabel.TextSize = 18
-jumpLabel.Text = "JumpPower: 50"
+jumpBox.PlaceholderText = "Enter JumpPower"
+jumpBox.Text = ""
 
-jumpLabel.Parent = frame
+jumpBox.Font = Enum.Font.GothamBold
+jumpBox.TextSize = 18
 
-local slider = Instance.new("Frame")
-slider.Size = UDim2.new(0,280,0,18)
-slider.Position = UDim2.new(0,20,0,195)
+jumpBox.ClearTextOnFocus = false
+jumpBox.Parent = frame
 
-slider.BackgroundColor3 = Color3.fromRGB(70,70,70)
-slider.Parent = frame
+Instance.new("UICorner", jumpBox)
 
-Instance.new("UICorner", slider)
+---------------------------------------------------
+-- APPLY BUTTON
+---------------------------------------------------
 
-local knob = Instance.new("Frame")
-knob.Size = UDim2.new(0,30,0,30)
-knob.Position = UDim2.new(0,0,-0.35,0)
+local applyBtn = Instance.new("TextButton")
+applyBtn.Size = UDim2.new(0,90,0,40)
+applyBtn.Position = UDim2.new(0,210,0,150)
 
-knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
-knob.Parent = slider
+applyBtn.BackgroundColor3 = Color3.fromRGB(70,120,70)
+applyBtn.TextColor3 = Color3.new(1,1,1)
 
-Instance.new("UICorner", knob)
+applyBtn.Font = Enum.Font.GothamBold
+applyBtn.TextSize = 18
+applyBtn.Text = "Apply"
 
-local draggingSlider = false
+applyBtn.Parent = frame
 
-knob.InputBegan:Connect(function(input)
+Instance.new("UICorner", applyBtn)
 
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		draggingSlider = true
+---------------------------------------------------
+-- NUMBER PARSER
+---------------------------------------------------
+
+local function parseNumber(text)
+
+	text = string.lower(text)
+
+	local multipliers = {
+		k = 1e3,
+		m = 1e6,
+		b = 1e9,
+		t = 1e12
+	}
+
+	local suffix = string.sub(text,-1)
+	local number = tonumber(text)
+
+	-- normal number
+	if number then
+		return number
 	end
-end)
 
-UIS.InputEnded:Connect(function(input)
+	-- shortened number
+	local base = tonumber(string.sub(text,1,#text-1))
 
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		draggingSlider = false
+	if base and multipliers[suffix] then
+		return base * multipliers[suffix]
 	end
-end)
 
-UIS.InputChanged:Connect(function(input)
+	return nil
+end
 
-	if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
+---------------------------------------------------
+-- APPLY LOGIC
+---------------------------------------------------
 
-		local mouseX = input.Position.X
-		local sliderX = slider.AbsolutePosition.X
-		local sliderSize = slider.AbsoluteSize.X
+applyBtn.MouseButton1Click:Connect(function()
 
-		local percent = math.clamp((mouseX - sliderX) / sliderSize,0,1)
+	local value = parseNumber(jumpBox.Text)
 
-		knob.Position = UDim2.new(percent,-15,-0.35,0)
+	if value then
 
-		jumpPower = math.floor(50 + (percent * 150))
+		jumpPower = math.floor(value)
 
 		jumpLabel.Text = "JumpPower: "..jumpPower
 
@@ -324,6 +345,10 @@ UIS.InputChanged:Connect(function(input)
 				hum.JumpPower = jumpPower
 			end
 		end
+
+		jumpBox.Text = ""
+	else
+		jumpBox.Text = "Invalid"
 	end
 end)
 
@@ -331,7 +356,7 @@ end)
 -- NOCLIP EXCEPT LEGS
 ---------------------------------------------------
 
-local noclipBtn = makeButton("Noclip Body: OFF", 240)
+local noclipBtn = makeButton("Noclip Body: OFF", 200)
 
 noclipBtn.MouseButton1Click:Connect(function()
 
@@ -382,3 +407,229 @@ player.CharacterAdded:Connect(onCharacter)
 if player.Character then
 	onCharacter(player.Character)
 end
+
+---------------------------------------------------
+-- TELEPORT BUTTON
+---------------------------------------------------
+
+local tpBtn = makeButton("Teleport End", 250)
+
+tpBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			hrp.CFrame = CFrame.new(1080, 2979, 530)
+
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO TELEPORT
+---------------------------------------------------
+
+local autoTpEnabled = false
+
+local autoTpBtn = makeButton("Auto Farm Win UNDETECTED: OFF", 300)
+
+autoTpBtn.MouseButton1Click:Connect(function()
+
+	autoTpEnabled = not autoTpEnabled
+
+	if autoTpEnabled then
+		autoTpBtn.Text = "Auto Farm Win UNDETECTED: ON"
+
+		task.spawn(function()
+
+			while autoTpEnabled do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+
+						-- teleport cycle
+						hrp.CFrame = CFrame.new(1080, 2979, 543)
+						task.wait(1)
+
+						if not autoTpEnabled then break end
+
+						hrp.CFrame = CFrame.new(1080, 2979, 542)
+						task.wait(1)
+
+						if not autoTpEnabled then break end
+
+						hrp.CFrame = CFrame.new(1080, 2979, 541)
+						task.wait(1)
+					end
+				end
+
+				task.wait(0.1)
+			end
+		end)
+
+	else
+		autoTpBtn.Text = "Auto Teleport: OFF"
+	end
+end)
+
+---------------------------------------------------
+-- Copy Discord, discord.gg/ANwZKq8D6a
+---------------------------------------------------
+
+local discordBtn = makeButton("Copy Discord Server", 350)
+
+discordBtn.MouseButton1Click:Connect(function()
+
+	-- copies invite to clipboard
+	if setclipboard then
+		setclipboard("https://discord.gg/ANwZKq8D6a")
+	end
+
+	-- some executors support this
+	if syn and syn.request then
+		syn.request({
+			Url = "https://discord.gg/ANwZKq8D6a",
+			Method = "GET"
+		})
+	end
+end)
+
+---------------------------------------------------
+-- COPY POSITION BUTTON
+---------------------------------------------------
+
+local copyPosBtn = makeButton("Copy Current Position", 400)
+
+copyPosBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			local pos = hrp.Position
+
+			local posText =
+				math.floor(pos.X)..", "..
+				math.floor(pos.Y)..", "..
+				math.floor(pos.Z)
+
+			-- copy to clipboard
+			if setclipboard then
+				setclipboard(posText)
+			end
+
+			-- notification
+			game:GetService("StarterGui"):SetCore("SendNotification",{
+				Title = "Position Copied",
+				Text = posText,
+				Duration = 3
+			})
+		end
+	end
+end)
+
+---------------------------------------------------
+-- POSITION TEXTBOX
+---------------------------------------------------
+
+local posBox = Instance.new("TextBox")
+posBox.Size = UDim2.new(0,180,0,40)
+posBox.Position = UDim2.new(0,20,0,450)
+
+posBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+posBox.TextColor3 = Color3.new(1,1,1)
+
+posBox.PlaceholderText = "0, 0, 0"
+posBox.Text = ""
+
+posBox.Font = Enum.Font.GothamBold
+posBox.TextSize = 18
+
+posBox.ClearTextOnFocus = false
+posBox.Parent = frame
+
+Instance.new("UICorner", posBox)
+
+---------------------------------------------------
+-- TELEPORT BUTTON
+---------------------------------------------------
+
+local teleportPosBtn = Instance.new("TextButton")
+teleportPosBtn.Size = UDim2.new(0,90,0,40)
+teleportPosBtn.Position = UDim2.new(0,210,0,450)
+
+teleportPosBtn.BackgroundColor3 = Color3.fromRGB(70,120,70)
+teleportPosBtn.TextColor3 = Color3.new(1,1,1)
+
+teleportPosBtn.Font = Enum.Font.GothamBold
+teleportPosBtn.TextSize = 18
+teleportPosBtn.Text = "Teleport"
+
+teleportPosBtn.Parent = frame
+
+Instance.new("UICorner", teleportPosBtn)
+
+---------------------------------------------------
+-- TELEPORT LOGIC
+---------------------------------------------------
+
+teleportPosBtn.MouseButton1Click:Connect(function()
+
+	local text = posBox.Text
+
+	-- remove spaces
+	text = text:gsub("%s+", "")
+
+	local split = string.split(text, ",")
+
+	if #split == 3 then
+
+		local x = tonumber(split[1])
+		local y = tonumber(split[2])
+		local z = tonumber(split[3])
+
+		if x and y and z then
+
+			local char = player.Character
+
+			if char then
+
+				local hrp = char:FindFirstChild("HumanoidRootPart")
+
+				if hrp then
+
+					hrp.CFrame = CFrame.new(x,y,z)
+
+					game:GetService("StarterGui"):SetCore("SendNotification",{
+						Title = "Teleported",
+						Text = x..", "..y..", "..z,
+						Duration = 4
+					})
+				end
+			end
+
+		else
+
+			posBox.Text = "Invalid Numbers"
+
+		end
+	else
+
+		posBox.Text = "Use X,Y,Z"
+
+	end
+end)
