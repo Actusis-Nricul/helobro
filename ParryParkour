@@ -1,7 +1,10 @@
- -- Parry Parkour Script Simple But Deadly (movie refrence?) 😂
- -- join the discord please 😀 discord.gg/ANwZKq8D6a
+ -- Parry Parkour Script (Simple But Deadly)
+ -- Made by Actusis/Nricul (star repo please 😊)
 
-if game.PlaceId~=112407111406060 then game.Players.LocalPlayer:Kick("Only Parry Parkour this script is for! (idc if you wanna use it somewhere else, just remove this whole thing")end
+if game.PlaceId~=112407111406060 then game.Players.LocalPlayer:Kick("IS MADE for Parry Parkour Game Roblox")
+    else
+    print("Correct Game!")
+end
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
