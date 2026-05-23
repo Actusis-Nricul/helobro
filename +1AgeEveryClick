@@ -1,0 +1,324 @@
+ -- click = +1 age script 👌
+ -- join discord please (in script gui)
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,340,0,380)
+frame.Position = UDim2.new(0.35,0,0.2,0)
+
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+---------------------------------------------------
+-- TITLE
+---------------------------------------------------
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+
+title.BackgroundTransparency = 1
+title.Text = "Every Click +1 Age"
+
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+
+title.Parent = frame
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.Text = "X"
+
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- OPEN BUTTON
+---------------------------------------------------
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,120,0,40)
+openBtn.Position = UDim2.new(0,380,0.5,0)
+
+openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+openBtn.TextColor3 = Color3.new(1,1,1)
+
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 18
+openBtn.Text = "Hide Gui"
+
+openBtn.Parent = gui
+
+Instance.new("UICorner", openBtn)
+
+openBtn.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text,y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,300,0,40)
+	btn.Position = UDim2.new(0,20,0,y)
+
+	btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 18
+
+	btn.Text = text
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local autoClick = false
+local autoRebirth = false
+local infiniteJump = false
+local constantSpeed = false
+
+local walkSpeedValue = 16
+
+---------------------------------------------------
+-- AUTO CLICK
+---------------------------------------------------
+
+local clickBtn = makeButton("Auto Click: OFF",60)
+
+clickBtn.MouseButton1Click:Connect(function()
+
+	autoClick = not autoClick
+
+	if autoClick then
+		clickBtn.Text = "Auto Click: ON"
+	else
+		clickBtn.Text = "Auto Click: OFF"
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+
+	if autoClick then
+
+		ReplicatedStorage.MouseClicked:FireServer()
+
+        task.wait()
+	end
+end)
+
+---------------------------------------------------
+-- AUTO REBIRTH
+---------------------------------------------------
+
+local rebirthBtn = makeButton("Auto Rebirth: OFF",120)
+
+rebirthBtn.MouseButton1Click:Connect(function()
+
+	autoRebirth = not autoRebirth
+
+	if autoRebirth then
+
+		rebirthBtn.Text = "Auto Rebirth: ON"
+
+		task.spawn(function()
+
+			while autoRebirth do
+
+				ReplicatedStorage.RebirthEvent:FireServer()
+
+				task.wait(4)
+			end
+		end)
+
+	else
+		rebirthBtn.Text = "Auto Rebirth: OFF"
+	end
+end)
+
+---------------------------------------------------
+-- INFINITE JUMP
+---------------------------------------------------
+
+local infJumpBtn = makeButton("Infinite Jump: OFF",180)
+
+infJumpBtn.MouseButton1Click:Connect(function()
+
+	infiniteJump = not infiniteJump
+
+	if infiniteJump then
+		infJumpBtn.Text = "Infinite Jump: ON"
+	else
+		infJumpBtn.Text = "Infinite Jump: OFF"
+	end
+end)
+
+UIS.JumpRequest:Connect(function()
+
+	if infiniteJump then
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- WALKSPEED INPUT
+---------------------------------------------------
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0,180,0,40)
+speedBox.Position = UDim2.new(0,20,0,250)
+
+speedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+speedBox.TextColor3 = Color3.new(1,1,1)
+
+speedBox.PlaceholderText = "Enter WalkSpeed"
+speedBox.Text = ""
+
+speedBox.Font = Enum.Font.GothamBold
+speedBox.TextSize = 18
+
+speedBox.ClearTextOnFocus = false
+speedBox.Parent = frame
+
+Instance.new("UICorner", speedBox)
+
+---------------------------------------------------
+-- CONSTANT SPEED BUTTON
+---------------------------------------------------
+
+local speedBtn = Instance.new("TextButton")
+speedBtn.Size = UDim2.new(0,100,0,40)
+speedBtn.Position = UDim2.new(0,210,0,250)
+
+speedBtn.BackgroundColor3 = Color3.fromRGB(70,120,70)
+speedBtn.TextColor3 = Color3.new(1,1,1)
+
+speedBtn.Font = Enum.Font.GothamBold
+speedBtn.TextSize = 18
+speedBtn.Text = "Speed OFF"
+
+speedBtn.Parent = frame
+
+Instance.new("UICorner", speedBtn)
+
+speedBtn.MouseButton1Click:Connect(function()
+
+	constantSpeed = not constantSpeed
+
+	if constantSpeed then
+
+		local value = tonumber(speedBox.Text)
+
+		if value then
+			walkSpeedValue = value
+		end
+
+		speedBtn.Text = "Speed ON"
+
+	else
+
+		speedBtn.Text = "Speed OFF"
+    end
+end)
+
+---------------------------------------------------
+-- CONSTANT SPEED LOOP
+---------------------------------------------------
+
+RunService.RenderStepped:Connect(function()
+
+	if constantSpeed then
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+
+				-- constantly apply walkspeed only
+				hum.WalkSpeed = walkSpeedValue
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- COPY DISCORD BUTTON
+---------------------------------------------------
+
+local discordBtn = makeButton("Copy Discord",320)
+
+discordBtn.MouseButton1Click:Connect(function()
+
+	local invite = "https://discord.gg/ANwZKq8D6a"
+
+	if setclipboard then
+		setclipboard(invite)
+	end
+
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "Discord",
+		Text = "Copied Discord Invite!",
+		Duration = 4
+	})
+end)
