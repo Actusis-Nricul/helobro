@@ -1,0 +1,399 @@
+--// Put in StarterPlayer > StarterPlayerScripts
+
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,300,0,480)
+frame.Position = UDim2.new(0.35,0,0.3,0)
+
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+---------------------------------------------------
+-- TITLE
+---------------------------------------------------
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+
+title.BackgroundTransparency = 1
+title.Text = "+1 Health Per Click"
+
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+
+title.Parent = frame
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.Text = "X"
+
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- OPEN BUTTON
+---------------------------------------------------
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,120,0,40)
+openBtn.Position = UDim2.new(0,10,0.5,0)
+
+openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+openBtn.TextColor3 = Color3.new(1,1,1)
+
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 18
+openBtn.Text = "Open Menu"
+
+openBtn.Parent = gui
+
+Instance.new("UICorner", openBtn)
+
+openBtn.MouseButton1Click:Connect(function()
+	gui.Enabled = true
+end)
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local autoFarm1 = false
+local autoFarm2 = false
+local autoFarm3 = false
+
+---------------------------------------------------
+-- TELEPORT BUTTON World 1
+---------------------------------------------------
+
+local tpBtn1 = Instance.new("TextButton")
+tpBtn1.Size = UDim2.new(0,260,0,50)
+tpBtn1.Position = UDim2.new(0,20,0,60)
+
+tpBtn1.BackgroundColor3 = Color3.fromRGB(45,45,45)
+tpBtn1.TextColor3 = Color3.new(1,1,1)
+
+tpBtn1.Font = Enum.Font.GothamBold
+tpBtn1.TextSize = 20
+tpBtn1.Text = "Teleport End Win World 1"
+
+tpBtn1.Parent = frame
+
+Instance.new("UICorner", tpBtn1)
+
+tpBtn1.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(5176, 12, 24)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 1
+---------------------------------------------------
+
+local autoBtn1 = Instance.new("TextButton")
+autoBtn1.Size = UDim2.new(0,260,0,40)
+autoBtn1.Position = UDim2.new(0,20,0,120)
+
+autoBtn1.BackgroundColor3 = Color3.fromRGB(45,45,45)
+autoBtn1.TextColor3 = Color3.new(1,1,1)
+
+autoBtn1.Font = Enum.Font.GothamBold
+autoBtn1.TextSize = 18
+autoBtn1.Text = "Auto Farm World 1: OFF"
+
+autoBtn1.Parent = frame
+
+Instance.new("UICorner", autoBtn1)
+
+autoBtn1.MouseButton1Click:Connect(function()
+
+	autoFarm1 = not autoFarm1
+
+	if autoFarm1 then
+
+		autoBtn1.Text = "Auto Farm World 1: ON"
+
+		task.spawn(function()
+
+			while autoFarm1 do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+						hrp.CFrame = CFrame.new(5176, 12, 24)
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+
+	else
+		autoBtn1.Text = "Auto Farm World 1: OFF"
+	end
+end)
+
+---------------------------------------------------
+-- TELEPORT BUTTON World 2
+---------------------------------------------------
+
+local tpBtn2 = Instance.new("TextButton")
+tpBtn2.Size = UDim2.new(0,260,0,50)
+tpBtn2.Position = UDim2.new(0,20,0,180)
+
+tpBtn2.BackgroundColor3 = Color3.fromRGB(45,45,45)
+tpBtn2.TextColor3 = Color3.new(1,1,1)
+
+tpBtn2.Font = Enum.Font.GothamBold
+tpBtn2.TextSize = 20
+tpBtn2.Text = "Teleport End Win World 2"
+
+tpBtn2.Parent = frame
+
+Instance.new("UICorner", tpBtn2)
+
+tpBtn2.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(4070, 70, -109)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 2
+---------------------------------------------------
+
+local autoBtn2 = Instance.new("TextButton")
+autoBtn2.Size = UDim2.new(0,260,0,40)
+autoBtn2.Position = UDim2.new(0,20,0,240)
+
+autoBtn2.BackgroundColor3 = Color3.fromRGB(45,45,45)
+autoBtn2.TextColor3 = Color3.new(1,1,1)
+
+autoBtn2.Font = Enum.Font.GothamBold
+autoBtn2.TextSize = 18
+autoBtn2.Text = "Auto Farm World 2: OFF"
+
+autoBtn2.Parent = frame
+
+Instance.new("UICorner", autoBtn2)
+
+autoBtn2.MouseButton1Click:Connect(function()
+
+	autoFarm2 = not autoFarm2
+
+	if autoFarm2 then
+
+		autoBtn2.Text = "Auto Farm World 2: ON"
+
+		task.spawn(function()
+
+			while autoFarm2 do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+						hrp.CFrame = CFrame.new(4070, 70, -109)
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+
+	else
+		autoBtn2.Text = "Auto Farm World 2: OFF"
+	end
+end)
+
+
+---------------------------------------------------
+-- TELEPORT BUTTON World 3
+---------------------------------------------------
+
+local tpBtn3 = Instance.new("TextButton")
+tpBtn3.Size = UDim2.new(0,260,0,50)
+tpBtn3.Position = UDim2.new(0,20,0,300)
+
+tpBtn3.BackgroundColor3 = Color3.fromRGB(45,45,45)
+tpBtn3.TextColor3 = Color3.new(1,1,1)
+
+tpBtn3.Font = Enum.Font.GothamBold
+tpBtn3.TextSize = 20
+tpBtn3.Text = "Teleport End Win World 3"
+
+tpBtn3.Parent = frame
+
+Instance.new("UICorner", tpBtn3)
+
+tpBtn3.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(938, 223, 700)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 3
+---------------------------------------------------
+
+local autoBtn3 = Instance.new("TextButton")
+autoBtn3.Size = UDim2.new(0,260,0,40)
+autoBtn3.Position = UDim2.new(0,20,0,360)
+
+autoBtn3.BackgroundColor3 = Color3.fromRGB(45,45,45)
+autoBtn3.TextColor3 = Color3.new(1,1,1)
+
+autoBtn3.Font = Enum.Font.GothamBold
+autoBtn3.TextSize = 18
+autoBtn3.Text = "Auto Farm World 3: OFF"
+
+autoBtn3.Parent = frame
+
+Instance.new("UICorner", autoBtn3)
+
+autoBtn3.MouseButton1Click:Connect(function()
+
+	autoFarm3 = not autoFarm3
+
+	if autoFarm3 then
+
+		autoBtn3.Text = "Auto Farm World 3: ON"
+
+		task.spawn(function()
+
+			while autoFarm3 do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+						hrp.CFrame = CFrame.new(938, 223, 700)
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+
+	else
+		autoBtn3.Text = "Auto Farm World 3: OFF"
+	end
+end)
+
+---------------------------------------------------
+-- Copy Discord
+---------------------------------------------------
+
+local tpBtn3 = Instance.new("TextButton")
+tpBtn3.Size = UDim2.new(0,260,0,50)
+tpBtn3.Position = UDim2.new(0,20,0,420)
+
+tpBtn3.BackgroundColor3 = Color3.fromRGB(45,45,45)
+tpBtn3.TextColor3 = Color3.new(1,1,1)
+
+tpBtn3.Font = Enum.Font.GothamBold
+tpBtn3.TextSize = 20
+tpBtn3.Text = "Copy Discord Invite"
+
+	local invite = "https://discord.gg/ANwZKq8D6a"
+
+	---------------------------------------------------
+	-- COPY TO CLIPBOARD
+	---------------------------------------------------
+
+	if setclipboard then
+		setclipboard(invite)
+	end
+
+	---------------------------------------------------
+	-- NOTIFICATION
+	---------------------------------------------------
+
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "Discord",
+		Text = "Copied Discord Invite!",
+		Duration = 10
+	})
+
+	---------------------------------------------------
+	-- OPEN BROWSER (if supported)
+	---------------------------------------------------
+
+	if openbrowser then
+		openbrowser(invite)
+
+	elseif syn and syn.open_url then
+		syn.open_url(invite)
+
+	elseif open_url then
+		open_url(invite)
+	end
