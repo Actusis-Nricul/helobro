@@ -1,0 +1,375 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- REMOTES
+---------------------------------------------------
+
+local RebirthRemote = ReplicatedStorage
+	:WaitForChild("Remotes")
+	:WaitForChild("AuraRunnerRebirth")
+
+local ClickRemote = ReplicatedStorage
+	:WaitForChild("Remotes")
+	:WaitForChild("AuraRunnerTrainClick")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,340,0,540)
+frame.Position = UDim2.new(0.35,0,0.25,0)
+
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+---------------------------------------------------
+-- TITLE
+---------------------------------------------------
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+
+title.BackgroundTransparency = 1
+title.Text = "+1 Aura Per Click"
+
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+
+title.Parent = frame
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.Text = "X"
+
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- OPEN BUTTON
+---------------------------------------------------
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,120,0,40)
+openBtn.Position = UDim2.new(0,10,0.5,0)
+
+openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+openBtn.TextColor3 = Color3.new(1,1,1)
+
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 20
+openBtn.Text = "Hide Menu"
+
+openBtn.Parent = gui
+
+Instance.new("UICorner", openBtn)
+
+openBtn.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text,y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,300,0,45)
+	btn.Position = UDim2.new(0,20,0,y)
+
+	btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 19
+
+	btn.Text = text
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local autoFarm = false
+local autoRebirth = false
+local autoClick = false
+
+---------------------------------------------------
+-- TELEPORT END WIN WORLD 1
+---------------------------------------------------
+
+local tpBtn = makeButton("Teleport End Win World 1", 60)
+
+tpBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(-3483, 56, -20)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 1
+---------------------------------------------------
+
+local farmBtn = makeButton("Auto Farm Win World 1: OFF", 120)
+
+farmBtn.MouseButton1Click:Connect(function()
+
+	autoFarm = not autoFarm
+
+	if autoFarm then
+
+		farmBtn.Text = "Auto Farm Win World 1: ON"
+
+		task.spawn(function()
+
+			while autoFarm do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+						hrp.CFrame = CFrame.new(-3483, 56, -20)
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+
+	else
+
+		farmBtn.Text = "Auto Farm Win World 1: OFF"
+
+	end
+end)
+
+---------------------------------------------------
+-- COPY DISCORD BUTTON
+---------------------------------------------------
+
+local discordBtn = makeButton("Copy Discord", 180)
+
+discordBtn.MouseButton1Click:Connect(function()
+
+	local invite = "https://discord.gg/ANwZKq8D6a"
+
+	if setclipboard then
+		setclipboard(invite)
+	end
+
+	game:GetService("StarterGui"):SetCore("SendNotification",{
+		Title = "Discord",
+		Text = "Copied Discord Invite!",
+		Duration = 4
+	})
+end)
+
+---------------------------------------------------
+-- AUTO REBIRTH
+---------------------------------------------------
+
+local rebirthBtn = makeButton("Auto Rebirth: OFF", 240)
+
+rebirthBtn.MouseButton1Click:Connect(function()
+
+	autoRebirth = not autoRebirth
+
+	if autoRebirth then
+
+		rebirthBtn.Text = "Auto Rebirth: ON"
+
+		task.spawn(function()
+
+			while autoRebirth do
+
+				local args = {
+					{}
+				}
+
+				RebirthRemote:InvokeServer(unpack(args))
+
+				task.wait(0.4)
+			end
+		end)
+
+	else
+
+		rebirthBtn.Text = "Auto Rebirth: OFF"
+
+	end
+end)
+
+---------------------------------------------------
+-- AUTO CLICK
+---------------------------------------------------
+
+local clickBtn = makeButton("Auto Click: OFF", 300)
+
+clickBtn.MouseButton1Click:Connect(function()
+
+	autoClick = not autoClick
+
+	if autoClick then
+
+		clickBtn.Text = "Auto Click: ON"
+
+	else
+
+		clickBtn.Text = "Auto Click: OFF"
+
+	end
+end)
+
+---------------------------------------------------
+-- AUTO CLICK LOOP
+---------------------------------------------------
+
+RunService.RenderStepped:Connect(function()
+
+	if autoClick then
+
+		local args = {
+			{}
+		}
+
+		ClickRemote:FireServer(unpack(args))
+
+		task.wait()
+	end
+end)
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local autoFarm2 = false
+
+---------------------------------------------------
+-- UNLOCK WORLD 2
+---------------------------------------------------
+
+local unlockBtn = makeButton("Unlock World 2", 360)
+
+unlockBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(-3492, 56, -3)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- TELEPORT END WIN WORLD 2
+---------------------------------------------------
+
+local tpBtn2 = makeButton("Teleport End Win World 2", 420)
+
+tpBtn2.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(-2874, 25, -1019)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WIN WORLD 2
+---------------------------------------------------
+
+local farmBtn2 = makeButton("Auto Farm Win World 2: OFF", 480)
+
+farmBtn2.MouseButton1Click:Connect(function()
+
+	autoFarm2 = not autoFarm2
+
+	if autoFarm2 then
+
+		farmBtn2.Text = "Auto Farm Win World 2: ON"
+
+		task.spawn(function()
+
+			while autoFarm2 do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+						hrp.CFrame = CFrame.new(-2874, 25, -1019)
+					end
+				end
+
+				task.wait(1)
+			end
+		end)
+
+	else
+
+		farmBtn2.Text = "Auto Farm Win World 2: OFF"
+
+	end
+end)
