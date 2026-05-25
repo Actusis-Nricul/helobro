@@ -1,0 +1,76 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Bite By Night Scripts Keyless",
+   Icon = 138751136547366,
+   LoadingTitle = "Loading best Bite By Night scripts...",
+   LoadingSubtitle = "By Actusis)",
+   ShowText = "BBNKS",
+   Theme = "Default",
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, 
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = true, 
+      FileName = "BBN Keyless Scripts"
+   },
+
+   Discord = {
+      Enabled = true,
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = true 
+   },
+
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key 4 Fun",
+      Subtitle = "Key 4 Fun",
+      Note = "Key is 'bbnks' no uppercases and stuff ",
+      FileName = "KeyBBNKS made by actusis/nricul",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"bbnks"}
+   }
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "Have Fun with the BBNK Scripts!",
+   Duration = 5.5,
+   Image = 0,
+})
+
+local ScriptsTab = Window:CreateTab("Scripts", 0)
+local Section = ScriptsTab:CreateSection("BBN Keyless Scripts")
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Celeron Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ghostofcelleron/Celeron/refs/heads/main/Celeron's%20Loader"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Moon Diety Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/504156fbdf2655ac615674b169fb7b3a.lua"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "FortheLolz Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/FortheLolzahaha-alt/Bite-by-Night/refs/heads/main/LOL"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Zynix Script",
+   Callback = function()
+        loadstring(game:HttpGet("https://zynixscripts.net/raw/bite-by-night-esp"))()
+   end,
+})
