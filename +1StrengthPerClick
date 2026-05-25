@@ -1,0 +1,245 @@
+--// Put in StarterPlayer > StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- REMOTES
+---------------------------------------------------
+
+local DamageWallRemote = ReplicatedStorage
+	:WaitForChild("Remotes")
+	:WaitForChild("Events")
+	:WaitForChild("DamageWall")
+
+local ClickRemote = ReplicatedStorage
+	:WaitForChild("Remotes")
+	:WaitForChild("Events")
+	:WaitForChild("ClickRemote")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,320,0,300)
+frame.Position = UDim2.new(0.35,0,0.3,0)
+
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+---------------------------------------------------
+-- TITLE
+---------------------------------------------------
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+
+title.BackgroundTransparency = 1
+title.Text = "+1 Click = Strength"
+
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+
+title.Parent = frame
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.TextColor3 = Color3.new(1,1,1)
+
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.Text = "X"
+
+close.Parent = frame
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- OPEN BUTTON
+---------------------------------------------------
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,120,0,40)
+openBtn.Position = UDim2.new(0,10,0.5,0)
+
+openBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+openBtn.TextColor3 = Color3.new(1,1,1)
+
+openBtn.Font = Enum.Font.GothamBold
+openBtn.TextSize = 18
+openBtn.Text = "Hide Menu"
+
+openBtn.Parent = gui
+
+Instance.new("UICorner", openBtn)
+
+openBtn.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text,y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,280,0,50)
+	btn.Position = UDim2.new(0,20,0,y)
+
+	btn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 20
+
+	btn.Text = text
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- VARIABLES
+---------------------------------------------------
+
+local autoDamage = false
+local autoClick = false
+local fastSpeed = false
+
+---------------------------------------------------
+-- AUTO DAMAGE WALL
+---------------------------------------------------
+
+local damageBtn = makeButton("Auto Damage Wall: OFF", 60)
+
+damageBtn.MouseButton1Click:Connect(function()
+
+	autoDamage = not autoDamage
+
+	if autoDamage then
+
+		damageBtn.Text = "Auto Damage Wall: ON"
+
+		task.spawn(function()
+
+			while autoDamage do
+
+				DamageWallRemote:FireServer()
+
+				task.wait(0.2)
+			end
+		end)
+
+	else
+
+		damageBtn.Text = "Auto Damage Wall: OFF"
+
+	end
+end)
+
+---------------------------------------------------
+-- AUTO CLICK
+---------------------------------------------------
+
+local clickBtn = makeButton("Auto Click: OFF", 120)
+
+clickBtn.MouseButton1Click:Connect(function()
+
+	autoClick = not autoClick
+
+	if autoClick then
+
+		clickBtn.Text = "Auto Click: ON"
+
+		task.spawn(function()
+
+			while autoClick do
+
+				ClickRemote:FireServer()
+
+				task.wait(0.1)
+			end
+		end)
+
+	else
+
+		clickBtn.Text = "Auto Click: OFF"
+
+	end
+end)
+
+---------------------------------------------------
+-- FAST SPEED BUTTON
+---------------------------------------------------
+
+local speedBtn = makeButton("Fast Speed", 180)
+
+speedBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hum = char:FindFirstChildOfClass("Humanoid")
+
+		if hum then
+
+			hum.WalkSpeed = 155
+
+		end
+	end
+end)
+
+---------------------------------------------------
+-- UNLOCK WORLD 2 BUTTON
+---------------------------------------------------
+
+local unlockBtn = makeButton("Unlock World 2", 240)
+
+unlockBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			hrp.CFrame = CFrame.new(1817, 17, -1565)
+
+		end
+	end
+end)
