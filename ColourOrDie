@@ -1,0 +1,467 @@
+ -- Colour Or Die Script OP keyless
+ -- Have Fun With Script!
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+--// CHARACTER
+local function getChar()
+	local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	return char, char:WaitForChild("Humanoid"), char:WaitForChild("HumanoidRootPart")
+end
+
+local Character, Humanoid, HRP = getChar()
+
+LocalPlayer.CharacterAdded:Connect(function()
+	Character, Humanoid, HRP = getChar()
+end)
+
+--// UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 420, 0, 450)
+Frame.Position = UDim2.new(0.5,-210,0.5,-225)
+Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Frame.Parent = ScreenGui
+
+-- CLOSE
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0,30,0,30)
+Close.Position = UDim2.new(1,-35,0,5)
+Close.Text = "X"
+Close.Parent = Frame
+
+Close.MouseButton1Click:Connect(function()
+	ScreenGui.Enabled = false
+end)
+
+-- DRAG
+local dragging, dragStart, startPos
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+--// SPEED
+local SpeedBox = Instance.new("TextBox")
+SpeedBox.Size = UDim2.new(0,100,0,30)
+SpeedBox.Position = UDim2.new(0,10,0,10)
+SpeedBox.PlaceholderText = "Speed"
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+SpeedBox.TextColor3 = Color3.new(1,1,1)
+SpeedBox.Parent = Frame
+
+SpeedBox.FocusLost:Connect(function()
+	local num = tonumber(SpeedBox.Text)
+	if num then
+		Humanoid.WalkSpeed = num
+	end
+end)
+
+--// NOCLIP
+local noclip = false
+
+local NoclipBtn = Instance.new("TextButton")
+NoclipBtn.Size = UDim2.new(0,100,0,30)
+NoclipBtn.Position = UDim2.new(0,120,0,10)
+NoclipBtn.Text = "Noclip: OFF"
+NoclipBtn.BackgroundColor3 = Color3.fromRGB(80,0,0)
+NoclipBtn.TextColor3 = Color3.new(1,1,1)
+NoclipBtn.Parent = Frame
+
+NoclipBtn.MouseButton1Click:Connect(function()
+	noclip = not noclip
+	NoclipBtn.Text = noclip and "Noclip: ON" or "Noclip: OFF"
+end)
+
+RunService.Stepped:Connect(function()
+	if noclip and Character then
+		for _,v in pairs(Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+--// INFINITE JUMP
+local infJump = false
+
+local InfBtn = Instance.new("TextButton")
+InfBtn.Size = UDim2.new(0,120,0,30)
+InfBtn.Position = UDim2.new(0,230,0,10)
+InfBtn.Text = "Inf Jump: OFF"
+InfBtn.BackgroundColor3 = Color3.fromRGB(0,80,0)
+InfBtn.TextColor3 = Color3.new(1,1,1)
+InfBtn.Parent = Frame
+
+InfBtn.MouseButton1Click:Connect(function()
+	infJump = not infJump
+	InfBtn.Text = infJump and "Inf Jump: ON" or "Inf Jump: OFF"
+end)
+
+UIS.JumpRequest:Connect(function()
+	if infJump then
+		Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end)
+
+--// MAIN SCROLL
+local MainScroll = Instance.new("ScrollingFrame")
+MainScroll.Size = UDim2.new(1,-10,1,-50)
+MainScroll.Position = UDim2.new(0,5,0,45)
+MainScroll.CanvasSize = UDim2.new(0,0,0,0)
+MainScroll.ScrollBarThickness = 6
+MainScroll.BackgroundTransparency = 1
+MainScroll.Parent = Frame
+
+local MainLayout = Instance.new("UIListLayout", MainScroll)
+MainLayout.Padding = UDim.new(0,5)
+
+MainLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	MainScroll.CanvasSize = UDim2.new(0,0,0,MainLayout.AbsoluteContentSize.Y)
+end)
+
+--// TELEPORT
+local function teleport(obj)
+	if not obj then return end
+	
+	if obj:IsA("BasePart") then
+		HRP.CFrame = obj.CFrame + Vector3.new(0,3,0)
+	elseif obj:IsA("Model") then
+		local part = obj:FindFirstChildWhichIsA("BasePart")
+		if part then
+			HRP.CFrame = part.CFrame + Vector3.new(0,3,0)
+		end
+	end
+end
+
+--// SPAM E
+local function spamE()
+	local start = tick()
+	while tick() - start < 1 do
+		VIM:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+		task.wait(0.05)
+		VIM:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+		task.wait(0.05)
+	end
+end
+
+local function tpAndCollect(obj)
+	teleport(obj)
+	task.wait(0.2)
+	spamE()
+end
+
+--// DROPDOWN
+local function createDropdown(title)
+	local Container = Instance.new("Frame")
+	Container.Size = UDim2.new(1,0,0,30)
+	Container.BackgroundTransparency = 1
+	Container.Parent = MainScroll
+	
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1,0,0,30)
+	Button.Text = title
+	Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Button.TextColor3 = Color3.new(1,1,1)
+	Button.Parent = Container
+	
+	local List = Instance.new("Frame")
+	List.Size = UDim2.new(1,0,0,0)
+	List.Position = UDim2.new(0,0,0,30)
+	List.BackgroundTransparency = 1
+	List.Visible = false
+	List.Parent = Container
+	
+	local Layout = Instance.new("UIListLayout", List)
+	Layout.Padding = UDim.new(0,5)
+	
+	local function updateSize()
+		if List.Visible then
+			local size = Layout.AbsoluteContentSize.Y
+			List.Size = UDim2.new(1,0,0,size)
+			Container.Size = UDim2.new(1,0,0,30 + size)
+		else
+			List.Size = UDim2.new(1,0,0,0)
+			Container.Size = UDim2.new(1,0,0,30)
+		end
+	end
+	
+	Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateSize)
+	
+	Button.MouseButton1Click:Connect(function()
+		List.Visible = not List.Visible
+		updateSize()
+	end)
+	
+	return List
+end
+
+--// BUTTON
+local function addButton(parent, text, obj)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1,0,0,30)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Parent = parent
+	
+	btn.MouseButton1Click:Connect(function()
+		tpAndCollect(obj)
+	end)
+end
+
+--// PATH
+local Collectables = workspace:FindFirstChild("GameplayParts")
+	and workspace.GameplayParts:FindFirstChild("Items")
+	and workspace.GameplayParts.Items:FindFirstChild("Collectable")
+	and workspace.GameplayParts.Items.Collectable:FindFirstChild("Collectable")
+
+--// CHAPTER 1&2&3&4 BRUSHES
+local ch1Brush = createDropdown("All Chapters Paintbrushes")
+
+if Collectables then
+	for _,v in pairs(Collectables:GetChildren()) do
+		addButton(ch1Brush, "Brush: "..v.Name, v)
+	end
+end
+
+--// ===== CHAPTER 1 DOORS =====
+local ch1Doors = createDropdown("Chapter 1 Doors")
+
+local Doors1 = workspace:FindFirstChild("GameplayParts")
+	and workspace.GameplayParts:FindFirstChild("Doors")
+	and workspace.GameplayParts.Doors:FindFirstChild("Normal")
+
+if Doors1 then
+	local Buildable = Doors1:FindFirstChild("Buildable")
+	local Paintable = Doors1:FindFirstChild("Paintable")
+	local Unlockable = Doors1:FindFirstChild("Unlockable")
+
+	-- BUILDABLE
+	if Buildable then
+		for _,door in pairs(Buildable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Build: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch1Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- PAINTABLE
+	if Paintable then
+		for _,door in pairs(Paintable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Paint: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch1Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- UNLOCKABLE
+	if Unlockable then
+		for _,door in pairs(Unlockable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Unlock: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch1Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+end
+
+--// ===== CHAPTER 2 DOORS =====
+local ch2Doors = createDropdown("Chapter 2 Doors")
+
+local Doors = workspace:FindFirstChild("GameplayParts")
+	and workspace.GameplayParts:FindFirstChild("Doors")
+	and workspace.GameplayParts.Doors:FindFirstChild("Normal")
+
+if Doors then
+	local Paintable = Doors:FindFirstChild("Paintable")
+	local Unlockable = Doors:FindFirstChild("Unlockable")
+
+	-- PAINTABLE DOORS
+	if Paintable then
+		for _,door in pairs(Paintable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Paint: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch2Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- UNLOCKABLE DOORS
+	if Unlockable then
+		for _,door in pairs(Unlockable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Unlock: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch2Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+end
+
+--// ===== CHAPTER 3 DOORS =====
+local ch3Doors = createDropdown("Chapter 3 Doors")
+
+local Doors3 = workspace:FindFirstChild("GameplayParts")
+	and workspace.GameplayParts:FindFirstChild("Doors")
+	and workspace.GameplayParts.Doors:FindFirstChild("Normal")
+
+if Doors3 then
+	local Buildable = Doors3:FindFirstChild("Buildable")
+	local Paintable = Doors3:FindFirstChild("Paintable")
+	local Unlockable = Doors3:FindFirstChild("Unlockable")
+
+	-- BUILDABLE
+	if Buildable then
+		for _,door in pairs(Buildable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Build: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch3Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- PAINTABLE
+	if Paintable then
+		for _,door in pairs(Paintable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Paint: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch3Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- UNLOCKABLE
+	if Unlockable then
+		for _,door in pairs(Unlockable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Unlock: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch3Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+end
+
+--// ===== CHAPTER 4 DOORS =====
+local ch4Doors = createDropdown("Chapter 4 Doors")
+
+local Doors4 = workspace:FindFirstChild("GameplayParts")
+	and workspace.GameplayParts:FindFirstChild("Doors")
+	and workspace.GameplayParts.Doors:FindFirstChild("Normal")
+
+if Doors4 then
+	local Paintable = Doors4:FindFirstChild("Paintable")
+	local Unlockable = Doors4:FindFirstChild("Unlockable")
+
+	-- PAINTABLE
+	if Paintable then
+		for _,door in pairs(Paintable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Paint: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch4Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+
+	-- UNLOCKABLE
+	if Unlockable then
+		for _,door in pairs(Unlockable:GetChildren()) do
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1,0,0,30)
+			btn.Text = "Unlock: "..door.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			btn.TextColor3 = Color3.new(1,1,1)
+			btn.Parent = ch4Doors
+			
+			btn.MouseButton1Click:Connect(function()
+				teleport(door)
+			end)
+		end
+	end
+end
+
+print("@ActusisGames on youtube")
+
+print("Does Everything Work?")
+
+print("Full Script Loaded! 😈")
