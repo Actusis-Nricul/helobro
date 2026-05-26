@@ -20,8 +20,8 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 230)
-frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.Size = UDim2.new(0, 300, 0, 230) -- how big ui is, very important when making buttons fit on the top bar, and just over all aesthetics
+frame.Position = UDim2.new(0.5, -150, 0.5, -115) -- position of the ui when you execute, only second and fourth number matter that much rlly
 frame.BackgroundColor3 = Color3.fromRGB(30,30,30) -- background of the ui (you can change its RGB code search it online)
 frame.Parent = gui
 
@@ -32,13 +32,13 @@ topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
 topBar.Parent = frame
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -40, 1, 0) -- how big ui is, very important when making buttons fit on the top bar, and just over all aesthetics
-title.Position = UDim2.new(0, 5, 0, 0) -- position of the ui when you execute, only second and fourth number matter that much rlly
-title.BackgroundTransparency = 1 -- you can make transparency less like 0.5 to see the game but harder to read text on the gui
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0) 
+title.BackgroundTransparency = 1 -- you can make top bar transparency less like 0.5 to see the game but harder to read text on the top bar
 title.Text = "TestingTestingGUI"
 title.TextColor3 = Color3.fromRGB(255,255,255)
 title.TextScaled = true
-title.Font = Enum.Font.SourceSansBold -- change font if you want
+title.Font = Enum.Font.SourceSansBold -- change font if you want of the top bar text
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = topBarM      
 
@@ -49,6 +49,7 @@ close.Position = UDim2.new(1,-30,0,0) -- dont change unless you want it to not b
 close.Text = "X" -- you can change if you want it to be a diff letter
 close.Parent = topBar
 
+ -- dragging stuff don't remove unless you want your script to not be draggable
 local dragging = false
 local dragInput, dragStart, startPos
 
@@ -84,12 +85,12 @@ UIS.InputChanged:Connect(function(input)
 	end
 end)
 
--- Close
+-- Close button
 close.MouseButton1Click:Connect(function()
 	frame.Visible = false
 end)
 
--- Minimize (Right Alt) you can change Enum.Keycode.(thebutton) then
+-- Minimize (Right Alt) you can change Enum.Keycode.(thebutton)
 UIS.InputBegan:Connect(function(input, gpe)
 	if gpe then return end
 	if input.KeyCode == Enum.KeyCode.RightAlt then
@@ -98,22 +99,23 @@ UIS.InputBegan:Connect(function(input, gpe)
 end)
 
 -- Buttons (put the name of your button name, behind each Btn, like autoclickBtn, on all of the Btn for that button section)
+-- all of them are on and off buttons, join my discord or look at my other scripts if you wanna see a normal one
 local Btn = Instance.new("TextButton")
 Btn.Size = UDim2.new(1,-20,0,40)
 Btn.Position = UDim2.new(0,10,0,50)
-Btn.Text = "(): OFF"
+Btn.Text = "(button 1 auto): OFF"
 Btn.Parent = frame
 
 local brightBtn = Instance.new("TextButton")
 brightBtn.Size = UDim2.new(1,-20,0,40)
 brightBtn.Position = UDim2.new(0,10,0,100)
-brightBtn.Text = "(): OFF"
+brightBtn.Text = "(button 2 auto): OFF"
 brightBtn.Parent = frame
 
 local Btn = Instance.new("TextButton")
 Btn.Size = UDim2.new(1,-20,0,40)
 Btn.Position = UDim2.new(0,10,0,150)
-Btn.Text = "Auto (): OFF"
+Btn.Text = "Auto (button 3 auto): OFF"
 Btn.Parent = frame
 
  -- (enter name of button 1)
@@ -132,7 +134,7 @@ autoClickBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
---// Fullbright, (enter name of button 2)
+ -- (enter name of button 2)
 local fullbright = false
 
 fullbrightBtn.MouseButton1Click:Connect(function()
@@ -172,6 +174,6 @@ print("discord.gg/A5NEZNPMCS") -- replace with your own discord
 
 print("Subscribe @ActusisGames On Youtube 🙏") -- replace with your own yt or tictak
 
-print("Does Everything Work? 👍")
+print("Does Everything Work? 👍") -- replace this if you want
 
-print("Full Script Loaded! 😈")
+print("Full Script Loaded! 😈") -- you can replace this emoji idk devil emoji looks tuff
