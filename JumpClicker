@@ -1,0 +1,479 @@
+-- Jump Clicker Script OP keyless 2026 😈
+-- discord.gg/A5NEZNPMCS
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+
+---------------------------------------------------
+-- COOL BUTTON STYLE
+---------------------------------------------------
+
+local function styleButton(btn)
+
+	btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextScaled = true
+	btn.AutoButtonColor = false
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0,10)
+	corner.Parent = btn
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(80,80,80)
+	stroke.Thickness = 2
+	stroke.Parent = btn
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(60,60,60)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(25,25,25))
+	}
+	gradient.Rotation = 90
+	gradient.Parent = btn
+
+	local originalSize = btn.Size
+
+	---------------------------------------------------
+	-- HOVER
+	---------------------------------------------------
+
+	btn.MouseEnter:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.12),
+			{
+				BackgroundColor3 = Color3.fromRGB(55,55,55),
+				Size = originalSize + UDim2.new(0,4,0,4)
+			}
+		):Play()
+	end)
+
+	btn.MouseLeave:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.12),
+			{
+				BackgroundColor3 = Color3.fromRGB(35,35,35),
+				Size = originalSize
+			}
+		):Play()
+	end)
+
+	---------------------------------------------------
+	-- CLICK EFFECT
+	---------------------------------------------------
+
+	btn.MouseButton1Down:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.05),
+			{
+				Rotation = 1
+			}
+		):Play()
+	end)
+
+	btn.MouseButton1Up:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.05),
+			{
+				Rotation = 0
+			}
+		):Play()
+	end)
+end
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 390, 0, 670)
+frame.Position = UDim2.new(0.5, -195, 0.5, -350)
+
+frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0,12)
+frameCorner.Parent = frame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(70,70,70)
+frameStroke.Thickness = 2
+frameStroke.Parent = frame
+
+---------------------------------------------------
+-- TOP BAR
+---------------------------------------------------
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,35)
+
+topBar.BackgroundColor3 = Color3.fromRGB(35,35,35)
+topBar.Parent = frame
+
+local topCorner = Instance.new("UICorner")
+topCorner.CornerRadius = UDim.new(0,12)
+topCorner.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+
+title.BackgroundTransparency = 1
+title.Text = "Jump Clicker, Roblox Script"
+
+title.TextColor3 = Color3.new(1,1,1)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,2)
+
+close.Text = "X"
+
+close.Parent = topBar
+
+styleButton(close)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text, y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(1,-20,0,40)
+	btn.Position = UDim2.new(0,10,0,y)
+
+	btn.Text = text
+
+	btn.Parent = frame
+
+	styleButton(btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- BUTTONS
+---------------------------------------------------
+
+local autoClickBtn = makeButton("Auto Click: OFF", 50)
+local maxbrightBtn = makeButton("MAXbright: OFF", 100)
+local autoRebirthBtn = makeButton("Auto Rebirth: OFF", 150)
+local teleportBtn = makeButton("Teleport World 1 Wins", 200)
+local noobEggBtn = makeButton("Open Noob Egg", 250)
+local starterEggBtn = makeButton("Open Starter Egg", 300)
+local rareEggBtn = makeButton("Open Rare Egg", 350)
+local world3Btn = makeButton("Teleport World 3 Wins", 400)
+local proEggBtn = makeButton("Open Pro Egg", 450)
+local infJumpBtn = makeButton("Infinite Jump: OFF", 500)
+local epicEggBtn = makeButton("Open Epic Egg", 550)
+local rebirthEventBtn = makeButton("Rebirth Event", 600)
+
+---------------------------------------------------
+-- DRAGGING
+---------------------------------------------------
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+topBar.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if input == dragInput and dragging then
+
+		local delta = input.Position - dragStart
+
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+---------------------------------------------------
+-- CLOSE
+---------------------------------------------------
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+
+	if gpe then return end
+
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+---------------------------------------------------
+-- AUTO CLICK
+---------------------------------------------------
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+
+	autoClick = not autoClick
+
+	autoClickBtn.Text =
+		"Auto Click: " ..
+		(autoClick and "ON" or "OFF")
+
+	if autoClick then
+
+		task.spawn(function()
+
+			while autoClick do
+
+				for i = 1,7 do
+					RS:WaitForChild("IncreaseSpeed"):FireServer()
+				end
+
+				task.wait()
+			end
+		end)
+	end
+end)
+
+---------------------------------------------------
+-- MAXBRIGHT
+---------------------------------------------------
+
+local maxbright = false
+
+maxbrightBtn.MouseButton1Click:Connect(function()
+
+	maxbright = not maxbright
+
+	maxbrightBtn.Text =
+		"MAXbright: " ..
+		(maxbright and "ON" or "OFF")
+
+	if maxbright then
+
+		task.spawn(function()
+
+			while maxbright do
+
+				Lighting.Brightness = 5
+				Lighting.ClockTime = 13
+				Lighting.FogEnd = 3000000
+				Lighting.GlobalShadows = false
+
+				task.wait()
+			end
+		end)
+	end
+end)
+
+---------------------------------------------------
+-- AUTO REBIRTH
+---------------------------------------------------
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+
+	autoRebirth = not autoRebirth
+
+	autoRebirthBtn.Text =
+		"Auto Rebirth: " ..
+		(autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+
+		task.spawn(function()
+
+			while autoRebirth do
+
+				RS.Remotes.Rebirth:InvokeServer()
+
+				task.wait()
+			end
+		end)
+	end
+end)
+
+---------------------------------------------------
+-- TELEPORT WORLD 1
+---------------------------------------------------
+
+teleportBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(-9860, 8982, -44)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- EGG BUTTONS
+---------------------------------------------------
+
+local function openEgg(name)
+
+	local args = {
+		name,
+		"Single"
+	}
+
+	RS:WaitForChild("RemoteEvents")
+		:WaitForChild("EggOpened")
+		:InvokeServer(unpack(args))
+end
+
+noobEggBtn.MouseButton1Click:Connect(function()
+	openEgg("Noob")
+end)
+
+starterEggBtn.MouseButton1Click:Connect(function()
+	openEgg("Starter")
+end)
+
+rareEggBtn.MouseButton1Click:Connect(function()
+	openEgg("Rare")
+end)
+
+proEggBtn.MouseButton1Click:Connect(function()
+	openEgg("Pro")
+end)
+
+epicEggBtn.MouseButton1Click:Connect(function()
+	openEgg("Epic")
+end)
+
+---------------------------------------------------
+-- WORLD 3 TP
+---------------------------------------------------
+
+world3Btn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(-45, 8738, 153)
+		end
+	end
+end)
+
+---------------------------------------------------
+-- INFINITE JUMP
+---------------------------------------------------
+
+local infiniteJump = false
+
+infJumpBtn.MouseButton1Click:Connect(function()
+
+	infiniteJump = not infiniteJump
+
+	infJumpBtn.Text =
+		"Infinite Jump: " ..
+		(infiniteJump and "ON" or "OFF")
+end)
+
+UIS.JumpRequest:Connect(function()
+
+	if infiniteJump then
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- REBIRTH
+---------------------------------------------------
+
+rebirthEventBtn.MouseButton1Click:Connect(function()
+
+	game:GetService("ReplicatedStorage")
+		:WaitForChild("RebirthEvent")
+		:FireServer()
+end)
+
+---------------------------------------------------
+-- LOADED
+---------------------------------------------------
+
+print("join discord.gg/A5NEZNPMCS for more script working 🟢")
+print("Subscribe @ActusisGames On Youtube 🙏")
+print("Does Everything Work? 👍")
+print("Full Script Loaded! 😈")
