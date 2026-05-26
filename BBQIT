@@ -1,0 +1,571 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RS = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 540, 0, 960)
+frame.Position = UDim2.new(0.5, -260, 0.5, -270)
+
+frame.BackgroundColor3 = Color3.fromRGB(225,225,225)
+frame.BorderSizePixel = 0
+
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0,14)
+frameCorner.Parent = frame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(160,160,160)
+frameStroke.Thickness = 2
+frameStroke.Parent = frame
+
+---------------------------------------------------
+-- TOP BAR
+---------------------------------------------------
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,40)
+
+topBar.BackgroundColor3 = Color3.fromRGB(240,240,240)
+topBar.BorderSizePixel = 0
+
+topBar.Parent = frame
+
+local topCorner = Instance.new("UICorner")
+topCorner.CornerRadius = UDim.new(0,14)
+topCorner.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-45,1,0)
+title.Position = UDim2.new(0,10,0,0)
+
+title.BackgroundTransparency = 1
+title.Text = "Just BBQ It"
+
+title.TextColor3 = Color3.fromRGB(40,40,40)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+
+close.Text = "X"
+
+close.BackgroundColor3 = Color3.fromRGB(255,120,120)
+close.TextColor3 = Color3.new(1,1,1)
+
+close.Font = Enum.Font.GothamBold
+close.TextScaled = true
+
+close.Parent = topBar
+
+---------------------------------------------------
+-- STYLE BUTTON
+---------------------------------------------------
+
+local function styleButton(btn)
+
+	btn.BackgroundColor3 = Color3.fromRGB(245,245,245)
+
+	btn.TextColor3 = Color3.fromRGB(40,40,40)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextScaled = true
+	btn.AutoButtonColor = false
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0,10)
+	corner.Parent = btn
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(180,180,180)
+	stroke.Thickness = 2
+	stroke.Parent = btn
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(220,220,220))
+	}
+	gradient.Rotation = 90
+	gradient.Parent = btn
+
+	local originalSize = btn.Size
+
+	btn.MouseEnter:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.12),
+			{
+				BackgroundColor3 = Color3.fromRGB(255,255,255),
+				Size = originalSize + UDim2.new(0,4,0,4)
+			}
+		):Play()
+	end)
+
+	btn.MouseLeave:Connect(function()
+
+		TweenService:Create(
+			btn,
+			TweenInfo.new(0.12),
+			{
+				BackgroundColor3 = Color3.fromRGB(245,245,245),
+				Size = originalSize
+			}
+		):Play()
+	end)
+end
+
+styleButton(close)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text, parent, y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(1,-20,0,45)
+	btn.Position = UDim2.new(0,10,0,y)
+
+	btn.Text = text
+
+	btn.Parent = parent
+
+	styleButton(btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- TAB BUTTONS
+---------------------------------------------------
+
+local meatTabBtn = Instance.new("TextButton")
+meatTabBtn.Size = UDim2.new(0,160,0,40)
+meatTabBtn.Position = UDim2.new(0,10,0,50)
+
+meatTabBtn.Text = "Meat Shop"
+
+meatTabBtn.Parent = frame
+
+styleButton(meatTabBtn)
+
+local utilityTabBtn = Instance.new("TextButton")
+utilityTabBtn.Size = UDim2.new(0,160,0,40)
+utilityTabBtn.Position = UDim2.new(0,180,0,50)
+
+utilityTabBtn.Text = "Utility Shop"
+
+utilityTabBtn.Parent = frame
+
+styleButton(utilityTabBtn)
+
+---------------------------------------------------
+-- PAGES
+---------------------------------------------------
+
+local meatPage = Instance.new("Frame")
+meatPage.Size = UDim2.new(1,0,1,-100)
+meatPage.Position = UDim2.new(0,0,0,100)
+
+meatPage.BackgroundTransparency = 1
+meatPage.Parent = frame
+
+local utilityPage = Instance.new("Frame")
+utilityPage.Size = UDim2.new(1,0,1,-100)
+utilityPage.Position = UDim2.new(0,0,0,100)
+
+utilityPage.BackgroundTransparency = 1
+utilityPage.Visible = false
+
+utilityPage.Parent = frame
+
+---------------------------------------------------
+-- TAB SWITCHING
+---------------------------------------------------
+
+meatTabBtn.MouseButton1Click:Connect(function()
+
+	meatPage.Visible = true
+	utilityPage.Visible = false
+
+	title.Text = "Meat Shop"
+end)
+
+utilityTabBtn.MouseButton1Click:Connect(function()
+
+	meatPage.Visible = false
+	utilityPage.Visible = true
+
+	title.Text = "Utility Shop"
+end)
+
+---------------------------------------------------
+-- MEAT SHOP
+---------------------------------------------------
+
+local meats = {
+	"Raw Hotdog",
+	"Raw Burger",
+	"Raw Chicken Wing",
+	"Raw Bacon",
+	"Raw Porkchop",
+	"Raw Chicken",
+	"Raw Salmon",
+	"Raw Ribeye",
+	"Raw Lobtser Tail",
+	"Raw Prime Rib",
+	"Raw Ribs",
+	"Raw Brisket",
+	"Raw Bigfoot Filet",
+	"Raw Dragon",
+	"Raw Demon",
+	"Raw Whole Unicorn",
+	"Raw Hydra"
+}
+
+for i,v in ipairs(meats) do
+
+	local btn = makeButton("Buy "..v, meatPage, (i-1)*50)
+
+	btn.MouseButton1Click:Connect(function()
+
+		local args = {
+			v,
+			false
+		}
+
+		RS:WaitForChild("Remotes")
+			:WaitForChild("BuyMeat")
+			:FireServer(unpack(args))
+	end)
+end
+
+---------------------------------------------------
+-- MINI TAB BUTTONS
+---------------------------------------------------
+
+local grillsTabBtn = Instance.new("TextButton")
+grillsTabBtn.Size = UDim2.new(0,115,0,35)
+grillsTabBtn.Position = UDim2.new(0,10,0,0)
+
+grillsTabBtn.Text = "Grills"
+
+grillsTabBtn.Parent = utilityPage
+
+styleButton(grillsTabBtn)
+
+local smokersTabBtn = Instance.new("TextButton")
+smokersTabBtn.Size = UDim2.new(0,115,0,35)
+smokersTabBtn.Position = UDim2.new(0,135,0,0)
+
+smokersTabBtn.Text = "Smokers"
+
+smokersTabBtn.Parent = utilityPage
+
+styleButton(smokersTabBtn)
+
+local tablesTabBtn = Instance.new("TextButton")
+tablesTabBtn.Size = UDim2.new(0,115,0,35)
+tablesTabBtn.Position = UDim2.new(0,260,0,0)
+
+tablesTabBtn.Text = "Tables"
+
+tablesTabBtn.Parent = utilityPage
+
+styleButton(tablesTabBtn)
+
+local upgradesTabBtn = Instance.new("TextButton")
+upgradesTabBtn.Size = UDim2.new(0,115,0,35)
+upgradesTabBtn.Position = UDim2.new(0,385,0,0)
+
+upgradesTabBtn.Text = "Upgrades"
+
+upgradesTabBtn.Parent = utilityPage
+
+styleButton(upgradesTabBtn)
+
+---------------------------------------------------
+-- MINI PAGES
+---------------------------------------------------
+
+local grillsPage = Instance.new("Frame")
+grillsPage.Size = UDim2.new(1,0,1,-50)
+grillsPage.Position = UDim2.new(0,0,0,50)
+
+grillsPage.BackgroundTransparency = 1
+grillsPage.Parent = utilityPage
+
+local smokersPage = Instance.new("Frame")
+smokersPage.Size = UDim2.new(1,0,1,-50)
+smokersPage.Position = UDim2.new(0,0,0,50)
+
+smokersPage.BackgroundTransparency = 1
+smokersPage.Visible = false
+
+smokersPage.Parent = utilityPage
+
+local tablesPage = Instance.new("Frame")
+tablesPage.Size = UDim2.new(1,0,1,-50)
+tablesPage.Position = UDim2.new(0,0,0,50)
+
+tablesPage.BackgroundTransparency = 1
+tablesPage.Visible = false
+
+tablesPage.Parent = utilityPage
+
+local upgradesPage = Instance.new("Frame")
+upgradesPage.Size = UDim2.new(1,0,1,-50)
+upgradesPage.Position = UDim2.new(0,0,0,50)
+
+upgradesPage.BackgroundTransparency = 1
+upgradesPage.Visible = false
+
+upgradesPage.Parent = utilityPage
+
+---------------------------------------------------
+-- MINI TAB SWITCHING
+---------------------------------------------------
+
+local function hideMiniPages()
+
+	grillsPage.Visible = false
+	smokersPage.Visible = false
+	tablesPage.Visible = false
+	upgradesPage.Visible = false
+end
+
+grillsTabBtn.MouseButton1Click:Connect(function()
+
+	hideMiniPages()
+	grillsPage.Visible = true
+end)
+
+smokersTabBtn.MouseButton1Click:Connect(function()
+
+	hideMiniPages()
+	smokersPage.Visible = true
+end)
+
+tablesTabBtn.MouseButton1Click:Connect(function()
+
+	hideMiniPages()
+	tablesPage.Visible = true
+end)
+
+upgradesTabBtn.MouseButton1Click:Connect(function()
+
+	hideMiniPages()
+	upgradesPage.Visible = true
+end)
+
+---------------------------------------------------
+-- GRILLS
+---------------------------------------------------
+
+local grills = {
+	"Basic Grill",
+	"Long Grill",
+	"Gas Grill",
+	"Long Gas Grill",
+	"Pizza Oven",
+	"Electric Grill",
+	"Volcano"
+
+}
+
+for i,v in ipairs(grills) do
+
+	local btn = makeButton("Buy "..v, grillsPage, (i-1)*50)
+
+	btn.MouseButton1Click:Connect(function()
+
+		local args = {
+			v,
+			false
+		}
+
+		RS.Remotes.BuyShopItem:FireServer(unpack(args))
+	end)
+end
+
+---------------------------------------------------
+-- SMOKERS
+---------------------------------------------------
+
+local smokers = {
+	"Basic Smoker",
+	"Long Smoker",
+	"Industrial Smoker",
+	"Meteor Smoker"
+}
+
+for i,v in ipairs(smokers) do
+
+	local btn = makeButton("Buy "..v, smokersPage, (i-1)*50)
+
+	btn.MouseButton1Click:Connect(function()
+
+		local args = {
+			v,
+			false
+		}
+
+		RS.Remotes.BuyShopItem:FireServer(unpack(args))
+	end)
+end
+
+---------------------------------------------------
+-- TABLES
+---------------------------------------------------
+
+local tables = {
+	"Plastic Table",
+	"Picnic Table",
+	"Restaurant Table",
+	"Gold Table"
+}
+
+for i,v in ipairs(tables) do
+
+	local btn = makeButton("Buy "..v, tablesPage, (i-1)*50)
+
+	btn.MouseButton1Click:Connect(function()
+
+		local args = {
+			v,
+			false
+		}
+
+		RS.Remotes.BuyShopItem:FireServer(unpack(args))
+	end)
+end
+
+---------------------------------------------------
+-- UPGRADES
+---------------------------------------------------
+
+local upgrades = {
+	{
+		Name = "Upgrade Cook Time",
+		Remote = "UpgradeCookTime"
+	},
+
+	{
+		Name = "Upgrade Eat Time",
+		Remote = "UpgradeEatTime"
+	},
+
+	{
+		Name = "Upgrade Restock Chance",
+		Remote = "UpgradeRestockChance"
+	},
+
+	{
+		Name = "Upgrade Restock Timer",
+		Remote = "UpgradeRestockTimer"
+	},
+
+}
+
+for i,v in ipairs(upgrades) do
+
+	local btn = makeButton(v.Name, upgradesPage, (i-1)*50)
+
+	btn.MouseButton1Click:Connect(function()
+
+		RS:WaitForChild("Remotes")
+			:WaitForChild(v.Remote)
+			:FireServer()
+	end)
+end
+
+---------------------------------------------------
+-- DRAGGING
+---------------------------------------------------
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+topBar.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if input == dragInput and dragging then
+
+		local delta = input.Position - dragStart
+
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+---------------------------------------------------
+-- CLOSE
+---------------------------------------------------
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+
+	if gpe then return end
+
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+print("Script Just BBQ It Loaded 😈")
