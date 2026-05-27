@@ -1,0 +1,337 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 450)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "ICanAffordSynapseZ (potassium is better)"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = true
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,50)
+autoClickBtn.Text = "auto Click: OFF"
+autoClickBtn.Parent = frame
+
+local autoRebirthBtn = Instance.new("TextButton")
+autoRebirthBtn.Size = UDim2.new(1,-20,0,40)
+autoRebirthBtn.Position = UDim2.new(0,10,0,100)
+autoRebirthBtn.Text = "auto Rebirth: OFF"
+autoRebirthBtn.Parent = frame
+
+local teleportBtn = Instance.new("TextButton")
+teleportBtn.Size = UDim2.new(1,-20,0,40)
+teleportBtn.Position = UDim2.new(0,10,0,150)
+teleportBtn.Text = "Teleport World 1 Wins"
+teleportBtn.Parent = frame
+
+local autoFarmBtn = Instance.new("TextButton")
+autoFarmBtn.Size = UDim2.new(1,-20,0,40)
+autoFarmBtn.Position = UDim2.new(0,10,0,200)
+autoFarmBtn.Text = "Auto Farm World 1: OFF"
+autoFarmBtn.Parent = frame
+
+local infJumpBtn = Instance.new("TextButton")
+infJumpBtn.Size = UDim2.new(1,-20,0,40)
+infJumpBtn.Position = UDim2.new(0,10,0,250)
+infJumpBtn.Text = "Infinite Jump: OFF"
+infJumpBtn.Parent = frame
+
+
+local discordBtn = Instance.new("TextButton")
+discordBtn.Size = UDim2.new(1,-20,0,40)
+discordBtn.Position = UDim2.new(0,10,0,300)
+discordBtn.Text = "Copy Discord"
+discordBtn.Parent = frame
+
+local teleportWorld2Btn = Instance.new("TextButton")
+teleportWorld2Btn.Size = UDim2.new(1,-20,0,40)
+teleportWorld2Btn.Position = UDim2.new(0,10,0,350)
+teleportWorld2Btn.Text = "Teleport World 2 Wins"
+teleportWorld2Btn.Parent = frame
+
+
+local autoFarmWorld2Btn = Instance.new("TextButton")
+autoFarmWorld2Btn.Size = UDim2.new(1,-20,0,40)
+autoFarmWorld2Btn.Position = UDim2.new(0,10,0,400)
+autoFarmWorld2Btn.Text = "Auto Farm World 2: OFF"
+autoFarmWorld2Btn.Parent = frame
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+				game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Shared"):WaitForChild("RemoteEventService"):WaitForChild("AddSpeedRemoteEvent"):FireServer()
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+	autoRebirth = not autoRebirth
+	autoRebirthBtn.Text = "Auto Rebirth: " .. (autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+		task.spawn(function()
+			while autoRebirth do
+				game:GetService("ReplicatedStorage").Remotes.Rebirth:InvokeServer()
+                task.wait()
+			end
+		end)
+	end
+end)
+
+teleportBtn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			hrp.CFrame = CFrame.new(7982, 205, 479)
+
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 1
+---------------------------------------------------
+
+local autoFarm = false
+
+autoFarmBtn.MouseButton1Click:Connect(function()
+
+	autoFarm = not autoFarm
+
+	autoFarmBtn.Text =
+		"Auto Farm World 1: " ..
+		(autoFarm and "ON" or "OFF")
+
+	if autoFarm then
+
+		task.spawn(function()
+
+			while autoFarm do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+
+						hrp.CFrame = CFrame.new(7982, 205, 479)
+
+					end
+				end
+
+				task.wait(2.3)
+			end
+		end)
+	end
+end)
+
+---------------------------------------------------
+-- INFINITE JUMP
+---------------------------------------------------
+
+local infiniteJump = false
+
+infJumpBtn.MouseButton1Click:Connect(function()
+
+	infiniteJump = not infiniteJump
+
+	infJumpBtn.Text =
+		"Infinite Jump: " ..
+		(infiniteJump and "ON" or "OFF")
+end)
+
+UIS.JumpRequest:Connect(function()
+
+	if infiniteJump then
+
+		local char = player.Character
+
+		if char then
+
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum:ChangeState(Enum.HumanoidStateType.Jumping)
+			end
+		end
+	end
+end)
+
+---------------------------------------------------
+-- COPY DISCORD
+---------------------------------------------------
+
+discordBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+
+		setclipboard("https://discord.gg/ANwZKq8D6a")
+	end
+end)
+
+---------------------------------------------------
+-- TELEPORT WORLD 2
+---------------------------------------------------
+
+teleportWorld2Btn.MouseButton1Click:Connect(function()
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			hrp.CFrame = CFrame.new(3218, 2, 5)
+
+		end
+	end
+end)
+
+---------------------------------------------------
+-- AUTO FARM WORLD 2
+---------------------------------------------------
+
+local autoFarmWorld2 = false
+
+autoFarmWorld2Btn.MouseButton1Click:Connect(function()
+
+	autoFarmWorld2 = not autoFarmWorld2
+
+	autoFarmWorld2Btn.Text =
+		"Auto Farm World 2: " ..
+		(autoFarmWorld2 and "ON" or "OFF")
+
+	if autoFarmWorld2 then
+
+		task.spawn(function()
+
+			while autoFarmWorld2 do
+
+				local char = player.Character
+
+				if char then
+
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+
+					if hrp then
+
+						hrp.CFrame = CFrame.new(3218, 2, 5)
+
+					end
+				end
+
+				task.wait(2.3)
+			end
+		end)
+	end
+end)
