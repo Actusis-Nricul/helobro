@@ -1,0 +1,218 @@
+-- ============================================================
+--  PONG  |  Luau  |  Roblox Output Console
+--  Player (left)  : UP / DOWN arrow keys  or  Mouse scroll
+--  AI     (right) : auto-tracks the ball
+-- ============================================================
+--  HOW TO RUN
+--  1. Open Roblox Studio
+--  2. Insert a Script inside ServerScriptService
+--  3. Paste this entire file, then press Play (F5)
+--  4. Watch the Output window  (View → Output)
+--  NOTE: Arrow-key / mouse input only works from a LocalScript
+--        running on the client.  For a full interactive version
+--        paste the LOCAL-SCRIPT block at the bottom into a
+--        LocalScript in StarterPlayerScripts instead.
+-- ============================================================
+
+-- ── Dimensions ──────────────────────────────────────────────
+local W        = 60   -- board width  (chars)
+local H        = 20   -- board height (rows)
+local PADDLE_H = 4    -- paddle height (rows)
+local WIN_SCORE = 7
+
+-- ── State ────────────────────────────────────────────────────
+local ballX, ballY   = W / 2, H / 2
+local ballDX, ballDY = 1, 1          -- direction (+1 / -1)
+local speed          = 1             -- cells per tick
+
+local leftY  = math.floor(H / 2 - PADDLE_H / 2)   -- player paddle top
+local rightY = math.floor(H / 2 - PADDLE_H / 2)   -- AI    paddle top
+
+local scoreL, scoreR = 0, 0
+local running        = true
+local tickRate       = 0.08   -- seconds per frame  (~12 fps)
+
+-- ── Input (arrow keys via UserInputService) ──────────────────
+--  Works only in a LocalScript; in a ServerScript this section
+--  is harmlessly skipped (pcall guard).
+local inputDelta = 0   -- -1 up, +1 down, 0 still
+
+local ok, UIS = pcall(function()
+	return game:GetService("UserInputService")
+end)
+
+if ok and UIS then
+	UIS.InputBegan:Connect(function(input, gpe)
+		if gpe then return end
+		if input.KeyCode == Enum.KeyCode.Up   then inputDelta = -1 end
+		if input.KeyCode == Enum.KeyCode.Down then inputDelta =  1 end
+	end)
+	UIS.InputEnded:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.Up or
+		   input.KeyCode == Enum.KeyCode.Down then
+			inputDelta = 0
+		end
+	end)
+	-- Mouse wheel
+	UIS.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseWheel then
+			leftY = math.clamp(leftY - input.Position.Z * 2, 0, H - PADDLE_H)
+		end
+	end)
+end
+
+-- ── Helpers ──────────────────────────────────────────────────
+local function clamp(v, lo, hi) return math.max(lo, math.min(hi, v)) end
+
+local function resetBall(scoredSide)
+	ballX  = W / 2
+	ballY  = H / 2
+	-- serve toward the side that just conceded
+	ballDX = (scoredSide == "left") and 1 or -1
+	ballDY = (math.random(0, 1) == 0) and 1 or -1
+	speed  = 1
+end
+
+-- ── Render ───────────────────────────────────────────────────
+local function render()
+	-- Build each row as a string
+	local rows = {}
+	-- top border
+	rows[1] = "+" .. string.rep("-", W) .. "+"
+
+	for row = 0, H - 1 do
+		local line = {}
+		for col = 0, W - 1 do
+			local ch = " "
+
+			-- left paddle  (col 1)
+			if col == 1 and row >= leftY and row < leftY + PADDLE_H then
+				ch = "|"
+			-- right paddle (col W-2)
+			elseif col == W - 2 and row >= rightY and row < rightY + PADDLE_H then
+				ch = "|"
+			-- ball
+			elseif col == math.floor(ballX) and row == math.floor(ballY) then
+				ch = "O"
+			-- centre dashes
+			elseif col == math.floor(W / 2) then
+				ch = (row % 2 == 0) and ":" or " "
+			end
+
+			line[col + 1] = ch
+		end
+		rows[#rows + 1] = "|" .. table.concat(line) .. "|"
+	end
+
+	-- bottom border + scoreboard
+	rows[#rows + 1] = "+" .. string.rep("-", W) .. "+"
+	rows[#rows + 1] = string.format(
+		"%sYOU  %d  :  %d  CPU%s",
+		string.rep(" ", math.floor(W / 2) - 6),
+		scoreL, scoreR,
+		string.rep(" ", math.floor(W / 2) - 6)
+	)
+
+	-- Print a separator so successive frames are easy to read
+	print(string.rep("=", W + 2))
+	for _, r in ipairs(rows) do
+		print(r)
+	end
+end
+
+-- ── AI paddle ────────────────────────────────────────────────
+local function moveAI()
+	local target = math.floor(ballY) - math.floor(PADDLE_H / 2)
+	if rightY < target then
+		rightY = rightY + 1
+	elseif rightY > target then
+		rightY = rightY - 1
+	end
+	rightY = clamp(rightY, 0, H - PADDLE_H)
+end
+
+-- ── Physics ──────────────────────────────────────────────────
+local function update()
+	-- Move player paddle from held key
+	leftY = clamp(leftY + inputDelta, 0, H - PADDLE_H)
+
+	-- Move AI
+	moveAI()
+
+	-- Move ball
+	ballX = ballX + ballDX * speed
+	ballY = ballY + ballDY * speed
+
+	-- Top / bottom wall bounce
+	if ballY <= 0 then
+		ballY  = 0
+		ballDY = 1
+	elseif ballY >= H - 1 then
+		ballY  = H - 1
+		ballDY = -1
+	end
+
+	-- Left paddle collision  (col 1, so ballX <= 2)
+	if ballDX == -1 and ballX <= 2 then
+		local bRow = math.floor(ballY)
+		if bRow >= leftY and bRow < leftY + PADDLE_H then
+			ballDX = 1
+			ballX  = 2
+			-- slight angle variation based on where ball hits paddle
+			local hitPos = bRow - leftY           -- 0 .. PADDLE_H-1
+			if hitPos == 0 or hitPos == PADDLE_H - 1 then
+				ballDY = -ballDY   -- edge hit → flip vertical
+			end
+			speed = math.min(speed + 0.05, 2)    -- gradually speed up
+		end
+	end
+
+	-- Right paddle collision (col W-2)
+	if ballDX == 1 and ballX >= W - 3 then
+		local bRow = math.floor(ballY)
+		if bRow >= rightY and bRow < rightY + PADDLE_H then
+			ballDX = -1
+			ballX  = W - 3
+			local hitPos = bRow - rightY
+			if hitPos == 0 or hitPos == PADDLE_H - 1 then
+				ballDY = -ballDY
+			end
+			speed = math.min(speed + 0.05, 2)
+		end
+	end
+
+	-- Score: ball exits left side
+	if ballX < 0 then
+		scoreR = scoreR + 1
+		resetBall("right")
+	end
+
+	-- Score: ball exits right side
+	if ballX > W then
+		scoreL = scoreL + 1
+		resetBall("left")
+	end
+
+	-- Win condition
+	if scoreL >= WIN_SCORE or scoreR >= WIN_SCORE then
+		render()
+		if scoreL >= WIN_SCORE then
+			print("🏆  YOU WIN!  Congratulations!")
+		else
+			print("💻  CPU WINS!  Better luck next time.")
+		end
+		running = false
+	end
+end
+
+-- ── Game loop ────────────────────────────────────────────────
+resetBall("left")
+print("PONG  |  Arrow keys UP/DOWN (or mouse scroll) = move your paddle")
+print("First to " .. WIN_SCORE .. " wins!  Starting in 2 seconds…")
+task.wait(2)
+
+while running do
+	update()
+	if running then render() end
+	task.wait(tickRate)
+end
