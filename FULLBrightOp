@@ -1,6 +1,18 @@
 local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
+---------------------------------------------------
+-- SAVE ORIGINAL LIGHTING
+---------------------------------------------------
+
+local original = {
+	Brightness = Lighting.Brightness,
+	ClockTime = Lighting.ClockTime,
+	FogEnd = Lighting.FogEnd,
+	GlobalShadows = Lighting.GlobalShadows,
+	OutdoorAmbient = Lighting.OutdoorAmbient
+}
+
 local fullbright = false
 
 ---------------------------------------------------
@@ -19,6 +31,28 @@ UIS.InputBegan:Connect(function(input, gpe)
 
 		print("FullBright:",
 			fullbright and "ON" or "OFF")
+
+		---------------------------------------------------
+		-- TURN OFF
+		---------------------------------------------------
+
+		if not fullbright then
+
+			Lighting.Brightness =
+				original.Brightness
+
+			Lighting.ClockTime =
+				original.ClockTime
+
+			Lighting.FogEnd =
+				original.FogEnd
+
+			Lighting.GlobalShadows =
+				original.GlobalShadows
+
+			Lighting.OutdoorAmbient =
+				original.OutdoorAmbient
+		end
 	end
 end)
 
@@ -37,6 +71,7 @@ task.spawn(function()
 			Lighting.FogEnd = 100000
 
 			Lighting.GlobalShadows = false
+
 			Lighting.OutdoorAmbient =
 				Color3.fromRGB(255,255,255)
 		end
