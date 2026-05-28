@@ -1,53 +1,51 @@
--- INFINITE JUMP TOGGLE
--- Run to enable, run again to disable
-
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+
 local player = Players.LocalPlayer
 
--- Toggle off if already running
-if _G.infJump then
-    _G.infJump = false
-    print("[InfJump] OFF")
-    return
-end
+local infiniteJump = false
 
-_G.infJump = true
-print("[InfJump] ON")
+---------------------------------------------------
+-- TOGGLE WITH P
+---------------------------------------------------
 
-local function getHum()
-    local c = player.Character
-    return c and c:FindFirstChildOfClass("Humanoid")
-end
+UIS.InputBegan:Connect(function(input, gpe)
 
--- Re-enable jumping the moment the humanoid lands
-local function hookChar(char)
-    local hum = char:WaitForChild("Humanoid")
-    hum.StateChanged:Connect(function(_, new)
-        if not _G.infJump then return end
-        if new == Enum.HumanoidStateType.Landed then
-            hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-        end
-    end)
-end
+	if gpe then
+		return
+	end
 
--- Hook current character
-if player.Character then hookChar(player.Character) end
+	if input.KeyCode == Enum.KeyCode.P then
 
--- Hook on respawn
-player.CharacterAdded:Connect(function(char)
-    if not _G.infJump then return end
-    hookChar(char)
+		infiniteJump = not infiniteJump
+
+		print("Infinite Jump:",
+			infiniteJump and "ON" or "OFF")
+	end
 end)
 
--- Jump every time spacebar pressed
-UIS.InputBegan:Connect(function(inp, gpe)
-    if gpe then return end
-    if not _G.infJump then return end
-    if inp.KeyCode ~= Enum.KeyCode.Space then return end
-    local hum = getHum()
-    if hum and hum.Health > 0 then
-        hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-        hum.Jump = true
-    end
+---------------------------------------------------
+-- INFINITE JUMP
+---------------------------------------------------
+
+UIS.JumpRequest:Connect(function()
+
+	if infiniteJump then
+
+		local char =
+			player.Character
+
+		if char then
+
+			local hum =
+				char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+
+				hum:ChangeState(
+					Enum.HumanoidStateType.Jumping
+				)
+			end
+		end
+	end
 end)
