@@ -1,0 +1,334 @@
+-- ╔════════════════════════════════════╗
+-- ║     RAINBOW MAGIC CARPET v1.0      ║
+-- ╚════════════════════════════════════╝
+
+local Players         = game:GetService("Players")
+local RunService      = game:GetService("RunService")
+local UserInputService= game:GetService("UserInputService")
+local TweenService    = game:GetService("TweenService")
+
+local player    = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local camera    = workspace.CurrentCamera
+
+local function getChar()  return player.Character end
+local function getRoot()
+    local c = getChar()
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+local function getHum()
+    local c = getChar()
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+local carpetModel   = nil
+local carpetActive  = false
+local flyConn       = nil
+local rainbowConn   = nil
+local CARPET_SPEED  = 45
+local CARPET_PARTS  = {}
+
+local function buildCarpet(root)
+    if carpetModel then carpetModel:Destroy() end
+    CARPET_PARTS = {}
+
+    local model = Instance.new("Model")
+    model.Name = "MagicCarpet"
+
+    local COLS = 6
+    local ROWS = 3
+    local SEG_W = 1.4
+    local SEG_L = 1.2
+    local THICKNESS = 0.12
+    local totalW = COLS * SEG_W
+    local totalL = ROWS * SEG_L
+
+    for row = 1, ROWS do
+        for col = 1, COLS do
+            local seg = Instance.new("Part")
+            seg.Name          = "Seg_" .. row .. "_" .. col
+            seg.Size          = Vector3.new(SEG_W - 0.04, THICKNESS, SEG_L - 0.04)
+            seg.Anchored      = false
+            seg.CanCollide    = false
+            seg.CastShadow    = false
+            seg.Material      = Enum.Material.SmoothPlastic
+            seg.Color         = Color3.fromHSV((col-1)/(COLS), 0.9, 1)
+            seg.Parent        = model
+            seg:SetAttribute("XOff", (col - 0.5 - COLS/2) * SEG_W)
+            seg:SetAttribute("ZOff", (row - 0.5 - ROWS/2) * SEG_L)
+            table.insert(CARPET_PARTS, seg)
+        end
+    end
+
+    local TASSEL_COUNT = 8
+    for i = 1, TASSEL_COUNT do
+        for _, side in ipairs({-1, 1}) do
+            local tassel = Instance.new("Part")
+            tassel.Name       = "Tassel"
+            tassel.Size       = Vector3.new(0.12, 0.35, 0.12)
+            tassel.Anchored   = false
+            tassel.CanCollide = false
+            tassel.CastShadow = false
+            tassel.Material   = Enum.Material.Neon
+            tassel.Color      = Color3.fromHSV((i-1)/TASSEL_COUNT, 1, 1)
+            tassel.Parent     = model
+            tassel:SetAttribute("XOff", (i - 0.5 - TASSEL_COUNT/2) * (totalW / TASSEL_COUNT))
+            tassel:SetAttribute("ZOff", side * (totalL/2 + 0.2))
+            tassel:SetAttribute("YOff", -0.2)
+            table.insert(CARPET_PARTS, tassel)
+        end
+    end
+
+    for _, cx in ipairs({-totalW/2 + 0.3, totalW/2 - 0.3}) do
+        for _, cz in ipairs({-totalL/2 + 0.3, totalL/2 - 0.3}) do
+            local gem = Instance.new("Part")
+            gem.Name      = "Gem"
+            gem.Size      = Vector3.new(0.4, 0.4, 0.4)
+            gem.Anchored  = false
+            gem.CanCollide= false
+            gem.CastShadow= false
+            gem.Material  = Enum.Material.Neon
+            gem.Color     = Color3.fromRGB(255, 255, 255)
+            gem.Shape     = Enum.PartType.Ball
+            gem.Parent    = model
+            gem:SetAttribute("XOff", cx)
+            gem:SetAttribute("ZOff", cz)
+            gem:SetAttribute("YOff", 0.2)
+            table.insert(CARPET_PARTS, gem)
+        end
+    end
+
+    local primary = Instance.new("Part")
+    primary.Name         = "CarpetRoot"
+    primary.Size         = Vector3.new(totalW, THICKNESS, totalL)
+    primary.Anchored     = false
+    primary.CanCollide   = false
+    primary.Transparency = 1
+    primary.Parent       = model
+    model.PrimaryPart    = primary
+
+    for _, part in ipairs(model:GetChildren()) do
+        if part ~= primary and part:IsA("BasePart") then
+            local weld = Instance.new("WeldConstraint")
+            weld.Part0  = primary
+            weld.Part1  = part
+            weld.Parent = primary
+            local xOff = part:GetAttribute("XOff") or 0
+            local zOff = part:GetAttribute("ZOff") or 0
+            local yOff = part:GetAttribute("YOff") or 0
+            part.CFrame = primary.CFrame * CFrame.new(xOff, yOff - THICKNESS/2, zOff)
+        end
+    end
+
+    model.Parent = workspace
+    primary.CFrame = root.CFrame * CFrame.new(0, -3.5, 0)
+
+    local playerWeld = Instance.new("WeldConstraint")
+    playerWeld.Name   = "CarpetPlayerWeld"
+    playerWeld.Part0  = primary
+    playerWeld.Part1  = root
+    playerWeld.Parent = primary
+    root.CFrame = primary.CFrame * CFrame.new(0, 2.2, 0)
+
+    carpetModel = model
+    return model, primary
+end
+
+local function startRainbow()
+    if rainbowConn then rainbowConn:Disconnect() end
+    local hue = 0
+    rainbowConn = RunService.Heartbeat:Connect(function(dt)
+        if not carpetModel or not carpetModel.Parent then
+            rainbowConn:Disconnect(); return
+        end
+        hue = (hue + dt * 0.4) % 1
+        local idx = 0
+        for _, child in ipairs(carpetModel:GetDescendants()) do
+            if child:IsA("BasePart") and child.Name:find("Seg_") then
+                idx += 1
+                child.Color = Color3.fromHSV(((idx/18) + hue) % 1, 0.95, 1)
+            elseif child:IsA("BasePart") and child.Name == "Tassel" then
+                idx += 1
+                child.Color = Color3.fromHSV(((idx/16) + hue + 0.5) % 1, 1, 1)
+            elseif child:IsA("BasePart") and child.Name == "Gem" then
+                child.Color = Color3.fromHSV((hue + 0.3) % 1, 0.5, 1)
+            end
+        end
+    end)
+end
+
+local function startFly(primary)
+    if flyConn then flyConn:Disconnect() end
+
+    local bv = Instance.new("BodyVelocity", primary)
+    bv.Velocity  = Vector3.new(0,0,0)
+    bv.MaxForce  = Vector3.new(math.huge, math.huge, math.huge)
+
+    local bg = Instance.new("BodyGyro", primary)
+    bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bg.P         = 3000
+    bg.D         = 200
+    bg.CFrame    = primary.CFrame
+
+    local hum = getHum()
+    if hum then hum.PlatformStand = true end
+
+    flyConn = RunService.RenderStepped:Connect(function()
+        if not carpetActive or not primary or not primary.Parent then
+            flyConn:Disconnect(); return
+        end
+        local speed = CARPET_SPEED
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then speed = speed * 2 end
+
+        local vel = Vector3.new(0,0,0)
+        local cf  = camera.CFrame
+        local fwd = Vector3.new(cf.LookVector.X, 0, cf.LookVector.Z).Unit
+        local rgt = Vector3.new(cf.RightVector.X, 0, cf.RightVector.Z).Unit
+
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then vel = vel + fwd * speed end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then vel = vel - fwd * speed end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then vel = vel - rgt * speed end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then vel = vel + rgt * speed end
+        if UserInputService:IsKeyDown(Enum.KeyCode.E) or
+           UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            vel = vel + Vector3.new(0, speed * 0.6, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Q) or
+           UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+            vel = vel - Vector3.new(0, speed * 0.6, 0)
+        end
+        bv.Velocity = vel
+
+        local tiltAngle = 0
+        local roll = 0
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then tiltAngle = -8 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then tiltAngle =  8 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then roll =  6 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then roll = -6 end
+
+        if fwd.Magnitude > 0.01 then
+            bg.CFrame = CFrame.new(primary.Position, primary.Position + fwd)
+                * CFrame.Angles(math.rad(tiltAngle), 0, math.rad(roll))
+        end
+    end)
+end
+
+local function spawnCarpet()
+    local root = getRoot()
+    if not root then return end
+    local _, primary = buildCarpet(root)
+    carpetActive = true
+    startRainbow()
+    startFly(primary)
+end
+
+local function dismissCarpet()
+    carpetActive = false
+    if flyConn     then flyConn:Disconnect();     flyConn     = nil end
+    if rainbowConn then rainbowConn:Disconnect(); rainbowConn = nil end
+    if carpetModel then carpetModel:Destroy();    carpetModel = nil end
+    local hum = getHum()
+    if hum then hum.PlatformStand = false end
+end
+
+player.CharacterAdded:Connect(function()
+    carpetActive = false
+    carpetModel  = nil
+    flyConn      = nil
+    rainbowConn  = nil
+end)
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name         = "CarpetGui"
+gui.ResetOnSpawn = false
+gui.Parent       = playerGui
+
+local frame = Instance.new("Frame", gui)
+frame.Size             = UDim2.new(0, 200, 0, 56)
+frame.Position         = UDim2.new(0.5, -100, 1, -80)
+frame.BackgroundColor3 = Color3.fromRGB(12, 12, 20)
+frame.BorderSizePixel  = 0
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 14)
+
+local frameStroke = Instance.new("UIStroke", frame)
+frameStroke.Thickness = 1.5
+frameStroke.Color     = Color3.fromRGB(180, 100, 255)
+
+task.spawn(function()
+    local h = 0
+    while frame and frame.Parent do
+        h = (h + 0.005) % 1
+        frameStroke.Color = Color3.fromHSV(h, 0.8, 1)
+        task.wait()
+    end
+end)
+
+local emojiLbl = Instance.new("TextLabel", frame)
+emojiLbl.Size             = UDim2.new(0, 40, 1, 0)
+emojiLbl.Position         = UDim2.new(0, 8, 0, 0)
+emojiLbl.BackgroundTransparency = 1
+emojiLbl.Text             = "🪄"
+emojiLbl.TextSize         = 26
+emojiLbl.Font             = Enum.Font.GothamBold
+
+local btn = Instance.new("TextButton", frame)
+btn.Size             = UDim2.new(1, -52, 1, -12)
+btn.Position         = UDim2.new(0, 46, 0, 6)
+btn.BackgroundColor3 = Color3.fromRGB(80, 40, 160)
+btn.TextColor3       = Color3.fromRGB(255, 255, 255)
+btn.Font             = Enum.Font.GothamBold
+btn.TextSize         = 14
+btn.Text             = "Magic Carpet"
+btn.BorderSizePixel  = 0
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 9)
+
+task.spawn(function()
+    local h = 0
+    while btn and btn.Parent do
+        h = (h + 0.007) % 1
+        btn.BackgroundColor3 = Color3.fromHSV(h, 0.7, 0.7)
+        task.wait()
+    end
+end)
+
+local subLbl = Instance.new("TextLabel", frame)
+subLbl.Size             = UDim2.new(1, -52, 0, 14)
+subLbl.Position         = UDim2.new(0, 46, 1, -18)
+subLbl.BackgroundTransparency = 1
+subLbl.Text             = "WASD · E/Q · Shift boost"
+subLbl.TextColor3       = Color3.fromRGB(160, 130, 220)
+subLbl.Font             = Enum.Font.Gotham
+subLbl.TextSize         = 9
+subLbl.TextXAlignment   = Enum.TextXAlignment.Left
+
+local dragging, dragStart, startPos
+frame.InputBegan:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true; dragStart = inp.Position; startPos = frame.Position
+        inp.Changed:Connect(function()
+            if inp.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+UserInputService.InputChanged:Connect(function(inp)
+    if dragging and inp.UserInputType == Enum.UserInputType.MouseMovement then
+        local d = inp.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X,
+                                    startPos.Y.Scale, startPos.Y.Offset + d.Y)
+    end
+end)
+
+local carpetOn = false
+btn.MouseButton1Click:Connect(function()
+    carpetOn = not carpetOn
+    if carpetOn then
+        spawnCarpet()
+        btn.Text    = "Dismiss Carpet"
+        subLbl.Text = "  Flying! WASD · E=Up · Q=Down"
+    else
+        dismissCarpet()
+        btn.Text    = "Magic Carpet"
+        subLbl.Text = "WASD · E/Q · Shift boost"
+    end
+end)
