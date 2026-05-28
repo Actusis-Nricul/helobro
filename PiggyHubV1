@@ -1,0 +1,119 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "⬅️ Tuff, PGGYKS (Piggy Keyless Scripts)",
+   Icon = 138751136547366,
+   LoadingTitle = "Loading Piggy scripts...",
+   LoadingSubtitle = "By Actusis/Nricul",
+   ShowText = "PGGYKS",
+   Theme = "Serenity",
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = true, 
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = PIGGYSCRIPTNRICULACTUSIS, 
+      FileName = "PiggyScript2026"
+   },
+
+   Discord = {
+      Enabled = true,
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = true 
+   },
+
+   KeySystem = true,
+   KeySettings = {
+      Title = "Subscribe @ActusisGames",
+      Subtitle = "PGGYS",
+      Note = "Key is pggys",
+      FileName = "pggysKeyEasy",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"pggys", "PGGYS", "pggyks", "PGGYKS"}
+   }
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "Have Fun with the PGGYS!",
+   Duration = 6,
+   Image = nil,
+})
+
+local ScriptsTab = Window:CreateTab("Scripts", 0)
+local Section = ScriptsTab:CreateSection("Main")
+
+local EspTab = Window:CreateTab("Esp and more", 0)
+local Section = EspTab:CreateSection("ExtraSensoryPerception")
+
+local ExtraTab = Window:CreateTab("Extra", 0)
+local Section = ExtraTab:CreateSection("Extra")
+
+local Button = ScriptsTab:CreateButton({
+   Name = "StarHack (Main Script for this Hub)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/piggyscriptstarhack"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Esp All Keys and Stuff",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyItemsEsp"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Esp Piggy (BOT)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPiggyBotEsp"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Esp Players",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPlayersEsp"))()
+   end,
+})
+
+local Section = EspTab:CreateSection("Teleports")
+
+local Button = EspTab:CreateButton({
+   Name = "Teleport, T Key Press, where middle of screen is",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TeleportOnTkeyBEST"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Copy Discord",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CopyDiscord"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Print PlaceID and GameID",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CopyPlaceIDAndGameID"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Teleport Safe Box (PRESS G TO TP BACK)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggySafeBox"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Teleport Piggy Player Room (PRESS H TO TP BACK)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPiggyPlayerRoom"))()
+   end,
+})
