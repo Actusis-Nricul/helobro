@@ -1,0 +1,46 @@
+local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local fullbright = false
+
+---------------------------------------------------
+-- TOGGLE WITH Q
+---------------------------------------------------
+
+UIS.InputBegan:Connect(function(input, gpe)
+
+	if gpe then
+		return
+	end
+
+	if input.KeyCode == Enum.KeyCode.Q then
+
+		fullbright = not fullbright
+
+		print("FullBright:",
+			fullbright and "ON" or "OFF")
+	end
+end)
+
+---------------------------------------------------
+-- FULLBRIGHT LOOP
+---------------------------------------------------
+
+task.spawn(function()
+
+	while true do
+
+		if fullbright then
+
+			Lighting.Brightness = 5
+			Lighting.ClockTime = 14
+			Lighting.FogEnd = 100000
+
+			Lighting.GlobalShadows = false
+			Lighting.OutdoorAmbient =
+				Color3.fromRGB(255,255,255)
+		end
+
+		task.wait(0.1)
+	end
+end)
