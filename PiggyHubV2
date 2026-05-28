@@ -45,13 +45,13 @@ Rayfield:Notify({
 })
 
 local ScriptsTab = Window:CreateTab("Scripts", 0)
-local Section = ScriptsTab:CreateSection("Main")
+local Section = ScriptsTab:CreateSection("StarHack Script")
 
 local EspTab = Window:CreateTab("Esp and more", 0)
 local Section = EspTab:CreateSection("ExtraSensoryPerception")
 
 local ExtraTab = Window:CreateTab("Extra", 0)
-local Section = ExtraTab:CreateSection("Extra")
+local Section = ExtraTab:CreateSection("Extra Stuff")
 
 local Button = ScriptsTab:CreateButton({
    Name = "StarHack (Main Script for this Hub)",
@@ -122,5 +122,26 @@ local Button = ExtraTab:CreateButton({
    Name = "OP Noclip (PRESS M TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Fullbright (PRESS Q TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FULLBrightOp"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Teleport To Cursor, T key, (PRESS Z TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyTeleportCursor"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Infinite Jump (TOGGLE WITH P)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
    end,
 })
