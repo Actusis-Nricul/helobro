@@ -6,43 +6,30 @@ local player = Players.LocalPlayer
 
 local noclip = false
 
----------------------------------------------------
--- TOGGLE WITH M
----------------------------------------------------
-
 UIS.InputBegan:Connect(function(input, gpe)
-
-	if gpe then
-		return
-	end
+	if gpe then return end
 
 	if input.KeyCode == Enum.KeyCode.M then
-
 		noclip = not noclip
-
-		print("Noclip:",
-			noclip and "ON" or "OFF")
+		print("Noclip:", noclip and "ON" or "OFF")
 	end
 end)
 
----------------------------------------------------
--- NOCLIP LOOP
----------------------------------------------------
-
 RunService.Stepped:Connect(function()
 
-	if noclip then
+	local char = player.Character
+	if not char then return end
 
-		local char = player.Character
+	for _,v in ipairs(char:GetDescendants()) do
 
-		if char then
+		if v:IsA("BasePart") then
 
-			for _,v in pairs(char:GetDescendants()) do
-
-				if v:IsA("BasePart") then
-					v.CanCollide = false
-				end
+			if noclip then
+				v.CanCollide = false
+			else
+				v.CanCollide = true
 			end
+
 		end
 	end
 end)
