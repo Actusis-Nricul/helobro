@@ -7,29 +7,36 @@ local player = Players.LocalPlayer
 local noclip = false
 
 UIS.InputBegan:Connect(function(input, gpe)
-	if gpe then return end
+
+	if gpe then
+		return
+	end
 
 	if input.KeyCode == Enum.KeyCode.M then
+
 		noclip = not noclip
-		print("Noclip:", noclip and "ON" or "OFF")
+
+		print("Noclip:",
+			noclip and "ON" or "OFF")
 	end
 end)
 
 RunService.Stepped:Connect(function()
 
+	if not noclip then
+		return
+	end
+
 	local char = player.Character
-	if not char then return end
+
+	if not char then
+		return
+	end
 
 	for _,v in ipairs(char:GetDescendants()) do
 
 		if v:IsA("BasePart") then
-
-			if noclip then
-				v.CanCollide = false
-			else
-				v.CanCollide = true
-			end
-
+			v.CanCollide = false
 		end
 	end
 end)
