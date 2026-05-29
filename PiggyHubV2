@@ -145,3 +145,10 @@ local Button = ExtraTab:CreateButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
    end,
 })
+
+local Button = ExtraTab:CreateButton({
+   Name = "Fake Rainbow Carpet But OP",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/RainbowCarpetFakeOP"))()
+   end,
+})
