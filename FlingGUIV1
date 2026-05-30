@@ -1,0 +1,214 @@
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+local running = true
+
+-- 🎚️ SETTINGS
+local POWER = 150
+local UPWARD_MULTIPLIER = 0.5 -- 0 to 1
+
+local flingForward = true
+local verticalUp = true
+
+-- 🚀 FLING FUNCTION
+local function fling()
+	local character = player.Character
+	if not character then return end
+
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+
+	local lookVector = hrp.CFrame.LookVector
+
+	-- 🔁 forward / backward
+	local directionVector = flingForward and lookVector or -lookVector
+
+	-- 🎯 angle clamp
+	local angle = math.clamp(UPWARD_MULTIPLIER, 0, 1)
+
+	-- 🧭 horizontal
+	local horizontal = Vector3.new(directionVector.X, 0, directionVector.Z)
+	if horizontal.Magnitude == 0 then
+		horizontal = Vector3.new(0,0,-1)
+	end
+	horizontal = horizontal.Unit
+
+	-- ⬆️⬇️ vertical toggle
+	local verticalDirection = verticalUp and Vector3.new(0,1,0) or Vector3.new(0,-1,0)
+
+	-- 🎯 final direction
+	local direction = (horizontal * (1 - angle) + verticalDirection * angle).Unit
+
+	local bodyVelocity = Instance.new("BodyVelocity")
+	bodyVelocity.Velocity = direction * POWER
+	bodyVelocity.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+	bodyVelocity.Parent = hrp
+
+	game.Debris:AddItem(bodyVelocity, 0.25)
+end
+
+-- 🪟 GUI
+local gui = Instance.new("ScreenGui")
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 220, 0, 210)
+frame.Position = UDim2.new(0.5, -110, 0.5, -105)
+frame.BackgroundColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner", frame)
+frame.Active = true
+frame.Draggable = true
+
+-- 🌈 RAINBOW
+local gradient = Instance.new("UIGradient", frame)
+gradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+	ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 127, 0)),
+	ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+	ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+	ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+})
+
+task.spawn(function()
+	local t = 0
+	while running do
+		t += 0.02
+		gradient.Offset = Vector2.new(math.sin(t)*0.5, 0)
+		task.wait(0.02)
+	end
+end)
+
+-- ❌ CLOSE
+local closeButton = Instance.new("TextButton", frame)
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -30, 0, 5)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(200,0,0)
+closeButton.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", closeButton)
+
+closeButton.MouseButton1Click:Connect(function()
+	running = false
+	gui:Destroy()
+end)
+
+-- 🚀 FLING BUTTON
+local flingButton = Instance.new("TextButton", frame)
+flingButton.Size = UDim2.new(0.8, 0, 0, 35)
+flingButton.Position = UDim2.new(0.1, 0, 0.08, 0)
+flingButton.Text = "FLING"
+flingButton.BackgroundColor3 = Color3.fromRGB(0,0,0)
+flingButton.TextColor3 = Color3.new(1,1,1)
+flingButton.TextScaled = true
+Instance.new("UICorner", flingButton)
+
+flingButton.MouseButton1Click:Connect(fling)
+
+-- 🔁 FORWARD / BACKWARD
+local directionButton = Instance.new("TextButton", frame)
+directionButton.Size = UDim2.new(0.8, 0, 0, 25)
+directionButton.Position = UDim2.new(0.1, 0, 0.28, 0)
+directionButton.Text = "FORWARD"
+directionButton.BackgroundColor3 = Color3.fromRGB(200,150,255)
+directionButton.TextColor3 = Color3.new(1,1,1)
+directionButton.TextScaled = true
+Instance.new("UICorner", directionButton)
+
+directionButton.MouseButton1Click:Connect(function()
+	flingForward = not flingForward
+	
+	if flingForward then
+		directionButton.Text = "FORWARD"
+		directionButton.BackgroundColor3 = Color3.fromRGB(200,150,255)
+	else
+		directionButton.Text = "BACKWARD"
+		directionButton.BackgroundColor3 = Color3.fromRGB(0,255,255)
+	end
+end)
+
+-- ⬆️⬇️ UP / DOWN
+local verticalButton = Instance.new("TextButton", frame)
+verticalButton.Size = UDim2.new(0.8, 0, 0, 25)
+verticalButton.Position = UDim2.new(0.1, 0, 0.42, 0)
+verticalButton.Text = "UP"
+verticalButton.BackgroundColor3 = Color3.fromRGB(255,140,0)
+verticalButton.TextColor3 = Color3.new(1,1,1)
+verticalButton.TextScaled = true
+Instance.new("UICorner", verticalButton)
+
+verticalButton.MouseButton1Click:Connect(function()
+	verticalUp = not verticalUp
+	
+	if verticalUp then
+		verticalButton.Text = "UP"
+		verticalButton.BackgroundColor3 = Color3.fromRGB(255,140,0)
+		verticalButton.TextColor3 = Color3.new(1,1,1)
+	else
+		verticalButton.Text = "DOWN"
+		verticalButton.BackgroundColor3 = Color3.fromRGB(255,255,120)
+		verticalButton.TextColor3 = Color3.new(0,0,0)
+	end
+end)
+
+-- 📏 POWER
+local powerLabel = Instance.new("TextLabel", frame)
+powerLabel.Size = UDim2.new(0.6, 0, 0, 20)
+powerLabel.Position = UDim2.new(0.2, 0, 0.58, 0)
+powerLabel.Text = "Power: "..POWER
+powerLabel.BackgroundTransparency = 1
+powerLabel.TextScaled = true
+
+local plusPower = Instance.new("TextButton", frame)
+plusPower.Size = UDim2.new(0, 25, 0, 20)
+plusPower.Position = UDim2.new(0.75, 0, 0.58, 0)
+plusPower.Text = "+"
+plusPower.MouseButton1Click:Connect(function()
+	POWER += 50
+	powerLabel.Text = "Power: "..POWER
+end)
+
+local minusPower = Instance.new("TextButton", frame)
+minusPower.Size = UDim2.new(0, 25, 0, 20)
+minusPower.Position = UDim2.new(0.05, 0, 0.58, 0)
+minusPower.Text = "-"
+minusPower.MouseButton1Click:Connect(function()
+	POWER = math.max(10, POWER - 50)
+	powerLabel.Text = "Power: "..POWER
+end)
+
+-- 📐 ANGLE
+local angleLabel = Instance.new("TextLabel", frame)
+angleLabel.Size = UDim2.new(0.6, 0, 0, 20)
+angleLabel.Position = UDim2.new(0.2, 0, 0.75, 0)
+angleLabel.Text = "Angle: "..UPWARD_MULTIPLIER
+angleLabel.BackgroundTransparency = 1
+angleLabel.TextScaled = true
+
+local plusAngle = Instance.new("TextButton", frame)
+plusAngle.Size = UDim2.new(0, 25, 0, 20)
+plusAngle.Position = UDim2.new(0.75, 0, 0.75, 0)
+plusAngle.Text = "+"
+plusAngle.MouseButton1Click:Connect(function()
+	UPWARD_MULTIPLIER = math.clamp(UPWARD_MULTIPLIER + 0.1, 0, 1)
+	angleLabel.Text = "Angle: "..string.format("%.1f", UPWARD_MULTIPLIER)
+end)
+
+local minusAngle = Instance.new("TextButton", frame)
+minusAngle.Size = UDim2.new(0, 25, 0, 20)
+minusAngle.Position = UDim2.new(0.05, 0, 0.75, 0)
+minusAngle.Text = "-"
+minusAngle.MouseButton1Click:Connect(function()
+	UPWARD_MULTIPLIER = math.clamp(UPWARD_MULTIPLIER - 0.1, 0, 1)
+	angleLabel.Text = "Angle: "..string.format("%.1f", UPWARD_MULTIPLIER)
+end)
+
+-- ⌨️ KEY SUPPORT
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.F then
+		fling()
+	end
+end)
