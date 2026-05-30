@@ -1,0 +1,56 @@
+if getgenv().GravityControl then
+
+	getgenv().GravityControl.Enabled = false
+
+	workspace.Gravity = getgenv().GravityControl.OriginalGravity
+
+	if getgenv().GravityControl.InputConnection then
+		getgenv().GravityControl.InputConnection:Disconnect()
+	end
+
+	getgenv().GravityControl = nil
+
+	print("Gravity Control Disabled")
+
+	return
+end
+
+local UIS = game:GetService("UserInputService")
+
+getgenv().GravityControl = {
+	Enabled = true,
+	OriginalGravity = workspace.Gravity
+}
+
+local gravity = workspace.Gravity
+
+local InputConnection = UIS.InputBegan:Connect(function(input, gpe)
+
+	if gpe then
+		return
+	end
+
+	if input.KeyCode == Enum.KeyCode.Period then
+
+		gravity += 1
+		workspace.Gravity = gravity
+
+		print("Gravity:", gravity)
+
+	elseif input.KeyCode == Enum.KeyCode.Comma then
+
+		gravity = math.max(0, gravity - 1)
+		workspace.Gravity = gravity
+
+		print("Gravity:", gravity)
+
+	end
+end)
+
+getgenv().GravityControl.InputConnection = InputConnection
+
+print("Gravity Control Enabled")
+print("Current Gravity:", gravity)
+print("Press '.' to increase gravity")
+print("Press ',' to decrease gravity")
+print("Run again to disable")
