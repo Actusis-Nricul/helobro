@@ -1,3 +1,16 @@
+if game.PlaceId ~= 4623386862 then
+	
+	game.Players.LocalPlayer.Character:BreakJoints()
+
+	task.wait(1.6)
+
+	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Only")
+	
+		else
+
+	print("Correct Game!")
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -150,8 +163,6 @@ local Button = ExtraTab:CreateButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/UtilityGUI"))()
    end,
 })
-
-
 
 local Section = EspTab:CreateSection("Infinite Jump")
 
