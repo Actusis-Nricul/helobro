@@ -2,19 +2,19 @@ if game.PlaceId ~= 4623386862 and game.PlaceId ~= 5661005779 then
 	
 	game.Players.LocalPlayer.Character:BreakJoints()
 
-	task.wait(1.4)
+	task.wait(1)
 
-	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Only")
+	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Book 1 Or Book 2 Only")
 
 		else
 
-	print("Correct Game!")
+	print("Correct Game: Piggy Book 1 Or Piggy Book 2")
 end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "PGGYKS V3",
+   Name = "PGGYKS V4",
    Icon = 138751136547366,
    LoadingTitle = "Loading Best Piggy script...",
    LoadingSubtitle = "By Actusis/Nricul",
@@ -43,7 +43,7 @@ local Window = Rayfield:CreateWindow({
       Title = "Subscribe @ActusisGames",
       Subtitle = "PGGYS",
       Note = "Key is pggys",
-      FileName = "pggysKeyEasy",
+      FileName = "pggyksKeyEasy",
       SaveKey = true,
       GrabKeyFromSite = false,
       Key = {"pggys", "PGGYS", "pggyks", "PGGYKS"}
@@ -60,8 +60,8 @@ Rayfield:Notify({
 local ScriptsTab = Window:CreateTab("Scripts", "scroll")
 local Section = ScriptsTab:CreateSection("StarHack Script")
 
-local EspTab = Window:CreateTab("Esp + More", "eye")
-local Section = EspTab:CreateSection("Extrasensory Perception")
+local PlayerTab = Window:CreateTab("Player", "person-standing")
+local Section = PlayerTab:CreateSection("Movement")
 
 local MapTab = Window:CreateTab("Map", "map")
 local Section = MapTab:CreateSection("Map Related Stuff")
@@ -79,7 +79,33 @@ local Button = ScriptsTab:CreateButton({
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Slider = PlayerTab:CreateSlider({
+   Name = "WalkSpeed Slider",
+   Range = {15, 1500},
+   Increment = 5,
+   Suffix = "WalkSpeed",
+   CurrentValue = 16,
+   Flag = "WALKSPEEDSLIDERPIGGY", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value) 
+   end,
+})
+
+local Slider = PlayerTab:CreateSlider({
+   Name = "JumpPower Slider",
+   Range = {50, 1000},
+   Increment = 10,
+   Suffix = "JumpPower",
+   CurrentValue = 50,
+   Flag = "JUMPPOWERSLIDERPIGGY", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value) 
+   end,
+})
+
+local Section = PlayerTab:CreateSection("Extrasensory Perception")
+
+local Button = PlayerTab:CreateButton({
    Name = "Esp All Keys and Stuff, (PRESS U TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyItemsEsp"))()
@@ -93,16 +119,16 @@ local Button = PiggyTab:CreateButton({
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Esp Players and Player Piggy",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPlayersEsp"))()
    end,
 })
 
-local Section = EspTab:CreateSection("Teleports")
+local Section = PlayerTab:CreateSection("Teleports")
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "First Person TP Mid of Screen, T key, (PRESS Y TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TeleportOnTkeyBEST"))()
@@ -116,35 +142,35 @@ local Button = ExtraTab:CreateButton({
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Teleport Safe Box (PRESS G TO TP BACK)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggySafeBox"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Teleport Piggy Player Room (PRESS H TO TP BACK)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPiggyPlayerRoom"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Teleport To Cursor, T key, (PRESS Z TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyTeleportCursor"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Teleport Forward",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportForward"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Teleport Backward",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportBackward"))()
@@ -166,7 +192,7 @@ local Button = ExtraTab:CreateButton({
 })
 
 local Button = PiggyTab:CreateButton({
-   Name = "Remove Piggy Working (ONLY FOR YOU)",
+   Name = "Perm Remove Piggy Working (ONLY FOR YOU)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletePiggyNPC"))()
    end,
@@ -182,38 +208,38 @@ local Button = ExtraTab:CreateButton({
 local Section = ExtraTab:CreateSection("Random Stuff")
 
 local Button = ExtraTab:CreateButton({
-   Name = "UtilityGUI",
+   Name = "Utility GUI",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/UtilityGUI"))()
    end,
 })
 
-local Section = EspTab:CreateSection("Infinite Jump")
+local Section = PlayerTab:CreateSection("Infinite Jump")
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Infinite Jump (PRESS P TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Make Inf Jump 80% work perfect",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletejumpPower"))()
    end,
 })
 
-local Section = EspTab:CreateSection("Useful")
+local Section = PlayerTab:CreateSection("Useful")
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Fullbright (PRESS Q TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FULLBrightOp"))()
    end,
 })
 
-local Button = EspTab:CreateButton({
+local Button = PlayerTab:CreateButton({
    Name = "Noclip (PRESS M TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
@@ -233,5 +259,118 @@ local Button = MapTab:CreateButton({
    Name = "Constant Delete Bad Stuff on Maps",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyConstantDeleteBadParts"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Fling GUI V1",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FlingGUIV1"))()
+   end,
+})
+
+local Section = PlayerTab:CreateSection("Air Movement")
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "Fly (. = +1 speed , = -1 speed)",
+   CurrentValue = false,
+   Flag = "FLYTOGGLEPIGGY2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FlyIncreaseDecrease.%2C"))()
+   end,
+})
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "GRAVITY (. = +1 high , = -1 low)",
+   CurrentValue = false,
+   Flag = "GRAVITYTOGGLEPIGGY2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/GravityIncreaseDecrease.%2C"))()
+   end,
+})
+
+local Input = PlayerTab:CreateInput({
+   Name = "HipHeight",
+   CurrentValue = "1.5",
+   PlaceholderText = "Enter HipHeight",
+   RemoveTextAfterFocusLost = true,
+   Flag = "HIPHEIGHTINPUTPIGGY",
+   Callback = function(Text)
+
+      local Humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+      if Humanoid and tonumber(Text) then
+         Humanoid.HipHeight = tonumber(Text)
+      end
+
+   end,
+})
+
+local Toggle = PiggyTab:CreateToggle({
+   Name = "Piggy Tracer",
+   CurrentValue = false,
+   Flag = "TRACERTOGGLEPIGGY2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyTracer"))()
+   end,
+})
+
+local Button = PiggyTab:CreateButton({
+   Name = "Distance Notification You to Piggy",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyDistance"))()
+   end,
+})
+
+local Toggle = PiggyTab:CreateToggle({
+   Name = "Face The Piggy",
+   CurrentValue = false,
+   Flag = "FACETOGGLEPIGGY2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/FacePiggy"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Notification Map Name",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/NotiMapName"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Random Fire ClickDetector (Items) (Works 85% times)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyFireItemDetector"))()
+   end,
+})
+
+local Section = MapTab:CreateSection("FPS and Graphics")
+
+local Button = MapTab:CreateButton({
+   Name = "Hide All Decals And Textures",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyHideDecalTextures"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Small FPS Boost",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyFPSBoost"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Remove All Shadows",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyRemoveShadows"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Remove All High Quality Graphics (fire, smoke, etc.)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyExtremeFPSBoost"))()
    end,
 })
