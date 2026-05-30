@@ -48,10 +48,10 @@ local ScriptsTab = Window:CreateTab("Scripts", "scroll")
 local Section = ScriptsTab:CreateSection("StarHack Script")
 
 local EspTab = Window:CreateTab("Esp and more", "eye")
-local Section = EspTab:CreateSection("ExtraSensoryPerception")
+local Section = EspTab:CreateSection("Extrasensory Perception")
 
-local ExtraTab = Window:CreateTab("Extra", "star")
-local Section = ExtraTab:CreateSection("Extra Stuff")
+local ExtraTab = Window:CreateTab("Misc", "star")
+local Section = ExtraTab:CreateSection("Might Be Useful")
 
 local PiggyTab = Window:CreateTab("Piggy", "skull")
 local Section = PiggyTab:CreateSection("Piggy Related")
@@ -100,13 +100,6 @@ local Button = ExtraTab:CreateButton({
    end,
 })
 
-local Button = ExtraTab:CreateButton({
-   Name = "Print PlaceID and GameID",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CopyPlaceIDAndGameID"))()
-   end,
-})
-
 local Button = EspTab:CreateButton({
    Name = "Teleport Safe Box (PRESS G TO TP BACK)",
    Callback = function()
@@ -149,12 +142,16 @@ local Button = PiggyTab:CreateButton({
    end,
 })
 
+local Section = ExtraTab:CreateSection("Random Stuff")
+
 local Button = ExtraTab:CreateButton({
    Name = "UtilityGUI",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/UtilityGUI"))()
    end,
 })
+
+
 
 local Section = EspTab:CreateSection("Infinite Jump")
 
