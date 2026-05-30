@@ -1,0 +1,177 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordSynapseZ"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 220)
+frame.Position = UDim2.new(0.4, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(45,45,45)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,10)
+
+---------------------------------------------------
+-- TOP BAR
+---------------------------------------------------
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,35)
+topBar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-40,1,0)
+title.Position = UDim2.new(0,8,0,0)
+title.BackgroundTransparency = 1
+title.Text = "Needoh Tower"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,2)
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.Text = "X"
+close.TextColor3 = Color3.new(1,1,1)
+close.Font = Enum.Font.GothamBold
+close.TextSize = 18
+close.Parent = topBar
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- DRAGGING
+---------------------------------------------------
+
+local dragging = false
+local dragStart
+local startPos
+
+topBar.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+
+		local delta = input.Position - dragStart
+
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(text, yPos)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,260,0,40)
+	btn.Position = UDim2.new(0,20,0,yPos)
+
+	btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+	btn.TextColor3 = Color3.new(1,1,1)
+
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 18
+	btn.Text = text
+
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- TELEPORT FUNCTION
+---------------------------------------------------
+
+local function teleportTo(x, y, z)
+
+	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			hrp.CFrame = CFrame.new(x, y, z)
+		end
+	end
+end
+
+---------------------------------------------------
+-- WORLD 1
+---------------------------------------------------
+
+local world1Btn = makeButton("Teleport World 1 End", 55)
+
+world1Btn.MouseButton1Click:Connect(function()
+	teleportTo(-139, 358, -400)
+end)
+
+---------------------------------------------------
+-- WORLD 2
+---------------------------------------------------
+
+local world2Btn = makeButton("Teleport World 2 End", 105)
+
+world2Btn.MouseButton1Click:Connect(function()
+	teleportTo(86, 367, 43)
+end)
+
+---------------------------------------------------
+-- WORLD 3
+---------------------------------------------------
+
+local world3Btn = makeButton("Teleport World 3 End", 155)
+
+world3Btn.MouseButton1Click:Connect(function()
+	teleportTo(30, 486, 41)
+end)
