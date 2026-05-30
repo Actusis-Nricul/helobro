@@ -13,7 +13,7 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 500, 0, 400)
+frame.Size = UDim2.new(0, 470, 0, 330)
 frame.Position = UDim2.new(0.35, 0, 0.25, 0)
 frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
 frame.BorderSizePixel = 0
@@ -119,6 +119,12 @@ copyTabBtn.Position = UDim2.new(0,140,0,45)
 copyTabBtn.Text = "Copy"
 copyTabBtn.Parent = frame
 
+local extraBtn = Instance.new("TextButton")
+extraBtn.Size = UDim2.new(0,120,0,35)
+extraBtn.Position = UDim2.new(0,270,0,45)
+extraBtn.Text = "Extra"
+extraBtn.Parent = frame
+
 local printFrame = Instance.new("Frame")
 printFrame.Size = UDim2.new(1,-20,1,-90)
 printFrame.Position = UDim2.new(0,10,0,85)
@@ -132,14 +138,29 @@ copyFrame.BackgroundTransparency = 1
 copyFrame.Visible = false
 copyFrame.Parent = frame
 
+local extraFrame = Instance.new("Frame")
+extraFrame.Size = printFrame.Size
+extraFrame.Position = printFrame.Position
+extraFrame.BackgroundTransparency = 1
+extraFrame.Visible = false
+extraFrame.Parent = frame
+
 printTabBtn.MouseButton1Click:Connect(function()
 	printFrame.Visible = true
 	copyFrame.Visible = false
+	extraFrame.Visible = false
 end)
 
 copyTabBtn.MouseButton1Click:Connect(function()
 	printFrame.Visible = false
 	copyFrame.Visible = true
+	extraFrame.Visible = false
+end)
+
+extraBtn.MouseButton1Click:Connect(function()
+	printFrame.Visible = false
+	copyFrame.Visible = false
+	extraFrame.Visible = true
 end)
 
 ---------------------------------------------------
@@ -258,4 +279,27 @@ copyUserIdBtn.MouseButton1Click:Connect(function()
 	end
 
 	print("Copied UserId")
+end)
+
+---------------------------------------------------
+-- Extra Tab
+---------------------------------------------------
+
+local loaddexBtn = makeButton(extraFrame, "Load Dex", 0)
+local remotespyBtn = makeButton(extraFrame, "Load Cool Remote Spy", 40)
+
+loaddexBtn.MouseButton1Click:Connect(function()
+
+	print("Dex Loading...")
+
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua"))()
+
+end)
+
+remotespyBtn.MouseButton1Click:Connect(function()
+
+	print("Cool RSpy Loading...")
+
+	loadstring(game:HttpGetAsync("https://github.com/richie0866/remote-spy/releases/latest/download/RemoteSpy.lua"))()
+
 end)
