@@ -1,96 +1,145 @@
+if getgenv().SimpleFly then
+
+	getgenv().SimpleFly.Enabled = false
+
+	if getgenv().SimpleFly.BV then
+		getgenv().SimpleFly.BV:Destroy()
+	end
+
+	if getgenv().SimpleFly.BG then
+		getgenv().SimpleFly.BG:Destroy()
+	end
+
+	getgenv().SimpleFly = nil
+
+	print("Fly Disabled")
+
+	return
+end
+
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
-local speed = 5
-local flying = true
+local Speed = 5
 
-local move = {
-	W = false,
-	A = false,
-	S = false,
-	D = false
+local W = false
+local A = false
+local S = false
+local D = false
+
+local BodyVelocity = Instance.new("BodyVelocity")
+BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+BodyVelocity.Velocity = Vector3.zero
+BodyVelocity.Parent = HumanoidRootPart
+
+local BodyGyro = Instance.new("BodyGyro")
+BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+BodyGyro.P = 10000
+BodyGyro.CFrame = workspace.CurrentCamera.CFrame
+BodyGyro.Parent = HumanoidRootPart
+
+getgenv().SimpleFly = {
+	Enabled = true,
+	BV = BodyVelocity,
+	BG = BodyGyro
 }
 
-UIS.InputBegan:Connect(function(input, gpe)
-	if gpe then return end
+local InputBeganConnection
+local InputEndedConnection
+local RenderConnection
 
-	if input.KeyCode == Enum.KeyCode.W then
-		move.W = true
-	elseif input.KeyCode == Enum.KeyCode.A then
-		move.A = true
-	elseif input.KeyCode == Enum.KeyCode.S then
-		move.S = true
-	elseif input.KeyCode == Enum.KeyCode.D then
-		move.D = true
-	elseif input.KeyCode == Enum.KeyCode.Period then
-		speed += 1
-		print("Fly Speed:", speed)
-	elseif input.KeyCode == Enum.KeyCode.Comma then
-		speed = math.max(1, speed - 1)
-		print("Fly Speed:", speed)
-	end
-end)
+InputBeganConnection = UserInputService.InputBegan:Connect(function(Input, GPE)
 
-UIS.InputEnded:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.W then
-		move.W = false
-	elseif input.KeyCode == Enum.KeyCode.A then
-		move.A = false
-	elseif input.KeyCode == Enum.KeyCode.S then
-		move.S = false
-	elseif input.KeyCode == Enum.KeyCode.D then
-		move.D = false
-	end
-end)
-
-local bv = Instance.new("BodyVelocity")
-bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-bv.Velocity = Vector3.zero
-bv.Parent = hrp
-
-local bg = Instance.new("BodyGyro")
-bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-bg.P = 10000
-bg.Parent = hrp
-
-RunService.RenderStepped:Connect(function()
-
-	if not flying then
+	if GPE then
 		return
 	end
 
-	local camera = workspace.CurrentCamera
-	local direction = Vector3.zero
+	if Input.KeyCode == Enum.KeyCode.W then
+		W = true
 
-	if move.W then
-		direction += camera.CFrame.LookVector
+	elseif Input.KeyCode == Enum.KeyCode.A then
+		A = true
+
+	elseif Input.KeyCode == Enum.KeyCode.S then
+		S = true
+
+	elseif Input.KeyCode == Enum.KeyCode.D then
+		D = true
+
+	elseif Input.KeyCode == Enum.KeyCode.Period then
+
+		Speed += 1
+
+		print("Fly Speed:", Speed)
+
+	elseif Input.KeyCode == Enum.KeyCode.Comma then
+
+		Speed = math.max(1, Speed - 1)
+
+		print("Fly Speed:", Speed)
+	end
+end)
+
+InputEndedConnection = UserInputService.InputEnded:Connect(function(Input)
+
+	if Input.KeyCode == Enum.KeyCode.W then
+		W = false
+
+	elseif Input.KeyCode == Enum.KeyCode.A then
+		A = false
+
+	elseif Input.KeyCode == Enum.KeyCode.S then
+		S = false
+
+	elseif Input.KeyCode == Enum.KeyCode.D then
+		D = false
+	end
+end)
+
+RenderConnection = RunService.RenderStepped:Connect(function()
+
+	if not getgenv().SimpleFly then
+		RenderConnection:Disconnect()
+		InputBeganConnection:Disconnect()
+		InputEndedConnection:Disconnect()
+		return
 	end
 
-	if move.S then
-		direction -= camera.CFrame.LookVector
+	local Camera = workspace.CurrentCamera
+
+	local Direction = Vector3.zero
+
+	if W then
+		Direction += Camera.CFrame.LookVector
 	end
 
-	if move.A then
-		direction -= camera.CFrame.RightVector
+	if S then
+		Direction -= Camera.CFrame.LookVector
 	end
 
-	if move.D then
-		direction += camera.CFrame.RightVector
+	if A then
+		Direction -= Camera.CFrame.RightVector
 	end
 
-	if direction.Magnitude > 0 then
-		direction = direction.Unit
+	if D then
+		Direction += Camera.CFrame.RightVector
 	end
 
-	bv.Velocity = direction * speed * 10
-	bg.CFrame = camera.CFrame
+	if Direction.Magnitude > 0 then
+		Direction = Direction.Unit
+	end
+
+	BodyVelocity.Velocity = Direction * (Speed * 10)
+	BodyGyro.CFrame = Camera.CFrame
 end)
 
 print("Fly Enabled")
-print("Press . to increase speed")
-print("Press , to decrease speed")
+print("W A S D = Move")
+print(". = Speed Up")
+print(", = Slow Down")
+print("Run Again = Disable")
