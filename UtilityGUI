@@ -1,0 +1,261 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+---------------------------------------------------
+-- GUI
+---------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ICanAffordPotassiumExecutor"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 500, 0, 400)
+frame.Position = UDim2.new(0.35, 0, 0.25, 0)
+frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+Instance.new("UICorner", frame)
+
+---------------------------------------------------
+-- TOP BAR
+---------------------------------------------------
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,35)
+topBar.BackgroundColor3 = Color3.fromRGB(55,55,55)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-40,1,0)
+title.Position = UDim2.new(0,10,0,0)
+title.BackgroundTransparency = 1
+title.Text = "Utility UI"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+---------------------------------------------------
+-- CLOSE BUTTON
+---------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,2)
+close.Text = "X"
+close.TextColor3 = Color3.new(1,1,1)
+close.BackgroundColor3 = Color3.fromRGB(180,50,50)
+close.Font = Enum.Font.GothamBold
+close.Parent = topBar
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui.Enabled = false
+end)
+
+---------------------------------------------------
+-- DRAGGING
+---------------------------------------------------
+
+local UIS = game:GetService("UserInputService")
+
+local dragging = false
+local dragStart
+local startPos
+
+topBar.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+
+		local delta = input.Position - dragStart
+
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+---------------------------------------------------
+-- TABS
+---------------------------------------------------
+
+local printTabBtn = Instance.new("TextButton")
+printTabBtn.Size = UDim2.new(0,120,0,35)
+printTabBtn.Position = UDim2.new(0,10,0,45)
+printTabBtn.Text = "Print"
+printTabBtn.Parent = frame
+
+local copyTabBtn = Instance.new("TextButton")
+copyTabBtn.Size = UDim2.new(0,120,0,35)
+copyTabBtn.Position = UDim2.new(0,140,0,45)
+copyTabBtn.Text = "Copy"
+copyTabBtn.Parent = frame
+
+local printFrame = Instance.new("Frame")
+printFrame.Size = UDim2.new(1,-20,1,-90)
+printFrame.Position = UDim2.new(0,10,0,85)
+printFrame.BackgroundTransparency = 1
+printFrame.Parent = frame
+
+local copyFrame = Instance.new("Frame")
+copyFrame.Size = printFrame.Size
+copyFrame.Position = printFrame.Position
+copyFrame.BackgroundTransparency = 1
+copyFrame.Visible = false
+copyFrame.Parent = frame
+
+printTabBtn.MouseButton1Click:Connect(function()
+	printFrame.Visible = true
+	copyFrame.Visible = false
+end)
+
+copyTabBtn.MouseButton1Click:Connect(function()
+	printFrame.Visible = false
+	copyFrame.Visible = true
+end)
+
+---------------------------------------------------
+-- BUTTON MAKER
+---------------------------------------------------
+
+local function makeButton(parent,text,y)
+
+	local btn = Instance.new("TextButton")
+
+	btn.Size = UDim2.new(0,450,0,35)
+	btn.Position = UDim2.new(0,0,0,y)
+
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(65,65,65)
+	btn.TextColor3 = Color3.new(1,1,1)
+
+	btn.Parent = parent
+
+	Instance.new("UICorner", btn)
+
+	return btn
+end
+
+---------------------------------------------------
+-- PRINT TAB
+---------------------------------------------------
+
+local gameIdBtn = makeButton(printFrame,"Print GameId",0)
+local placeIdBtn = makeButton(printFrame,"Print PlaceId",40)
+local userIdBtn = makeButton(printFrame,"Print UserId",80)
+local workspaceBtn = makeButton(printFrame,"Print Workspace Contents",120)
+local remotesBtn = makeButton(printFrame,"Print ReplicatedStorage Remotes",160)
+local playersBtn = makeButton(printFrame,"Print Player Names",200)
+
+gameIdBtn.MouseButton1Click:Connect(function()
+	print("GameId:", game.GameId)
+end)
+
+placeIdBtn.MouseButton1Click:Connect(function()
+	print("PlaceId:", game.PlaceId)
+end)
+
+userIdBtn.MouseButton1Click:Connect(function()
+	print("UserId:", player.UserId)
+end)
+
+workspaceBtn.MouseButton1Click:Connect(function()
+
+	print("===== WORKSPACE =====")
+
+	for _,v in ipairs(workspace:GetDescendants()) do
+		print(v:GetFullName())
+	end
+end)
+
+remotesBtn.MouseButton1Click:Connect(function()
+
+	print("===== REMOTES =====")
+
+	for _,v in ipairs(ReplicatedStorage:GetDescendants()) do
+
+		if v:IsA("RemoteEvent")
+		or v:IsA("RemoteFunction") then
+
+			print(v:GetFullName())
+		end
+	end
+end)
+
+playersBtn.MouseButton1Click:Connect(function()
+
+	print("===== PLAYERS =====")
+
+	for _,plr in ipairs(Players:GetPlayers()) do
+
+		print(
+			"DisplayName:",
+			plr.DisplayName,
+			"| Username:",
+			plr.Name
+		)
+	end
+end)
+
+---------------------------------------------------
+-- COPY TAB
+---------------------------------------------------
+
+local copyGameIdBtn = makeButton(copyFrame,"Copy GameId",0)
+local copyPlaceIdBtn = makeButton(copyFrame,"Copy PlaceId",40)
+local copyUserIdBtn = makeButton(copyFrame,"Copy UserId",80)
+
+copyGameIdBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+		setclipboard(tostring(game.GameId))
+	end
+
+	print("Copied GameId")
+end)
+
+copyPlaceIdBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+		setclipboard(tostring(game.PlaceId))
+	end
+
+	print("Copied PlaceId")
+end)
+
+copyUserIdBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+		setclipboard(tostring(player.UserId))
+	end
+
+	print("Copied UserId")
+end)
