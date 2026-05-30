@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "PGGYKS (Piggy Keyless Scripts)",
+   Name = "PGGYKS V3",
    Icon = 138751136547366,
-   LoadingTitle = "Loading Piggy scripts...",
+   LoadingTitle = "Loading Best Piggy script...",
    LoadingSubtitle = "By Actusis/Nricul",
    ShowText = "PGGYKS",
    Theme = "Serenity",
@@ -44,14 +44,17 @@ Rayfield:Notify({
    Image = nil,
 })
 
-local ScriptsTab = Window:CreateTab("Scripts", 0)
+local ScriptsTab = Window:CreateTab("Scripts", "scroll")
 local Section = ScriptsTab:CreateSection("StarHack Script")
 
-local EspTab = Window:CreateTab("Esp and more", 0)
+local EspTab = Window:CreateTab("Esp and more", "eye")
 local Section = EspTab:CreateSection("ExtraSensoryPerception")
 
-local ExtraTab = Window:CreateTab("Extra", 0)
+local ExtraTab = Window:CreateTab("Extra", "star")
 local Section = ExtraTab:CreateSection("Extra Stuff")
+
+local PiggyTab = Window:CreateTab("Piggy", "skull")
+local Section = PiggyTab:CreateSection("Piggy Related")
 
 local Button = ScriptsTab:CreateButton({
    Name = "StarHack (Main Script for this Hub)",
@@ -67,8 +70,8 @@ local Button = EspTab:CreateButton({
    end,
 })
 
-local Button = EspTab:CreateButton({
-   Name = "Esp Piggy (BOT) Toggle with J",
+local Button = PiggyTab:CreateButton({
+   Name = "See Piggy (BOT) Toggle with J",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPiggyBotEsp"))()
    end,
@@ -118,20 +121,6 @@ local Button = EspTab:CreateButton({
    end,
 })
 
-local Button = ExtraTab:CreateButton({
-   Name = "OP Noclip (PRESS M TO TOGGLE)",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
-   end,
-})
-
-local Button = ExtraTab:CreateButton({
-   Name = "Fullbright (PRESS Q TO TOGGLE)",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FULLBrightOp"))()
-   end,
-})
-
 local Button = EspTab:CreateButton({
    Name = "Teleport To Cursor, T key, (PRESS Z TO TOGGLE)",
    Callback = function()
@@ -140,15 +129,61 @@ local Button = EspTab:CreateButton({
 })
 
 local Button = ExtraTab:CreateButton({
+   Name = "Fake Rainbow Carpet But OP",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/RainbowCarpetFakeOP"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Reset Character",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/ResetSimple"))()
+   end,
+})
+
+local Button = PiggyTab:CreateButton({
+   Name = "Delete Piggy Working (ONLY FOR YOU)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletePiggyNPC"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "UtilityGUI",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/UtilityGUI"))()
+   end,
+})
+
+local Section = EspTab:CreateSection("Infinite Jump")
+
+local Button = EspTab:CreateButton({
    Name = "Infinite Jump (TOGGLE WITH P)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
    end,
 })
 
-local Button = ExtraTab:CreateButton({
-   Name = "Fake Rainbow Carpet But OP",
+local Button = EspTab:CreateButton({
+   Name = "Make Inf Jump 80% work perfect",
    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/RainbowCarpetFakeOP"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletejumpPower"))()
+   end,
+})
+
+local Section = EspTab:CreateSection("Useful")
+
+local Button = EspTab:CreateButton({
+   Name = "Fullbright (PRESS Q TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FULLBrightOp"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "OP Noclip (PRESS M TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
    end,
 })
