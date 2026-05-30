@@ -60,14 +60,17 @@ Rayfield:Notify({
 local ScriptsTab = Window:CreateTab("Scripts", "scroll")
 local Section = ScriptsTab:CreateSection("StarHack Script")
 
-local EspTab = Window:CreateTab("Esp and more", "eye")
+local EspTab = Window:CreateTab("Esp + More", "eye")
 local Section = EspTab:CreateSection("Extrasensory Perception")
 
-local ExtraTab = Window:CreateTab("Misc", "star")
-local Section = ExtraTab:CreateSection("Might Be Useful")
+local MapTab = Window:CreateTab("Map", "map")
+local Section = MapTab:CreateSection("Map Related Stuff")
 
 local PiggyTab = Window:CreateTab("Piggy", "skull")
 local Section = PiggyTab:CreateSection("Piggy Related")
+
+local ExtraTab = Window:CreateTab("Misc", "star")
+local Section = ExtraTab:CreateSection("Might Be Useful")
 
 local Button = ScriptsTab:CreateButton({
    Name = "StarHack (Main Script for this Hub)",
@@ -91,7 +94,7 @@ local Button = PiggyTab:CreateButton({
 })
 
 local Button = EspTab:CreateButton({
-   Name = "Esp Players",
+   Name = "Esp Players and Player Piggy",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyPlayersEsp"))()
    end,
@@ -134,6 +137,20 @@ local Button = EspTab:CreateButton({
    end,
 })
 
+local Button = EspTab:CreateButton({
+   Name = "Teleport Forward",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportForward"))()
+   end,
+})
+
+local Button = EspTab:CreateButton({
+   Name = "Teleport Backward",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportBackward"))()
+   end,
+})
+
 local Button = ExtraTab:CreateButton({
    Name = "Fake Rainbow Carpet But OP",
    Callback = function()
@@ -149,9 +166,16 @@ local Button = ExtraTab:CreateButton({
 })
 
 local Button = PiggyTab:CreateButton({
-   Name = "Delete Piggy Working (ONLY FOR YOU)",
+   Name = "Remove Piggy Working (ONLY FOR YOU)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletePiggyNPC"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Serverhop Public Server",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/ServerHopAdvanced"))()
    end,
 })
 
@@ -193,5 +217,21 @@ local Button = EspTab:CreateButton({
    Name = "Noclip (PRESS M TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
+   end,
+})
+
+local Section = ScriptsTab:CreateSection("Autofarms")
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Autofarm Working 75%",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/PiggyAutofarm"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Constant Delete Bad Stuff on Maps",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyConstantDeleteBadParts"))()
    end,
 })
