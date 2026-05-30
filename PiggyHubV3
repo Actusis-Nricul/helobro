@@ -1,11 +1,11 @@
-if game.PlaceId ~= 4623386862 then
+if game.PlaceId ~= 4623386862 and game.PlaceId ~= 5661005779 then
 	
 	game.Players.LocalPlayer.Character:BreakJoints()
 
-	task.wait(1.6)
+	task.wait(1.4)
 
 	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Only")
-	
+
 		else
 
 	print("Correct Game!")
@@ -77,7 +77,7 @@ local Button = ScriptsTab:CreateButton({
 })
 
 local Button = EspTab:CreateButton({
-   Name = "Esp All Keys and Stuff, Toggle with U",
+   Name = "Esp All Keys and Stuff, (PRESS U TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyItemsEsp"))()
    end,
@@ -100,7 +100,7 @@ local Button = EspTab:CreateButton({
 local Section = EspTab:CreateSection("Teleports")
 
 local Button = EspTab:CreateButton({
-   Name = "Teleport, T Key, Toggle with Y, Use First Person",
+   Name = "First Person TP Mid of Screen, T key, (PRESS Y TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TeleportOnTkeyBEST"))()
    end,
@@ -167,7 +167,7 @@ local Button = ExtraTab:CreateButton({
 local Section = EspTab:CreateSection("Infinite Jump")
 
 local Button = EspTab:CreateButton({
-   Name = "Infinite Jump (TOGGLE WITH P)",
+   Name = "Infinite Jump (PRESS P TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
    end,
@@ -190,7 +190,7 @@ local Button = EspTab:CreateButton({
 })
 
 local Button = EspTab:CreateButton({
-   Name = "OP Noclip (PRESS M TO TOGGLE)",
+   Name = "Noclip (PRESS M TO TOGGLE)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/NOCLIPBEST"))()
    end,
