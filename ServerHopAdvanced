@@ -1,0 +1,22 @@
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+
+local placeId = game.PlaceId
+local currentJobId = game.JobId
+
+local url = ("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId)
+
+local success, response = pcall(function()
+	return game:HttpGet(url)
+end)
+
+if success then
+	local data = HttpService:JSONDecode(response)
+
+	for _, server in ipairs(data.data) do
+		if server.id ~= currentJobId and server.playing < server.maxPlayers then
+			TeleportService:TeleportToPlaceInstance(placeId, server.id)
+			break
+		end
+	end
+end
