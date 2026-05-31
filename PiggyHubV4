@@ -4,7 +4,7 @@ if game.PlaceId ~= 4623386862 and game.PlaceId ~= 5661005779 then
 
 	task.wait(1)
 
-	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Book 1 Or Book 2 Only")
+	game.Players.LocalPlayer:Kick("WRONG GAME, Piggy Only")
 
 		else
 
