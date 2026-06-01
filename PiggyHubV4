@@ -14,11 +14,11 @@ end
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "PGGYKS V4",
+   Name = "PiggyHub V4",
    Icon = 138751136547366,
    LoadingTitle = "Loading Best Piggy script...",
    LoadingSubtitle = "By Actusis/Nricul",
-   ShowText = "PGGYKS",
+   ShowText = "PiggyHub",
    Theme = "Serenity",
 
    ToggleUIKeybind = "L", 
@@ -41,7 +41,7 @@ local Window = Rayfield:CreateWindow({
    KeySystem = true,
    KeySettings = {
       Title = "Subscribe @ActusisGames",
-      Subtitle = "PGGYS",
+      Subtitle = "PiggyHub",
       Note = "Key is pggys",
       FileName = "pggyksKeyEasy",
       SaveKey = true,
@@ -52,7 +52,7 @@ local Window = Rayfield:CreateWindow({
 
 Rayfield:Notify({
    Title = "Script Loaded",
-   Content = "Have Fun with the PGGYS!",
+   Content = "Have Fun with the Script!",
    Duration = 6,
    Image = nil,
 })
@@ -249,14 +249,14 @@ local Button = PlayerTab:CreateButton({
 local Section = ScriptsTab:CreateSection("Autofarms")
 
 local Button = ScriptsTab:CreateButton({
-   Name = "Autofarm Working 75%",
+   Name = "Autofarm Working 70% (must unlock exit door first and then select the exit part)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/PiggyAutofarm"))()
    end,
 })
 
 local Button = MapTab:CreateButton({
-   Name = "Constant Delete Bad Stuff on Maps",
+   Name = "Constant Delete Bad Stuff on Maps (PiggyHubV5 Only or else dangerous)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyConstantDeleteBadParts"))()
    end,
@@ -339,7 +339,7 @@ local Button = MapTab:CreateButton({
 })
 
 local Button = MapTab:CreateButton({
-   Name = "Random Fire ClickDetector (Items) (Works 85% times)",
+   Name = "Random Fire ClickDetector (works 70% and takes 2 seconds) (Items and Keys) ",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyFireItemDetector"))()
    end,
@@ -372,5 +372,21 @@ local Button = MapTab:CreateButton({
    Name = "Remove All High Quality Graphics (fire, smoke, etc.)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyExtremeFPSBoost"))()
+   end,
+})
+
+local Toggle = ScriptsTab:CreateToggle({
+   Name = "Auto Play For the Script Below ⬇️",
+   CurrentValue = false,
+   Flag = "AUTOPLAYPIGGYACTUSIS2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/AutoPlayCarnival"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Autofarm Working 100% BEST",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyAutofarm2"))()
    end,
 })
