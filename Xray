@@ -1,0 +1,46 @@
+_G.XrayEnabled = not _G.XrayEnabled
+
+local XRAY_TRANSPARENCY = 0.8
+
+if _G.XrayEnabled then
+	print("Xray Enabled")
+
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") and v.Transparency < 1 then
+			if v:GetAttribute("OldTransparency") == nil then
+				v:SetAttribute("OldTransparency", v.Transparency)
+			end
+
+			v.Transparency = XRAY_TRANSPARENCY
+		end
+	end
+
+	_G.XrayConnection = workspace.DescendantAdded:Connect(function(v)
+		if v:IsA("BasePart") and v.Transparency < 1 then
+			if v:GetAttribute("OldTransparency") == nil then
+				v:SetAttribute("OldTransparency", v.Transparency)
+			end
+
+			v.Transparency = XRAY_TRANSPARENCY
+		end
+	end)
+
+else
+	print("Xray Disabled")
+
+	if _G.XrayConnection then
+		_G.XrayConnection:Disconnect()
+		_G.XrayConnection = nil
+	end
+
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") then
+			local old = v:GetAttribute("OldTransparency")
+
+			if old ~= nil then
+				v.Transparency = old
+				v:SetAttribute("OldTransparency", nil)
+			end
+		end
+	end
+end
