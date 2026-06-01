@@ -251,7 +251,7 @@ local Section = ScriptsTab:CreateSection("Autofarms")
 local Button = ScriptsTab:CreateButton({
    Name = "Autofarm Working 70% (must unlock exit door first and then select the exit part)",
    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/PiggyAutofarm"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyAutofarm"))()
    end,
 })
 
@@ -263,7 +263,7 @@ local Button = MapTab:CreateButton({
 })
 
 local Button = ExtraTab:CreateButton({
-   Name = "Fling GUI V1",
+   Name = "Fling GUI V1 (fling yourself)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FlingGUIV1"))()
    end,
@@ -345,6 +345,15 @@ local Button = MapTab:CreateButton({
    end,
 })
 
+local Toggle = MapTab:CreateToggle({
+   Name = "X-RAY (good for finding keys and doors)",
+   CurrentValue = false,
+   Flag = "XRAYACTUSIS2026PIGGY",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/Xray"))()
+   end,
+})
+
 local Section = MapTab:CreateSection("FPS and Graphics")
 
 local Button = MapTab:CreateButton({
@@ -388,5 +397,12 @@ local Button = ScriptsTab:CreateButton({
    Name = "Autofarm Working 100% BEST",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyAutofarm2"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "TouchFling (Touch Others To Fling)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TouchFling"))()
    end,
 })
