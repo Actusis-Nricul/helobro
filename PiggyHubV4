@@ -1,3 +1,6 @@
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
 if game.PlaceId ~= 4623386862 and game.PlaceId ~= 5661005779 then
 	
 	game.Players.LocalPlayer.Character:BreakJoints()
@@ -58,24 +61,27 @@ Rayfield:Notify({
 })
 
 local ScriptsTab = Window:CreateTab("Scripts", "scroll")
-local Section = ScriptsTab:CreateSection("StarHack Script")
+local Section = ScriptsTab:CreateSection("Main Script")
 
 local PlayerTab = Window:CreateTab("Player", "person-standing")
 local Section = PlayerTab:CreateSection("Movement")
 
 local MapTab = Window:CreateTab("Map", "map")
-local Section = MapTab:CreateSection("Map Related Stuff")
+local Section = MapTab:CreateSection("Map")
 
 local PiggyTab = Window:CreateTab("Piggy", "skull")
-local Section = PiggyTab:CreateSection("Piggy Related")
+local Section = PiggyTab:CreateSection("Piggy")
+
+local OthersTab = Window:CreateTab("Other Players", "users")
+local Section = OthersTab:CreateSection("Players")
 
 local ExtraTab = Window:CreateTab("Misc", "star")
 local Section = ExtraTab:CreateSection("Might Be Useful")
 
 local Button = ScriptsTab:CreateButton({
-   Name = "StarHack (Main Script for this Hub)",
+   Name = "Item Grabber OP (made by me)",
    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/piggyscriptstarhack"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyItemGrabber"))()
    end,
 })
 
@@ -192,7 +198,7 @@ local Button = ExtraTab:CreateButton({
 })
 
 local Button = PiggyTab:CreateButton({
-   Name = "Perm Remove Piggy Working (ONLY FOR YOU)",
+   Name = "Perm Remove Piggy (ONLY FOR YOU)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeletePiggyNPC"))()
    end,
@@ -206,13 +212,6 @@ local Button = ExtraTab:CreateButton({
 })
 
 local Section = ExtraTab:CreateSection("Random Stuff")
-
-local Button = ExtraTab:CreateButton({
-   Name = "Utility GUI",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/UtilityGUI"))()
-   end,
-})
 
 local Section = PlayerTab:CreateSection("Infinite Jump")
 
@@ -354,19 +353,12 @@ local Toggle = MapTab:CreateToggle({
    end,
 })
 
-local Section = MapTab:CreateSection("FPS and Graphics")
+local Section = MapTab:CreateSection("Graphics")
 
 local Button = MapTab:CreateButton({
    Name = "Hide All Decals And Textures",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyHideDecalTextures"))()
-   end,
-})
-
-local Button = MapTab:CreateButton({
-   Name = "Small FPS Boost",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyFPSBoost"))()
    end,
 })
 
@@ -404,5 +396,237 @@ local Button = ExtraTab:CreateButton({
    Name = "TouchFling (Touch Others To Fling)",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TouchFling"))()
+   end,
+})
+
+local Section = MapTab:CreateSection("FPS")
+
+local Button = MapTab:CreateButton({
+   Name = "Small FPS Boost",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyFPSBoost"))()
+   end,
+})
+
+local Section = ScriptsTab:CreateSection("Extra Script")
+
+local Button = ScriptsTab:CreateButton({
+   Name = "StarHack",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/piggyscriptstarhack"))()
+   end,
+})
+
+local HiddenPlayers = false
+
+local HiddenPlayers = false
+
+local Toggle = OthersTab:CreateToggle({
+	Name = "Hide Other Players",
+	CurrentValue = false,
+	Flag = "HIDEPLAYERS2026PIGGY",
+
+	Callback = function(Value)
+
+		HiddenPlayers = Value
+
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr ~= Players.LocalPlayer and plr.Character then
+				for _, obj in ipairs(plr.Character:GetDescendants()) do
+					if obj:IsA("BasePart") then
+						obj.LocalTransparencyModifier = Value and 1 or 0
+					end
+				end
+			end
+		end
+
+	end,
+})
+
+Players.PlayerAdded:Connect(function(plr)
+	plr.CharacterAdded:Connect(function(char)
+
+		if HiddenPlayers then
+			task.wait(1)
+
+			for _, obj in ipairs(char:GetDescendants()) do
+				if obj:IsA("BasePart") then
+					obj.LocalTransparencyModifier = 1
+				end
+			end
+		end
+
+	end)
+end)
+
+local FPSGui
+local FPSConnection
+
+local Toggle = MapTab:CreateToggle({
+	Name = "FPS Counter",
+	CurrentValue = false,
+	Flag = "FPSCOUNTER2026PIGGY",
+
+	Callback = function(Value)
+
+		if Value then
+
+			FPSGui = Instance.new("ScreenGui")
+			FPSGui.Parent = game.CoreGui
+
+			local Label = Instance.new("TextLabel")
+			Label.Parent = FPSGui
+			Label.Size = UDim2.new(0, 150, 0, 30)
+			Label.Position = UDim2.new(0, 10, 0, 10)
+			Label.BackgroundColor3 = Color3.fromRGB(25,25,25)
+			Label.TextColor3 = Color3.new(1,1,1)
+			Label.Text = "FPS: Loading..."
+
+			local Frames = 0
+			local Last = tick()
+
+			FPSConnection = RunService.RenderStepped:Connect(function()
+				Frames += 1
+
+				if tick() - Last >= 1 then
+					Label.Text = "FPS: "..Frames
+					Frames = 0
+					Last = tick()
+				end
+			end)
+
+		else
+
+			if FPSConnection then
+				FPSConnection:Disconnect()
+				FPSConnection = nil
+			end
+
+			if FPSGui then
+				FPSGui:Destroy()
+				FPSGui = nil
+			end
+
+		end
+	end,
+})
+
+local Stats = game:GetService("Stats")
+
+local PingGui
+
+local Toggle = MapTab:CreateToggle({
+	Name = "Ping Counter",
+	CurrentValue = false,
+	Flag = "PINGCOUNTER2026PIGGY",
+
+	Callback = function(Value)
+
+		if Value then
+
+			PingGui = Instance.new("ScreenGui")
+			PingGui.Parent = game.CoreGui
+
+			local Label = Instance.new("TextLabel")
+			Label.Parent = PingGui
+			Label.Size = UDim2.new(0, 150, 0, 30)
+			Label.Position = UDim2.new(0, 10, 0, 45)
+			Label.BackgroundColor3 = Color3.fromRGB(25,25,25)
+			Label.TextColor3 = Color3.new(1,1,1)
+
+			task.spawn(function()
+				while PingGui and task.wait(1) do
+					local Success, Ping = pcall(function()
+						return math.floor(
+							Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
+						)
+					end)
+
+					if Success then
+						Label.Text = "Ping: "..Ping.." ms"
+					else
+						Label.Text = "Ping: N/A"
+					end
+				end
+			end)
+
+		else
+
+			if PingGui then
+				PingGui:Destroy()
+				PingGui = nil
+			end
+
+		end
+	end,
+})
+
+local Input = MapTab:CreateInput({
+   Name = "FPS Cap",
+   CurrentValue = "60",
+   PlaceholderText = "Enter FPS Cap",
+   RemoveTextAfterFocusLost = true,
+   Flag = "FPSCAPINPUT2026",
+
+   Callback = function(Text)
+
+      local Cap = tonumber(Text)
+
+      if not Cap then
+         return
+      end
+
+      if Cap > 650 then
+         if setfpscap then
+            setfpscap(99999)
+         elseif set_fps_cap then
+            set_fps_cap(99999)
+         end
+      else
+         if setfpscap then
+            setfpscap(Cap)
+         elseif set_fps_cap then
+            set_fps_cap(Cap)
+         end
+      end
+
+   end,
+})
+
+local Toggle = MapTab:CreateToggle({
+   Name = "VSync (Check Console If not Working)",
+   CurrentValue = false,
+   Flag = "VSYNCTOGGLE2026PIGGY",
+
+   Callback = function(Value)
+
+      local funcs = {
+         "setvsync",
+         "set_vsync",
+         "setfpsvsync",
+         "vsync",
+         "setVSync",
+         "SetVSync"
+      }
+
+      local worked = false
+
+      for _, funcName in ipairs(funcs) do
+         local func = getgenv()[funcName] or getrenv()[funcName]
+
+         if typeof(func) == "function" then
+            pcall(function()
+               func(Value)
+            end)
+
+            worked = true
+         end
+      end
+
+      if worked then
+         print("Attempted to set VSync:", Value)
+      else
+         warn("No supported VSync function found.")
+      end
    end,
 })
