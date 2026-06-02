@@ -1,0 +1,838 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RS = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+-- ═══════════════════════════════════════════
+-- GAME CHECK
+-- ═══════════════════════════════════════════
+if game.PlaceId ~= 112490729816320 then
+    game.Players.LocalPlayer.Character:BreakJoints()
+    task.wait(1)
+    game.Players.LocalPlayer:Kick("WRONG GAME, Soccer Card Only")
+else
+    print("Correct Game: Roll Soccer Card")
+end
+
+-- ═══════════════════════════════════════════
+-- CLEAN OLD GUI
+-- ═══════════════════════════════════════════
+pcall(function()
+    player.PlayerGui:FindFirstChild("SoccerCardHub"):Destroy()
+end)
+
+-- ═══════════════════════════════════════════
+-- CARD LIST (used in both tabs)
+-- ═══════════════════════════════════════════
+local CARDS = {
+    "Bronze", "Silver", "Gold", "Platinum", "Diamond",
+    "Toxic", "Shadow", "Infernal", "Corrupted", "Cosmic",
+    "Eclipse", "Hades", "Heaven", "Chaos", "Ordain",
+    "Alpha", "Omega", "Genesis", "Abyssal", "Enigma",
+    "Oracle", "Wither", "Bloom", "Dawn", "Dusk",
+    "Conquest", "Fallen", "Ruin", "Valor"
+}
+
+-- Card rarity colors for visual flair
+local CARD_COLORS = {
+    Bronze   = Color3.fromRGB(180, 100, 40),
+    Silver   = Color3.fromRGB(180, 180, 190),
+    Gold     = Color3.fromRGB(255, 200, 0),
+    Platinum = Color3.fromRGB(180, 220, 255),
+    Diamond  = Color3.fromRGB(100, 220, 255),
+    Toxic    = Color3.fromRGB(100, 220, 50),
+    Shadow   = Color3.fromRGB(80, 40, 120),
+    Infernal = Color3.fromRGB(220, 60, 20),
+    Corrupted= Color3.fromRGB(140, 40, 180),
+    Cosmic   = Color3.fromRGB(60, 100, 255),
+    Eclipse  = Color3.fromRGB(40, 20, 80),
+    Hades    = Color3.fromRGB(100, 20, 20),
+    Heaven   = Color3.fromRGB(220, 220, 255),
+    Chaos    = Color3.fromRGB(200, 0, 100),
+    Ordain   = Color3.fromRGB(255, 220, 100),
+    Alpha    = Color3.fromRGB(0, 200, 150),
+    Omega    = Color3.fromRGB(180, 0, 200),
+    Genesis  = Color3.fromRGB(0, 180, 255),
+    Abyssal  = Color3.fromRGB(20, 10, 60),
+    Enigma   = Color3.fromRGB(120, 80, 200),
+    Oracle   = Color3.fromRGB(255, 160, 80),
+    Wither   = Color3.fromRGB(80, 60, 40),
+    Bloom    = Color3.fromRGB(255, 140, 200),
+    Dawn     = Color3.fromRGB(255, 200, 120),
+    Dusk     = Color3.fromRGB(150, 80, 180),
+    Conquest = Color3.fromRGB(200, 40, 40),
+    Fallen   = Color3.fromRGB(60, 60, 80),
+    Ruin     = Color3.fromRGB(100, 80, 60),
+    Valor    = Color3.fromRGB(220, 180, 40),
+}
+
+-- ═══════════════════════════════════════════
+-- GUI ROOT
+-- ═══════════════════════════════════════════
+local gui = Instance.new("ScreenGui")
+gui.Name = "SoccerCardHub"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 520, 0, 620)
+frame.Position = UDim2.new(0.5, -260, 0.5, -310)
+frame.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 14)
+frameCorner.Parent = frame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(160, 160, 160)
+frameStroke.Thickness = 2
+frameStroke.Parent = frame
+
+-- ═══════════════════════════════════════════
+-- TOP BAR
+-- ═══════════════════════════════════════════
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 40)
+topBar.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+
+local topCorner = Instance.new("UICorner")
+topCorner.CornerRadius = UDim.new(0, 14)
+topCorner.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -50, 1, 0)
+title.Position = UDim2.new(0, 12, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Soccer Cards Hub"
+title.TextColor3 = Color3.fromRGB(40, 40, 40)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -35, 0, 5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+close.TextColor3 = Color3.new(1, 1, 1)
+close.Font = Enum.Font.GothamBold
+close.TextScaled = true
+close.BorderSizePixel = 0
+close.Parent = topBar
+Instance.new("UICorner", close).CornerRadius = UDim.new(0, 6)
+
+-- ═══════════════════════════════════════════
+-- STYLE HELPERS
+-- ═══════════════════════════════════════════
+local function styleButton(btn, overrideColor)
+    btn.BackgroundColor3 = overrideColor or Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = btn
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(180, 180, 180)
+    stroke.Thickness = 1.5
+    stroke.Parent = btn
+
+    local originalSize = btn.Size
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset+3,
+                             originalSize.Y.Scale, originalSize.Y.Offset+3)
+        }):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {Size = originalSize}):Play()
+    end)
+end
+
+local function makeScrollFrame(parent)
+    local sf = Instance.new("ScrollingFrame")
+    sf.Size = UDim2.new(1, 0, 1, 0)
+    sf.BackgroundTransparency = 1
+    sf.BorderSizePixel = 0
+    sf.ScrollBarThickness = 4
+    sf.ScrollBarImageColor3 = Color3.fromRGB(160, 160, 160)
+    sf.CanvasSize = UDim2.new(0, 0, 0, 0)
+    sf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    sf.Parent = parent
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 6)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = sf
+
+    local pad = Instance.new("UIPadding")
+    pad.PaddingLeft = UDim.new(0, 8)
+    pad.PaddingRight = UDim.new(0, 8)
+    pad.PaddingTop = UDim.new(0, 8)
+    pad.PaddingBottom = UDim.new(0, 8)
+    pad.Parent = sf
+
+    return sf
+end
+
+-- ═══════════════════════════════════════════
+-- MAIN TABS
+-- ═══════════════════════════════════════════
+local tabNames = {"Card Shop", "Cards", "Auto"}
+local tabBtns  = {}
+local tabPages = {}
+
+local tabBarFrame = Instance.new("Frame")
+tabBarFrame.Size = UDim2.new(1, -16, 0, 38)
+tabBarFrame.Position = UDim2.new(0, 8, 0, 46)
+tabBarFrame.BackgroundTransparency = 1
+tabBarFrame.Parent = frame
+
+local tabBarLayout = Instance.new("UIListLayout")
+tabBarLayout.FillDirection = Enum.FillDirection.Horizontal
+tabBarLayout.Padding = UDim.new(0, 6)
+tabBarLayout.Parent = tabBarFrame
+
+-- Content area
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, -16, 1, -96)
+contentArea.Position = UDim2.new(0, 8, 0, 90)
+contentArea.BackgroundTransparency = 1
+contentArea.Parent = frame
+
+local function switchTab(name)
+    title.Text = name
+    for _, n in ipairs(tabNames) do
+        local p = tabPages[n]
+        local b = tabBtns[n]
+        if p then p.Visible = (n == name) end
+        if b then
+            b.BackgroundColor3 = (n == name)
+                and Color3.fromRGB(60, 60, 180)
+                or  Color3.fromRGB(245, 245, 245)
+            b.TextColor3 = (n == name)
+                and Color3.fromRGB(255, 255, 255)
+                or  Color3.fromRGB(40, 40, 40)
+        end
+    end
+end
+
+for _, name in ipairs(tabNames) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 150, 1, 0)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = tabBarFrame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(180, 180, 180)
+
+    local page = Instance.new("Frame")
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = contentArea
+
+    tabBtns[name]  = btn
+    tabPages[name] = page
+
+    btn.MouseButton1Click:Connect(function() switchTab(name) end)
+end
+
+-- ═══════════════════════════════════════════
+-- CARD SHOP TAB
+-- ═══════════════════════════════════════════
+local cardShopPage = tabPages["Card Shop"]
+
+-- Mini tabs inside Card Shop: Buy Pack / Open Pack
+local shopMiniBar = Instance.new("Frame")
+shopMiniBar.Size = UDim2.new(1, 0, 0, 34)
+shopMiniBar.BackgroundTransparency = 1
+shopMiniBar.Parent = cardShopPage
+
+local shopMiniLayout = Instance.new("UIListLayout")
+shopMiniLayout.FillDirection = Enum.FillDirection.Horizontal
+shopMiniLayout.Padding = UDim.new(0, 5)
+shopMiniLayout.Parent = shopMiniBar
+
+local shopPages = {}
+local shopMiniBtns = {}
+local shopMiniNames = {"Buy Pack", "Open Pack"}
+
+local shopContentArea = Instance.new("Frame")
+shopContentArea.Size = UDim2.new(1, 0, 1, -40)
+shopContentArea.Position = UDim2.new(0, 0, 0, 40)
+shopContentArea.BackgroundTransparency = 1
+shopContentArea.Parent = cardShopPage
+
+local function switchShopTab(name)
+    for _, n in ipairs(shopMiniNames) do
+        if shopPages[n] then shopPages[n].Visible = (n == name) end
+        if shopMiniBtns[n] then
+            shopMiniBtns[n].BackgroundColor3 = (n == name)
+                and Color3.fromRGB(60, 60, 180)
+                or  Color3.fromRGB(245, 245, 245)
+            shopMiniBtns[n].TextColor3 = (n == name)
+                and Color3.fromRGB(255,255,255)
+                or  Color3.fromRGB(40,40,40)
+        end
+    end
+end
+
+for _, name in ipairs(shopMiniNames) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 140, 1, 0)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = shopMiniBar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(180, 180, 180)
+
+    local page = Instance.new("Frame")
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = shopContentArea
+
+    shopMiniBtns[name] = btn
+    shopPages[name] = page
+
+    btn.MouseButton1Click:Connect(function() switchShopTab(name) end)
+end
+
+-- BUY PACK buttons
+local buyScroll = makeScrollFrame(shopPages["Buy Pack"])
+for _, cardName in ipairs(CARDS) do
+    local color = CARD_COLORS[cardName] or Color3.fromRGB(200, 200, 200)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 44)
+    btn.Text = "Buy  " .. cardName .. "  Pack"
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = buyScroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+
+    -- Color strip on left
+    local strip = Instance.new("Frame", btn)
+    strip.Size = UDim2.new(0, 5, 1, 0)
+    strip.BackgroundColor3 = color
+    strip.BorderSizePixel = 0
+    Instance.new("UICorner", strip).CornerRadius = UDim.new(0, 4)
+
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = color
+    stroke.Thickness = 1.5
+
+    local originalSize = btn.Size
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = color
+        }):Play()
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+        }):Play()
+        btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    end)
+
+    local cn = cardName
+    btn.MouseButton1Click:Connect(function()
+        local args = {cn}
+        RS:WaitForChild("Remotes"):WaitForChild("BuyPack"):FireServer(unpack(args))
+    end)
+end
+
+-- OPEN PACK buttons
+local openScroll = makeScrollFrame(shopPages["Open Pack"])
+for _, cardName in ipairs(CARDS) do
+    local color = CARD_COLORS[cardName] or Color3.fromRGB(200, 200, 200)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 44)
+    btn.Text = "Open  " .. cardName .. "  Pack"
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = openScroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+
+    local strip = Instance.new("Frame", btn)
+    strip.Size = UDim2.new(0, 5, 1, 0)
+    strip.BackgroundColor3 = color
+    strip.BorderSizePixel = 0
+    Instance.new("UICorner", strip).CornerRadius = UDim.new(0, 4)
+
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = color
+    stroke.Thickness = 1.5
+
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = color}):Play()
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(245,245,245)}):Play()
+        btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    end)
+
+    local cn = cardName
+    btn.MouseButton1Click:Connect(function()
+        local args = {cn}
+        RS:WaitForChild("Remotes"):WaitForChild("OpenPack"):FireServer(unpack(args))
+    end)
+end
+
+switchShopTab("Buy Pack")
+
+-- ═══════════════════════════════════════════
+-- CARDS TAB (collect slot buttons)
+-- ═══════════════════════════════════════════
+local cardsPage = tabPages["Cards"]
+local cardsScroll = makeScrollFrame(cardsPage)
+
+-- Collect all slots button at top
+local collectAllBtn = Instance.new("TextButton")
+collectAllBtn.Size = UDim2.new(1, 0, 0, 48)
+collectAllBtn.Text = "Collect All Slots (1-10)"
+collectAllBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 80)
+collectAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+collectAllBtn.Font = Enum.Font.GothamBold
+collectAllBtn.TextScaled = true
+collectAllBtn.AutoButtonColor = false
+collectAllBtn.BorderSizePixel = 0
+collectAllBtn.Parent = cardsScroll
+Instance.new("UICorner", collectAllBtn).CornerRadius = UDim.new(0, 10)
+
+collectAllBtn.MouseButton1Click:Connect(function()
+    for i = 1, 10 do
+        RS:WaitForChild("Remotes"):WaitForChild("CollectSlot"):FireServer(i)
+    end
+end)
+
+-- Individual slot buttons
+for i = 1, 10 do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 42)
+    btn.Text = "Collect Slot " .. i
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = cardsScroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(180, 180, 180)
+
+    local slotNum = i
+    local orig = btn.Size
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = Color3.fromRGB(60, 120, 220),
+            Size = UDim2.new(orig.X.Scale, orig.X.Offset+2, orig.Y.Scale, orig.Y.Offset+2)
+        }):Play()
+        btn.TextColor3 = Color3.new(1,1,1)
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.1), {
+            BackgroundColor3 = Color3.fromRGB(245,245,245),
+            Size = orig
+        }):Play()
+        btn.TextColor3 = Color3.fromRGB(40,40,40)
+    end)
+
+    btn.MouseButton1Click:Connect(function()
+        RS:WaitForChild("Remotes"):WaitForChild("CollectSlot"):FireServer(slotNum)
+    end)
+end
+
+-- ═══════════════════════════════════════════
+-- AUTO TAB
+-- ═══════════════════════════════════════════
+local autoPage  = tabPages["Auto"]
+local autoScroll = makeScrollFrame(autoPage)
+
+local autoStates = {}
+
+local function makeAutoButton(parent, label, onEnable, onDisable)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 52)
+    btn.Text = label .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    btn.TextColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = parent
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = Color3.fromRGB(180, 180, 180)
+    stroke.Thickness = 1.5
+
+    local on = false
+    btn.MouseButton1Click:Connect(function()
+        on = not on
+        btn.Text = label .. (on and ": ON" or ": OFF")
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            BackgroundColor3 = on and Color3.fromRGB(60, 180, 80) or Color3.fromRGB(245,245,245)
+        }):Play()
+        btn.TextColor3 = on and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40)
+        stroke.Color = on and Color3.fromRGB(40,140,60) or Color3.fromRGB(180,180,180)
+
+        if on then
+            onEnable(function() return on end)
+        else
+            if onDisable then onDisable() end
+        end
+    end)
+
+    return btn
+end
+
+-- Auto Collect (all 10 slots)
+makeAutoButton(autoScroll, "Auto Collect All Slots",
+    function(isOn)
+        task.spawn(function()
+            while isOn() do
+                for i = 1, 10 do
+                    if not isOn() then break end
+                    RS:WaitForChild("Remotes"):WaitForChild("CollectSlot"):FireServer(i)
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+)
+
+-- Auto Buy — multi-select pack picker
+local selectedPacks = {}  -- set of selected pack names
+
+local autoBuyLabel = Instance.new("TextLabel")
+autoBuyLabel.Size = UDim2.new(1, 0, 0, 26)
+autoBuyLabel.BackgroundTransparency = 1
+autoBuyLabel.Text = "Select packs below (tap to toggle)"
+autoBuyLabel.TextColor3 = Color3.fromRGB(80, 80, 80)
+autoBuyLabel.Font = Enum.Font.GothamBold
+autoBuyLabel.TextScaled = true
+autoBuyLabel.Parent = autoScroll
+
+-- Select All / Clear All buttons
+local selBtnRow = Instance.new("Frame", autoScroll)
+selBtnRow.Size = UDim2.new(1, 0, 0, 34)
+selBtnRow.BackgroundTransparency = 1
+
+local selRowLayout = Instance.new("UIListLayout", selBtnRow)
+selRowLayout.FillDirection = Enum.FillDirection.Horizontal
+selRowLayout.Padding = UDim.new(0, 6)
+
+local selectAllBtn = Instance.new("TextButton", selBtnRow)
+selectAllBtn.Size = UDim2.new(0.48, 0, 1, 0)
+selectAllBtn.Text = "Select All"
+selectAllBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
+selectAllBtn.TextColor3 = Color3.fromRGB(255,255,255)
+selectAllBtn.Font = Enum.Font.GothamBold
+selectAllBtn.TextScaled = true
+selectAllBtn.AutoButtonColor = false
+selectAllBtn.BorderSizePixel = 0
+Instance.new("UICorner", selectAllBtn).CornerRadius = UDim.new(0, 8)
+
+local clearAllBtn = Instance.new("TextButton", selBtnRow)
+clearAllBtn.Size = UDim2.new(0.48, 0, 1, 0)
+clearAllBtn.Text = "Clear All"
+clearAllBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+clearAllBtn.TextColor3 = Color3.fromRGB(255,255,255)
+clearAllBtn.Font = Enum.Font.GothamBold
+clearAllBtn.TextScaled = true
+clearAllBtn.AutoButtonColor = false
+clearAllBtn.BorderSizePixel = 0
+Instance.new("UICorner", clearAllBtn).CornerRadius = UDim.new(0, 8)
+
+-- Selected count label
+local selectedCountLbl = Instance.new("TextLabel", autoScroll)
+selectedCountLbl.Size = UDim2.new(1, 0, 0, 22)
+selectedCountLbl.BackgroundTransparency = 1
+selectedCountLbl.Text = "0 packs selected"
+selectedCountLbl.TextColor3 = Color3.fromRGB(60, 140, 60)
+selectedCountLbl.Font = Enum.Font.GothamBold
+selectedCountLbl.TextScaled = true
+
+-- Pack type picker (multi-select scrollable grid)
+local packPickerFrame = Instance.new("Frame")
+packPickerFrame.Size = UDim2.new(1, 0, 0, 160)
+packPickerFrame.BackgroundColor3 = Color3.fromRGB(235, 235, 235)
+packPickerFrame.BorderSizePixel = 0
+packPickerFrame.Parent = autoScroll
+Instance.new("UICorner", packPickerFrame).CornerRadius = UDim.new(0, 8)
+
+local packPickerScroll = Instance.new("ScrollingFrame", packPickerFrame)
+packPickerScroll.Size = UDim2.new(1, 0, 1, 0)
+packPickerScroll.BackgroundTransparency = 1
+packPickerScroll.BorderSizePixel = 0
+packPickerScroll.ScrollBarThickness = 3
+packPickerScroll.ScrollBarImageColor3 = Color3.fromRGB(160,160,160)
+packPickerScroll.CanvasSize = UDim2.new(0,0,0,0)
+packPickerScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+local ppLayout = Instance.new("UIListLayout", packPickerScroll)
+ppLayout.Padding = UDim.new(0, 3)
+local ppPad = Instance.new("UIPadding", packPickerScroll)
+ppPad.PaddingLeft = UDim.new(0,4); ppPad.PaddingRight = UDim.new(0,4)
+ppPad.PaddingTop = UDim.new(0,4)
+
+local packBtns = {}
+
+local function updateCountLabel()
+    local count = 0
+    for _ in pairs(selectedPacks) do count += 1 end
+    selectedCountLbl.Text = count .. " pack" .. (count == 1 and "" or "s") .. " selected"
+    selectedCountLbl.TextColor3 = count > 0
+        and Color3.fromRGB(40, 160, 60)
+        or  Color3.fromRGB(180, 60, 60)
+end
+
+for _, cn in ipairs(CARDS) do
+    local color = CARD_COLORS[cn] or Color3.fromRGB(200,200,200)
+    local pb = Instance.new("TextButton", packPickerScroll)
+    pb.Size = UDim2.new(1, 0, 0, 30)
+    pb.Text = cn
+    pb.BackgroundColor3 = Color3.fromRGB(245,245,245)
+    pb.TextColor3 = Color3.fromRGB(40,40,40)
+    pb.Font = Enum.Font.GothamBold
+    pb.TextScaled = true
+    pb.AutoButtonColor = false
+    pb.BorderSizePixel = 0
+    Instance.new("UICorner", pb).CornerRadius = UDim.new(0, 6)
+    local pbs = Instance.new("UIStroke", pb)
+    pbs.Color = color
+    pbs.Thickness = 1.5
+    packBtns[cn] = {btn=pb, color=color}
+
+    local c = cn
+    pb.MouseButton1Click:Connect(function()
+        if selectedPacks[c] then
+            -- Deselect
+            selectedPacks[c] = nil
+            TweenService:Create(pb, TweenInfo.new(0.12), {
+                BackgroundColor3 = Color3.fromRGB(245,245,245)
+            }):Play()
+            pb.TextColor3 = Color3.fromRGB(40,40,40)
+        else
+            -- Select
+            selectedPacks[c] = true
+            TweenService:Create(pb, TweenInfo.new(0.12), {
+                BackgroundColor3 = color
+            }):Play()
+            pb.TextColor3 = Color3.fromRGB(255,255,255)
+        end
+        updateCountLabel()
+    end)
+end
+
+-- Helper to get ordered list of selected packs
+local function getSelectedList()
+    local list = {}
+    for _, cn in ipairs(CARDS) do  -- preserves order
+        if selectedPacks[cn] then
+            table.insert(list, cn)
+        end
+    end
+    return list
+end
+
+selectAllBtn.MouseButton1Click:Connect(function()
+    for _, cn in ipairs(CARDS) do
+        selectedPacks[cn] = true
+        local entry = packBtns[cn]
+        if entry then
+            TweenService:Create(entry.btn, TweenInfo.new(0.1), {
+                BackgroundColor3 = entry.color
+            }):Play()
+            entry.btn.TextColor3 = Color3.fromRGB(255,255,255)
+        end
+    end
+    updateCountLabel()
+end)
+
+clearAllBtn.MouseButton1Click:Connect(function()
+    for _, cn in ipairs(CARDS) do
+        selectedPacks[cn] = nil
+        local entry = packBtns[cn]
+        if entry then
+            TweenService:Create(entry.btn, TweenInfo.new(0.1), {
+                BackgroundColor3 = Color3.fromRGB(245,245,245)
+            }):Play()
+            entry.btn.TextColor3 = Color3.fromRGB(40,40,40)
+        end
+    end
+    updateCountLabel()
+end)
+
+updateCountLabel()
+
+-- Auto Buy button — cycles through all selected packs
+makeAutoButton(autoScroll, "Auto Buy Pack",
+    function(isOn)
+        task.spawn(function()
+            while isOn() do
+                local list = getSelectedList()
+                if #list == 0 then
+                    task.wait(0.5)
+                    continue
+                end
+                for _, packName in ipairs(list) do
+                    if not isOn() then break end
+                    RS:WaitForChild("Remotes"):WaitForChild("BuyPack"):FireServer(packName)
+                    task.wait(0.1)
+                end
+            end
+        end)
+    end
+)
+
+-- Auto Open Pack — cycles through all selected packs
+makeAutoButton(autoScroll, "Auto Open Pack",
+    function(isOn)
+        task.spawn(function()
+            while isOn() do
+                local list = getSelectedList()
+                if #list == 0 then
+                    task.wait(0.5)
+                    continue
+                end
+                for _, packName in ipairs(list) do
+                    if not isOn() then break end
+                    RS:WaitForChild("Remotes"):WaitForChild("OpenPack"):FireServer(packName)
+                    task.wait(0.1)
+                end
+            end
+        end)
+    end
+)
+
+-- Auto Rebirth
+makeAutoButton(autoScroll, "Auto Rebirth",
+    function(isOn)
+        task.spawn(function()
+            while isOn() do
+                RS:WaitForChild("Remotes"):WaitForChild("Rebirth"):FireServer()
+                task.wait(0.5)
+            end
+        end)
+    end
+)
+
+-- Auto Buy + Open combo — buys then opens each selected pack in order
+makeAutoButton(autoScroll, "Auto Buy + Open Pack",
+    function(isOn)
+        task.spawn(function()
+            while isOn() do
+                local list = getSelectedList()
+                if #list == 0 then
+                    task.wait(0.5)
+                    continue
+                end
+                for _, packName in ipairs(list) do
+                    if not isOn() then break end
+                    RS:WaitForChild("Remotes"):WaitForChild("BuyPack"):FireServer(packName)
+                    task.wait(0.05)
+                    RS:WaitForChild("Remotes"):WaitForChild("OpenPack"):FireServer(packName)
+                    task.wait(0.1)
+                end
+            end
+        end)
+    end
+)
+
+-- ═══════════════════════════════════════════
+-- DRAGGING
+-- ═══════════════════════════════════════════
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- ═══════════════════════════════════════════
+-- CLOSE + MINIMIZE
+-- ═══════════════════════════════════════════
+close.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        frame.Visible = not frame.Visible
+    end
+end)
+
+-- ═══════════════════════════════════════════
+-- START ON CARD SHOP TAB
+-- ═══════════════════════════════════════════
+switchTab("Card Shop")
+
+print("Soccer Cards Hub Loaded!")
+
+-- ═══════════════════════════════════════════
+-- START ON CARD SHOP TAB
+-- ═══════════════════════════════════════════
+switchTab("Card Shop")
+
+print("Soccer Cards Hub Loaded!")
