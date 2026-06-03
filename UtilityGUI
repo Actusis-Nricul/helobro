@@ -13,7 +13,7 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 470, 0, 330)
+frame.Size = UDim2.new(0, 500, 0, 400)
 frame.Position = UDim2.new(0.35, 0, 0.25, 0)
 frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
 frame.BorderSizePixel = 0
@@ -35,7 +35,7 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,-40,1,0)
 title.Position = UDim2.new(0,10,0,0)
 title.BackgroundTransparency = 1
-title.Text = "Utility UI"
+title.Text = "Utility GUI V2"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 20
@@ -58,7 +58,7 @@ close.Parent = topBar
 Instance.new("UICorner", close)
 
 close.MouseButton1Click:Connect(function()
-	gui.Enabled = false
+	gui:Destroy()
 end)
 
 ---------------------------------------------------
@@ -193,7 +193,7 @@ local gameIdBtn = makeButton(printFrame,"Print GameId",0)
 local placeIdBtn = makeButton(printFrame,"Print PlaceId",40)
 local userIdBtn = makeButton(printFrame,"Print UserId",80)
 local workspaceBtn = makeButton(printFrame,"Print Workspace Contents",120)
-local remotesBtn = makeButton(printFrame,"Print ReplicatedStorage Remotes",160)
+local rsContentsBtn = makeButton(printFrame,"Print ReplicatedStorage Contents",160)
 local playersBtn = makeButton(printFrame,"Print Player Names",200)
 
 gameIdBtn.MouseButton1Click:Connect(function()
@@ -217,17 +217,14 @@ workspaceBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
-remotesBtn.MouseButton1Click:Connect(function()
+local rsContentsBtn = makeButton(printFrame,"Print ReplicatedStorage Contents",240)
 
-	print("===== REMOTES =====")
+rsContentsBtn.MouseButton1Click:Connect(function()
+
+	print("===== REPLICATEDSTORAGE =====")
 
 	for _,v in ipairs(ReplicatedStorage:GetDescendants()) do
-
-		if v:IsA("RemoteEvent")
-		or v:IsA("RemoteFunction") then
-
-			print(v:GetFullName())
-		end
+		print(v:GetFullName())
 	end
 end)
 
@@ -253,6 +250,8 @@ end)
 local copyGameIdBtn = makeButton(copyFrame,"Copy GameId",0)
 local copyPlaceIdBtn = makeButton(copyFrame,"Copy PlaceId",40)
 local copyUserIdBtn = makeButton(copyFrame,"Copy UserId",80)
+local copyWorkspaceBtn = makeButton(copyFrame,"Copy Workspace Contents",120)
+local copyRSBtn = makeButton(copyFrame,"Copy ReplicatedStorage Contents",160)
 
 copyGameIdBtn.MouseButton1Click:Connect(function()
 
@@ -265,9 +264,9 @@ end)
 
 copyPlaceIdBtn.MouseButton1Click:Connect(function()
 
-	if setclipboard then
+		if setclipboard then
 		setclipboard(tostring(game.PlaceId))
-	end
+		end
 
 	print("Copied PlaceId")
 end)
@@ -281,12 +280,45 @@ copyUserIdBtn.MouseButton1Click:Connect(function()
 	print("Copied UserId")
 end)
 
+copyWorkspaceBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+
+		local text = ""
+
+		for _,v in ipairs(workspace:GetDescendants()) do
+			text = text .. v:GetFullName() .. "\n"
+		end
+
+		setclipboard(text)
+	end
+
+	print("Copied Workspace Contents")
+end)
+
+copyRSBtn.MouseButton1Click:Connect(function()
+
+	if setclipboard then
+
+		local text = ""
+
+		for _,v in ipairs(ReplicatedStorage:GetDescendants()) do
+			text = text .. v:GetFullName() .. "\n"
+		end
+
+		setclipboard(text)
+	end
+
+	print("Copied ReplicatedStorage Contents")
+end)
+
 ---------------------------------------------------
 -- Extra Tab
 ---------------------------------------------------
 
 local loaddexBtn = makeButton(extraFrame, "Load Dex", 0)
 local remotespyBtn = makeButton(extraFrame, "Load Cool Remote Spy", 40)
+local iyBtn = makeButton(extraFrame, "Load Infinite Yield", 80)
 
 loaddexBtn.MouseButton1Click:Connect(function()
 
@@ -301,5 +333,13 @@ remotespyBtn.MouseButton1Click:Connect(function()
 	print("Cool RSpy Loading...")
 
 	loadstring(game:HttpGetAsync("https://github.com/richie0866/remote-spy/releases/latest/download/RemoteSpy.lua"))()
+
+end)
+
+iyBtn.MouseButton1Click:Connect(function()
+
+	print("Infinite Yield Loading...")
+
+	loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Infinity-Yield-94242"))()
 
 end)
