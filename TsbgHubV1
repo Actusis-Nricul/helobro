@@ -1,0 +1,327 @@
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+if game.PlaceId ~= 10449761463 then
+	
+	game.Players.LocalPlayer.Character:BreakJoints()
+
+	task.wait(1)
+
+	game.Players.LocalPlayer:Kick("WRONG GAME, TSBG Only")
+
+		else
+
+	print("Correct Game: Tsbg Normal Game")
+end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "TSBG Script Hub - Keyless - Best Scripts",
+   Icon = 138751136547366,
+   LoadingTitle = "Loading best Tsbg script...",
+   LoadingSubtitle = "By Actusis/Nricul",
+   ShowText = "TSBG",
+   Theme = "Serenity",
+
+   ToggleUIKeybind = "L", 
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = true, 
+
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = true, 
+      FileName = "TSBGBESTSCRIPTACTUSIS2026"
+   },
+
+   Discord = {
+      Enabled = true,
+      Invite = "ANwZKq8D6a", 
+      RememberJoins = true 
+   },
+
+   KeySystem = true,
+   KeySettings = {
+      Title = "Subscribe @ActusisGames",
+      Subtitle = "KEYEZ",
+      Note = "Key is tsbg or tsb",
+      FileName = "KEYeasyTSBGSCRIPTbest",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"tsbg", "TSBG", "tsb", "TSB"}
+   }
+})
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "Have Fun with the Script!",
+   Duration = 8,
+   Image = "smile",
+})
+
+local MainTab = Window:CreateTab("Home", "home")
+local Section = MainTab:CreateSection("Home")
+
+local ScriptsTab = Window:CreateTab("Scripts", "scroll")
+local Section = ScriptsTab:CreateSection("TSBG SCRIPTS")
+
+local PlayerTab = Window:CreateTab("Player", "person-standing")
+local Section = PlayerTab:CreateSection("Movement")
+
+local MapTab = Window:CreateTab("Map", "map")
+local Section = MapTab:CreateSection("Map")
+
+local OthersTab = Window:CreateTab("Other Players", "users-2")
+local Section = OthersTab:CreateSection("Others")
+
+local ExtraTab = Window:CreateTab("Misc", "star")
+local Section = ExtraTab:CreateSection("Extra")
+
+local Label = MainTab:CreateLabel("Welcome! If you want read the text below", "home", Color3.fromRGB(170, 200, 100), true) -- Title, Icon, Color, IgnoreTheme
+
+local Paragraph = MainTab:CreateParagraph({Title = "Info:", Content = "Thanks for executing my script! This script is 100% Keyless and the key never changes, this script has a bunch of scripts on the script tab that other people made, but everything on the extra tab and Home tab are mine. I hope you have a good time using this script, as it is really good as it helped me get 300 kills in a day and I beat everyone without them suspecting that im exploiting. Good Luck!"})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Auto Block, Auto Counter, 99% work op, undetected + looks real",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/alanbeikers9/Script-ofuzcado/refs/heads/main/AutoBlock_v16_16%20ofuscado.lua"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "KittyWare: Auto Tech, Macro, Rage Cheats",
+   Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/0mam0ri/KittyWare/refs/heads/main/obf.lua'))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Speed Hub X (Mobile but works on pc too)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "Supa Tech V2 (idk if it works)",
+   Callback = function()
+        loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/2753546c83053761e44664d36ffe5035d6e20fc8aee1d19f0eb7b933974ae537.lua"))()
+   end,
+})
+
+local Button = ScriptsTab:CreateButton({
+   Name = "JN Hub",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/JNHHGaming/The-strong-battlegrounds/refs/heads/main/Tsb"))()
+   end,
+})
+
+local Slider = PlayerTab:CreateSlider({
+   Name = "WalkSpeed Slider",
+   Range = {15, 500},
+   Increment = 5,
+   Suffix = "WalkSpeed",
+   CurrentValue = 16,
+   Flag = "WALKSPEEDSLIDERTSBG", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value) 
+   end,
+})
+
+local Slider = PlayerTab:CreateSlider({
+   Name = "JumpPower Slider",
+   Range = {50, 500},
+   Increment = 10,
+   Suffix = "JumpPower",
+   CurrentValue = 50,
+   Flag = "JUMPPOWERSLIDERTSBG", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value) 
+   end,
+})
+
+local Slider = PlayerTab:CreateSlider({
+   Name = "WalkSpeed Slider BIG",
+   Range = {15, 150000},
+   Increment = 50,
+   Suffix = "WalkSpeed",
+   CurrentValue = 16,
+   Flag = "WALKSPEEDSLIDERBIGTSBG", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value) 
+   end,
+})
+
+local Slider = PlayerTab:CreateSlider({
+   Name = "JumpPower Slider BIG",
+   Range = {50, 100000},
+   Increment = 50,
+   Suffix = "JumpPower",
+   CurrentValue = 50,
+   Flag = "JUMPPOWERSLIDERBIGTSBG", 
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value) 
+   end,
+})
+
+local Section = PlayerTab:CreateSection("Air Movement")
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "Fly (. = +1 speed , = -1 speed)",
+   CurrentValue = false,
+   Flag = "FLYTOGGLETSBG2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FlyIncreaseDecrease.%2C"))()
+   end,
+})
+
+local Toggle = PlayerTab:CreateToggle({
+   Name = "GRAVITY (. = +1 high , = -1 low)",
+   CurrentValue = false,
+   Flag = "GRAVITYTOGGLETSBG2026",
+   Callback = function(Value)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/GravityIncreaseDecrease.%2C"))()
+   end,
+})
+
+local Input = PlayerTab:CreateInput({
+   Name = "HipHeight",
+   CurrentValue = "1.5",
+   PlaceholderText = "Enter HipHeight",
+   RemoveTextAfterFocusLost = true,
+   Flag = "HIPHEIGHTINPUTTSBG",
+   Callback = function(Text)
+
+      local Humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+      if Humanoid and tonumber(Text) then
+         Humanoid.HipHeight = tonumber(Text)
+      end
+
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "TouchFling (Touch Others To Fling)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/TouchFling"))()
+   end,
+})
+
+local HiddenPlayers = false
+
+local Toggle = OthersTab:CreateToggle({
+	Name = "Hide Other Players",
+	CurrentValue = false,
+	Flag = "HIDEPLAYERS2026TSBG",
+
+	Callback = function(Value)
+
+		HiddenPlayers = Value
+
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr ~= Players.LocalPlayer and plr.Character then
+				for _, obj in ipairs(plr.Character:GetDescendants()) do
+					if obj:IsA("BasePart") then
+						obj.LocalTransparencyModifier = Value and 1 or 0
+					end
+				end
+			end
+		end
+
+	end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Fling GUI V1 (fling yourself)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/FlingGUIV1"))()
+   end,
+})
+
+local Button = PlayerTab:CreateButton({
+   Name = "Infinite Jump (PRESS P TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/OPINFJUMP"))()
+   end,
+})
+
+local Button = ExtraTab:CreateButton({
+   Name = "Fake Rainbow Carpet But OP",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/RainbowCarpetFakeOP"))()
+   end,
+})
+
+local Section = PlayerTab:CreateSection("Teleports")
+
+local Button = ExtraTab:CreateButton({
+   Name = "Copy Discord",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CopyDiscord"))()
+   end,
+})
+
+local Button = PlayerTab:CreateButton({
+   Name = "Teleport To Cursor, T key, (PRESS Z TO TOGGLE)",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyTeleportCursor"))()
+   end,
+})
+
+local Button = PlayerTab:CreateButton({
+   Name = "Teleport Forward",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportForward"))()
+   end,
+})
+
+local Button = PlayerTab:CreateButton({
+   Name = "Teleport Backward",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/TeleportBackward"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete Benches",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteBenches"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete Invisible Walls",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteInvisWalls"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete GrassTop",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteGrassTop"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete GrassBottom",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteGrassBottom"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete Railings",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteRailing"))()
+   end,
+})
+
+local Button = MapTab:CreateButton({
+   Name = "Delete Clouds",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/DeleteCloud"))()
+   end,
+})
