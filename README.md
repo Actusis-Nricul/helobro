@@ -12,13 +12,13 @@ if you need a executor then go to    https://www.cheat.today      or      https:
 ## About Me
 
 ```lua
+local player = Players.LocalPlayer
+
 local me = {
     name = "Actusis-Nricul",
     language = "Luau",
-    language2 = "C++",
+    language = "English",
     executor = "Potassium",
-    players.LocalPlayer.Brain = true,
+    players.player.Brain = true,
     IQ = math.huge
 }
-
-return me
