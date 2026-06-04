@@ -1,0 +1,250 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "CLICKERGAMEPOTASSIUMISBEST"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 500, 0, 430)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Lil Bro ✌️"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.TextScaled = true
+title.Font = Enum.Font.Arcade
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,60)
+autoClickBtn.Text = "Auto Click: OFF"
+autoClickBtn.Parent = frame
+
+local maxbrightBtn = Instance.new("TextButton")
+maxbrightBtn.Size = UDim2.new(1,-20,0,40)
+maxbrightBtn.Position = UDim2.new(0,10,0,120)
+maxbrightBtn.Text = "Auto Hatch Starter Egg"
+maxbrightBtn.Parent = frame
+
+local autoRebirthBtn = Instance.new("TextButton")
+autoRebirthBtn.Size = UDim2.new(1,-20,0,40)
+autoRebirthBtn.Position = UDim2.new(0,10,0,180)
+autoRebirthBtn.Text = "Auto Rebirth 1: OFF"
+autoRebirthBtn.Parent = frame
+
+local autoRebirth2Btn = Instance.new("TextButton")
+autoRebirth2Btn.Size = UDim2.new(1,-20,0,40)
+autoRebirth2Btn.Position = UDim2.new(0,10,0,240)
+autoRebirth2Btn.Text = "Auto Rebirth 2: OFF"
+autoRebirth2Btn.Parent = frame
+
+local autoRebirth3Btn = Instance.new("TextButton")
+autoRebirth3Btn.Size = UDim2.new(1,-20,0,40)
+autoRebirth3Btn.Position = UDim2.new(0,10,0,300)
+autoRebirth3Btn.Text = "Auto Rebirth 3: OFF"
+autoRebirth3Btn.Parent = frame
+
+local autoRebirth4Btn = Instance.new("TextButton")
+autoRebirth4Btn.Size = UDim2.new(1,-20,0,40)
+autoRebirth4Btn.Position = UDim2.new(0,10,0,360)
+autoRebirth4Btn.Text = "Auto Rebirth 4: OFF"
+autoRebirth4Btn.Parent = frame
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "Auto Click: " .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Click"):FireServer()
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local maxbright = false
+
+maxbrightBtn.MouseButton1Click:Connect(function()
+	maxbright = not maxbright
+	maxbrightBtn.Text = "Auto Hatch Starter Egg: " .. (maxbright and "ON" or "OFF")
+
+	if maxbright then
+		task.spawn(function()
+			while maxbright do
+local args = {
+	"Starter",
+	"E"
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Egg"):FireServer(unpack(args))
+
+				task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+	autoRebirth = not autoRebirth
+	autoRebirthBtn.Text = "Auto Rebirth 1: " .. (autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+		task.spawn(function()
+			while autoRebirth do
+local args = {
+	1
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer(unpack(args))
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth2 = false
+
+autoRebirth2Btn.MouseButton1Click:Connect(function()
+	autoRebirth2 = not autoRebirth2
+	autoRebirth2Btn.Text = "Auto Rebirth 2: " .. (autoRebirth2 and "ON" or "OFF")
+
+	if autoRebirth2 then
+		task.spawn(function()
+			while autoRebirth2 do
+local args = {
+	2
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer(unpack(args))
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth3 = false
+
+autoRebirth3Btn.MouseButton1Click:Connect(function()
+	autoRebirth3 = not autoRebirth3
+	autoRebirth3Btn.Text = "Auto Rebirth 3: " .. (autoRebirth3 and "ON" or "OFF")
+
+	if autoRebirth3 then
+		task.spawn(function()
+			while autoRebirth3 do
+local args = {
+	3
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer(unpack(args))
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth4 = false
+
+autoRebirth4Btn.MouseButton1Click:Connect(function()
+	autoRebirth4 = not autoRebirth4
+	autoRebirth4Btn.Text = "Auto Rebirth 4: " .. (autoRebirth4 and "ON" or "OFF")
+
+	if autoRebirth4 then
+		task.spawn(function()
+			while autoRebirth4 do
+local args = {
+	4
+}
+game:GetService("ReplicatedStorage"):WaitForChild("Game"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer(unpack(args))
+
+                task.wait()
+			end
+		end)
+	end
+end)
