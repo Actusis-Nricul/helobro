@@ -7,7 +7,7 @@ all of them you can use idc its all open source keyless
 
 if you want to join my discord for more updated scripts and over 100 scripts, then the link is https://www.discord.gg/A5NEZNPMCS
 
-if you need a executor then go to    https://cheat.today      or      https://inject.today or [robloxexecutorstatus](https://robloxexecutorstatus.com/)
+if you need a executor then go to    [cheat.today](https://cheat.today/)      or      [inject.today](https://inject.today/) or [robloxexecutorstatus](https://robloxexecutorstatus.com/)
 
 ## About Me
 
