@@ -1,0 +1,139 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+if PlayerGui:FindFirstChild("beatupluckyblockforfun") then
+	PlayerGui.beatupluckyblockforfun:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "beatupluckyblockforfun"
+gui.ResetOnSpawn = false
+gui.Parent = PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,250,0,250)
+frame.Position = UDim2.new(0.5,-125,0.5,-90)
+frame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+frame.Parent = gui
+
+local top = Instance.new("Frame")
+top.Size = UDim2.new(1,0,0,30)
+top.BackgroundColor3 = Color3.fromRGB(50,50,50)
+top.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,-30,1,0)
+title.Text = "Fight LuckyBlock For Brainrot"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Parent = top
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,1,0)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = top
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+-- Dragging
+local dragging = false
+local dragStart
+local startPos
+
+top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+local function MakeToggle(name,y)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(.9,0,0,30)
+	b.Position = UDim2.new(.05,0,0,y)
+	b.Text = name.." : OFF"
+	b.Parent = frame
+
+	local state = false
+
+	b.MouseButton1Click:Connect(function()
+		state = not state
+		b.Text = name.." : "..(state and "ON" or "OFF")
+	end)
+
+	return function()
+		return state
+	end
+end
+
+local RebirthEnabled = MakeToggle("Auto Rebirth",50)
+local UpgradeEnabled = MakeToggle("Auto Upgrade Slot 1",100)
+local JumpEnabled = MakeToggle("Infinite Jump",150)
+local BoostEnabled = MakeToggle("Auto Claim Train 2X",200)
+
+task.spawn(function()
+	while task.wait(0.5) do
+		if RebirthEnabled() then
+			pcall(function()
+				RS.ConsPackages.Link.RemoteFunctions.RebirthRequest:InvokeServer()
+			end)
+		end
+	end
+end)
+
+task.spawn(function()
+	while task.wait(0.5) do
+		if UpgradeEnabled() then
+			pcall(function()
+				RS.ConsPackages.Link.RemoteEvents.UpgradeBrainrot:FireServer("1")
+			end)
+		end
+	end
+end)
+
+UIS.JumpRequest:Connect(function()
+	if JumpEnabled() then
+		local char = player.Character
+		if char and char:FindFirstChildOfClass("Humanoid") then
+			char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
+end)
+
+task.spawn(function()
+	local boostNumber = 1
+
+	while task.wait(0.5) do
+		if BoostEnabled() then
+			pcall(function()
+				RS.ConsPackages.Link.RemoteEvents.Claim2xBoost:FireServer(boostNumber)
+				boostNumber += 1
+			end)
+		end
+	end
+end)
