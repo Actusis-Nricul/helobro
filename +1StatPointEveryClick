@@ -1,0 +1,310 @@
+-- LocalScript in StarterPlayerScripts
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+-- Remove old GUI if it exists
+local existing = player:WaitForChild("PlayerGui"):FindFirstChild("PotassiumExecutorGOAT")
+if existing then existing:Destroy() end
+
+-- =====================
+-- GUI SETUP
+-- =====================
+local gui = Instance.new("ScreenGui")
+gui.Name = "PotassiumExecutorGOAT"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 230)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 32)
+topBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 8)
+
+-- Fix bottom corners of topbar
+local topBarFix = Instance.new("Frame")
+topBarFix.Size = UDim2.new(1, 0, 0.5, 0)
+topBarFix.Position = UDim2.new(0, 0, 0.5, 0)
+topBarFix.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+topBarFix.BorderSizePixel = 0
+topBarFix.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -42, 1, 0)
+title.Position = UDim2.new(0, 8, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "+1 Stat Point Every Click"
+title.TextColor3 = Color3.fromRGB(20, 200, 110)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 26, 0, 26)
+closeBtn.Position = UDim2.new(1, -30, 0.5, -13)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 12
+closeBtn.BorderSizePixel = 0
+closeBtn.Parent = topBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+
+-- =====================
+-- BUTTON FACTORY
+-- =====================
+local BTN_OFF = Color3.fromRGB(50, 50, 65)
+local BTN_ON  = Color3.fromRGB(25, 110, 60)
+local BTN_TXT = Color3.fromRGB(220, 220, 235)
+
+local btnY = 40
+local function makeBtn(labelOff, labelOn, onToggle)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 32)
+    btn.Position = UDim2.new(0, 10, 0, btnY)
+    btn.BackgroundColor3 = BTN_OFF
+    btn.Text = labelOff .. ": OFF"
+    btn.TextColor3 = BTN_TXT
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = frame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    btnY = btnY + 38
+
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.BackgroundColor3 = state and BTN_ON or BTN_OFF
+        btn.Text = (state and labelOn or labelOff) .. ": " .. (state and "ON" or "OFF")
+        onToggle(state)
+    end)
+
+    return btn
+end
+
+-- Resize frame to fit all buttons
+frame.Size = UDim2.new(0, 300, 0, btnY + 38 + 15)
+
+-- =====================
+-- AUTO CLICK
+-- =====================
+local autoClick = false
+makeBtn("Auto Click", "Auto Click", function(on)
+    autoClick = on
+    if on then
+        task.spawn(function()
+            local ok, event = pcall(function()
+                return RS:WaitForChild("IncrementPointsEvent", 5)
+            end)
+            if not ok or not event then
+                warn("IncrementPointsEvent not found")
+                return
+            end
+            while autoClick do
+                for i = 1, 15 do
+                    event:FireServer()
+                end
+                task.wait()
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- FAST SPEED
+-- =====================
+local fastSpeed = false
+makeBtn("Fast Speed", "Fast Speed", function(on)
+    fastSpeed = on
+    if on then
+        task.spawn(function()
+            while fastSpeed do
+                local char = player.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then hum.WalkSpeed = 120 end
+                task.wait()
+            end
+            -- restore on disable
+            local char = player.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = 16 end
+        end)
+    else
+        local char = player.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = 16 end
+    end
+end)
+
+-- =====================
+-- AUTO BUY JUMP
+-- =====================
+local autoJump = false
+makeBtn("Auto Buy Jump", "Auto Buy Jump", function(on)
+    autoJump = on
+    if on then
+        task.spawn(function()
+            local ok, event = pcall(function()
+                return RS:WaitForChild("UpgradeJumpEvent", 5)
+            end)
+            if not ok or not event then
+                warn("UpgradeJumpEvent not found")
+                return
+            end
+            while autoJump do
+                event:FireServer()
+                task.wait(0.05)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- AUTO BUY SPEED
+-- =====================
+local autoSpeed = false
+makeBtn("Auto Buy Speed", "Auto Buy Speed", function(on)
+    autoSpeed = on
+    if on then
+        task.spawn(function()
+            local ok, event = pcall(function()
+                return RS:WaitForChild("UpgradeSpeedEvent", 5)
+            end)
+            if not ok or not event then
+                warn("UpgradeSpeedEvent not found")
+                return
+            end
+            while autoSpeed do
+                event:FireServer()
+                task.wait(0.05)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- AUTO BUY SIZE
+-- =====================
+local autoSize = false
+makeBtn("Auto Buy Size", "Auto Buy Size", function(on)
+    autoSize = on
+    if on then
+        task.spawn(function()
+            local ok, event = pcall(function()
+                return RS:WaitForChild("UpgradeSizeEvent", 5)
+            end)
+            if not ok or not event then
+                warn("UpgradeSizeEvent not found")
+                return
+            end
+            while autoSize do
+                event:FireServer()
+                task.wait(0.05)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- BIG SIZE (x10)
+-- =====================
+local bigSize = false
+local originalSizes = {}
+local originalCFrames = {}
+
+makeBtn("Big Size (x10)", "Big Size (x10)", function(on)
+    bigSize = on
+    local char = player.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+
+    if on then
+        -- Save original sizes and scale x10
+        originalSizes = {}
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                originalSizes[part] = part.Size
+                part.Size = part.Size * 10
+            end
+        end
+        -- Also scale HipHeight so player doesn't sink into ground
+        hum:SetAttribute("OrigHipHeight", hum.HipHeight)
+        hum.HipHeight = hum.HipHeight * 10
+    else
+        -- Restore original sizes
+        for part, size in pairs(originalSizes) do
+            if part and part.Parent then
+                part.Size = size
+            end
+        end
+        originalSizes = {}
+        -- Restore HipHeight
+        local orig = hum:GetAttribute("OrigHipHeight")
+        hum.HipHeight = orig or 0
+    end
+end)
+
+-- Resize frame now that all buttons are added
+frame.Size = UDim2.new(0, 300, 0, btnY + 10)
+
+-- =====================
+-- DRAGGING
+-- =====================
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+-- =====================
+-- RIGHT ALT HIDE/SHOW
+-- =====================
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        frame.Visible = not frame.Visible
+    end
+end)
