@@ -1,0 +1,488 @@
+-- LocalScript in StarterPlayerScripts
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local localPlayer = Players.LocalPlayer
+
+-- =====================
+-- CONFIG
+-- =====================
+local CONFIG = {
+    AimFOV        = 150,
+    AimSmoothing  = 1,      -- 1 = instant lock, higher = slower
+    WallCheck     = true,
+    TeamCheck     = true,
+    HoldToAim     = true,   -- true = hold right click, false = toggle with U
+}
+
+-- =====================
+-- STATE
+-- =====================
+local aimbotOn         = false
+local espOn            = false
+local activeBillboards = {}
+local activeHighlights = {}
+
+-- =====================
+-- GUI
+-- =====================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name           = "AimGui"
+screenGui.ResetOnSpawn   = false
+screenGui.DisplayOrder   = 999
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent         = localPlayer.PlayerGui
+
+local main = Instance.new("Frame")
+main.Size             = UDim2.new(0, 190, 0, 20)
+main.Position         = UDim2.new(0, 14, 0.5, -65)
+main.BackgroundColor3 = Color3.fromRGB(14, 14, 20)
+main.BorderSizePixel  = 0
+main.Active           = true
+main.Parent           = screenGui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+
+local accent = Instance.new("Frame")
+accent.Size             = UDim2.new(1, 0, 0, 3)
+accent.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+accent.BorderSizePixel  = 0
+accent.ZIndex           = 2
+accent.Parent           = main
+Instance.new("UICorner", accent).CornerRadius = UDim.new(0, 10)
+
+local shadow = Instance.new("ImageLabel")
+shadow.Size               = UDim2.new(1, 30, 1, 30)
+shadow.Position           = UDim2.new(0, -15, 0, -15)
+shadow.BackgroundTransparency = 1
+shadow.Image              = "rbxassetid://5554236805"
+shadow.ImageColor3        = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency  = 0.5
+shadow.ScaleType          = Enum.ScaleType.Slice
+shadow.SliceCenter        = Rect.new(23, 23, 277, 277)
+shadow.ZIndex             = -1
+shadow.Parent             = main
+
+local titleBar = Instance.new("Frame")
+titleBar.Size                 = UDim2.new(1, 0, 0, 28)
+titleBar.Position             = UDim2.new(0, 0, 0, 3)
+titleBar.BackgroundTransparency = 1
+titleBar.ZIndex               = 3
+titleBar.Parent               = main
+
+local titleLbl = Instance.new("TextLabel")
+titleLbl.Size                 = UDim2.new(1, -10, 1, 0)
+titleLbl.Position             = UDim2.new(0, 10, 0, 0)
+titleLbl.BackgroundTransparency = 1
+titleLbl.Text                 = "Nricul Aimbot"
+titleLbl.TextColor3           = Color3.new(1, 1, 1)
+titleLbl.Font                 = Enum.Font.GothamBold
+titleLbl.TextSize             = 12
+titleLbl.TextXAlignment       = Enum.TextXAlignment.Left
+titleLbl.ZIndex               = 3
+titleLbl.Parent               = titleBar
+
+-- Drag
+local dragging, dragStart, startPos
+titleBar.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true; dragStart = i.Position; startPos = main.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local d = i.Position - dragStart
+        main.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + d.X,
+            startPos.Y.Scale, startPos.Y.Offset + d.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+
+-- FOV circle
+local fovCircle = Instance.new("ImageLabel")
+fovCircle.Size               = UDim2.new(0, CONFIG.AimFOV * 2, 0, CONFIG.AimFOV * 2)
+fovCircle.AnchorPoint        = Vector2.new(0.5, 0.5)
+fovCircle.Position           = UDim2.new(0.5, 0, 0.5, 0)
+fovCircle.BackgroundTransparency = 1
+fovCircle.Image              = "rbxassetid://3570695787"
+fovCircle.ImageColor3        = Color3.fromRGB(255, 60, 60)
+fovCircle.ImageTransparency  = 0.5
+fovCircle.Visible            = false
+fovCircle.Parent             = screenGui
+
+-- =====================
+-- ROW BUILDER
+-- =====================
+local rowY = 34
+local function makeRow(labelText, color, onToggle)
+    local row = Instance.new("Frame")
+    row.Size             = UDim2.new(1, -16, 0, 26)
+    row.Position         = UDim2.new(0, 8, 0, rowY)
+    row.BackgroundColor3 = Color3.fromRGB(22, 22, 34)
+    row.BorderSizePixel  = 0
+    row.Parent           = main
+    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+    rowY = rowY + 30
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size                 = UDim2.new(1, -50, 1, 0)
+    lbl.Position             = UDim2.new(0, 8, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text                 = labelText
+    lbl.TextColor3           = Color3.fromRGB(210, 210, 230)
+    lbl.Font                 = Enum.Font.Gotham
+    lbl.TextSize             = 11
+    lbl.TextXAlignment       = Enum.TextXAlignment.Left
+    lbl.Parent               = row
+
+    local pill = Instance.new("Frame")
+    pill.Size             = UDim2.new(0, 36, 0, 16)
+    pill.Position         = UDim2.new(1, -44, 0.5, -8)
+    pill.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    pill.BorderSizePixel  = 0
+    pill.Parent           = row
+    Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
+
+    local knob = Instance.new("Frame")
+    knob.Size             = UDim2.new(0, 12, 0, 12)
+    knob.Position         = UDim2.new(0, 2, 0.5, -6)
+    knob.BackgroundColor3 = Color3.fromRGB(140, 140, 160)
+    knob.BorderSizePixel  = 0
+    knob.ZIndex           = 2
+    knob.Parent           = pill
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+    local isOn = false
+    local btn = Instance.new("TextButton")
+    btn.Size                 = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text                 = ""
+    btn.ZIndex               = 3
+    btn.Parent               = pill
+
+    local function setState(state)
+        isOn                  = state
+        pill.BackgroundColor3 = isOn and color or Color3.fromRGB(50, 50, 70)
+        knob.BackgroundColor3 = isOn and Color3.new(1,1,1) or Color3.fromRGB(140,140,160)
+        knob.Position         = isOn
+            and UDim2.new(1,-14,0.5,-6)
+            or  UDim2.new(0,2,0.5,-6)
+    end
+
+    btn.MouseButton1Click:Connect(function()
+        setState(not isOn)
+        onToggle(isOn)
+    end)
+
+    return btn, setState
+end
+
+-- key hint
+local keyHint = Instance.new("TextLabel")
+keyHint.BackgroundTransparency = 1
+keyHint.Text       = "U = Aimbot Toggle   P = ESP"
+keyHint.TextColor3 = Color3.fromRGB(90, 90, 120)
+keyHint.Font       = Enum.Font.Gotham
+keyHint.TextSize   = 9
+keyHint.Size       = UDim2.new(1, 0, 0, 14)
+keyHint.Parent     = main
+
+-- =====================
+-- BUILD ROWS
+-- =====================
+local _, setAimbotPill = makeRow("Aimbot [RClick / U]", Color3.fromRGB(255, 60, 60), function(on)
+    aimbotOn          = on
+    fovCircle.Visible = on
+end)
+
+local _, setEspPill = makeRow("ESP  [P]", Color3.fromRGB(80, 160, 255), function(on)
+    espOn = on
+    if not on then clearESP() end
+end)
+
+makeRow("Wall Check", Color3.fromRGB(255, 180, 30), function(on)
+    CONFIG.WallCheck = on
+end)
+
+makeRow("Team Check", Color3.fromRGB(80, 200, 120), function(on)
+    CONFIG.TeamCheck = on
+end)
+
+main.Size         = UDim2.new(0, 190, 0, rowY + 18)
+keyHint.Position  = UDim2.new(0, 0, 1, -16)
+
+-- =====================
+-- KEY BINDS
+-- =====================
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.U then
+        aimbotOn          = not aimbotOn
+        fovCircle.Visible = aimbotOn
+        setAimbotPill(aimbotOn)
+    elseif input.KeyCode == Enum.KeyCode.P then
+        espOn = not espOn
+        setEspPill(espOn)
+        if not espOn then clearESP() end
+    end
+end)
+
+-- =====================
+-- UTILITIES
+-- =====================
+local function isSameTeam(p)
+    if not CONFIG.TeamCheck then return false end
+    return p.Team ~= nil and p.Team == localPlayer.Team
+end
+
+local function hasWall(origin, target)
+    if not CONFIG.WallCheck then return false end
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local chars = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr.Character then table.insert(chars, plr.Character) end
+    end
+    params.FilterDescendantsInstances = chars
+    local result = workspace:Raycast(origin, target - origin, params)
+    return result ~= nil
+end
+
+local function getScreenCenter()
+    return workspace.CurrentCamera.ViewportSize / 2
+end
+
+local function headScreenPos(p)
+    local char = p.Character
+    if not char then return nil, nil end
+    local head = char:FindFirstChild("Head")
+    if not head then return nil, nil end
+    local sp, onScreen = workspace.CurrentCamera:WorldToViewportPoint(head.Position)
+    if not onScreen or sp.Z < 0 then return nil, nil end
+    return Vector2.new(sp.X, sp.Y), head.Position
+end
+
+local function getDistance(p)
+    local myChar = localPlayer.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return 0 end
+    local theirChar = p.Character
+    local theirRoot = theirChar and theirChar:FindFirstChild("HumanoidRootPart")
+    if not theirRoot then return 0 end
+    return math.floor((myRoot.Position - theirRoot.Position).Magnitude)
+end
+
+-- =====================
+-- ESP
+-- =====================
+function clearESP()
+    for _, v in pairs(activeBillboards) do
+        pcall(function() v:Destroy() end)
+    end
+    for _, v in pairs(activeHighlights) do
+        pcall(function() v:Destroy() end)
+    end
+    activeBillboards = {}
+    activeHighlights = {}
+end
+
+local function applyESP(p)
+    local char = p.Character; if not char then return end
+    local head = char:FindFirstChild("Head"); if not head then return end
+    if head:FindFirstChild("ESP_BB") then return end
+
+    -- Billboard
+    local bb = Instance.new("BillboardGui")
+    bb.Name          = "ESP_BB"
+    bb.Size          = UDim2.new(0, 140, 0, 52)
+    bb.StudsOffset   = Vector3.new(0, 3.2, 0)
+    bb.AlwaysOnTop   = true
+    bb.Adornee       = head
+    bb.Parent        = head
+
+    local bg = Instance.new("Frame")
+    bg.Size                   = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3       = Color3.fromRGB(8, 6, 18)
+    bg.BackgroundTransparency = 0.2
+    bg.BorderSizePixel        = 0
+    bg.Parent                 = bb
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
+
+    -- Stroke border
+    local stroke = Instance.new("UIStroke")
+    stroke.Color       = Color3.fromRGB(255, 60, 60)
+    stroke.Thickness   = 1
+    stroke.Transparency = 0.4
+    stroke.Parent      = bg
+
+    -- Name
+    local nameL = Instance.new("TextLabel")
+    nameL.Size                 = UDim2.new(1, -6, 0, 18)
+    nameL.Position             = UDim2.new(0, 3, 0, 2)
+    nameL.BackgroundTransparency = 1
+    nameL.Text                 = p.Name
+    nameL.TextColor3           = Color3.fromRGB(255, 100, 100)
+    nameL.Font                 = Enum.Font.GothamBold
+    nameL.TextSize             = 11
+    nameL.TextXAlignment       = Enum.TextXAlignment.Center
+    nameL.TextStrokeTransparency = 0.4
+    nameL.Parent               = bg
+
+    -- HP label
+    local hpL = Instance.new("TextLabel")
+    hpL.Size                   = UDim2.new(1, -6, 0, 14)
+    hpL.Position               = UDim2.new(0, 3, 0, 20)
+    hpL.BackgroundTransparency = 1
+    hpL.Text                   = "HP: ? / ?"
+    hpL.TextColor3             = Color3.fromRGB(80, 255, 130)
+    hpL.Font                   = Enum.Font.Gotham
+    hpL.TextSize               = 10
+    hpL.TextXAlignment         = Enum.TextXAlignment.Center
+    hpL.TextStrokeTransparency = 0.5
+    hpL.Parent                 = bg
+
+    -- Distance label
+    local distL = Instance.new("TextLabel")
+    distL.Size                   = UDim2.new(1, -6, 0, 14)
+    distL.Position               = UDim2.new(0, 3, 0, 35)
+    distL.BackgroundTransparency = 1
+    distL.Text                   = "Dist: ? st"
+    distL.TextColor3             = Color3.fromRGB(180, 180, 255)
+    distL.Font                   = Enum.Font.Gotham
+    distL.TextSize               = 10
+    distL.TextXAlignment         = Enum.TextXAlignment.Center
+    distL.TextStrokeTransparency = 0.5
+    distL.Parent                 = bg
+
+    -- Update HP live
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        local function updateHP()
+            if hpL and hpL.Parent then
+                hpL.Text = "HP: "..math.floor(hum.Health).." / "..math.floor(hum.MaxHealth)
+            end
+        end
+        updateHP()
+        hum:GetPropertyChangedSignal("Health"):Connect(updateHP)
+    end
+
+    -- Update distance every frame
+    RunService.Heartbeat:Connect(function()
+        if distL and distL.Parent and p.Character then
+            distL.Text = "Dist: "..getDistance(p).." st"
+        end
+    end)
+
+    -- Highlight (chams)
+    local ok, hl = pcall(function()
+        local h = Instance.new("Highlight")
+        h.Adornee             = char
+        h.FillColor           = Color3.fromRGB(255, 60, 60)
+        h.OutlineColor        = Color3.fromRGB(255, 180, 180)
+        h.FillTransparency    = 0.65
+        h.OutlineTransparency = 0
+        h.Parent              = char
+        return h
+    end)
+
+    table.insert(activeBillboards, bb)
+    if ok and hl then table.insert(activeHighlights, hl) end
+end
+
+local function refreshESP()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= localPlayer and not isSameTeam(p) then
+            if p.Character then applyESP(p) end
+            p.CharacterAdded:Connect(function()
+                task.wait(1)
+                if espOn and not isSameTeam(p) then applyESP(p) end
+            end)
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function()
+        task.wait(1)
+        if espOn and not isSameTeam(p) then applyESP(p) end
+    end)
+end)
+
+-- =====================
+-- AIMBOT - HEARTBEAT
+-- runs AFTER camera scripts so it wins
+-- =====================
+local function getBestTarget()
+    local cam     = workspace.CurrentCamera
+    local center  = getScreenCenter()
+    local bestDist   = CONFIG.AimFOV
+    local bestTarget = nil
+    local bestHead3D = nil
+
+    local myChar = localPlayer.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p == localPlayer then continue end
+        if isSameTeam(p) then continue end
+        local char = p.Character; if not char then continue end
+        local hum  = char:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then continue end
+
+        local sp, head3D = headScreenPos(p)
+        if not sp then continue end
+
+        if myRoot and hasWall(myRoot.Position, head3D) then continue end
+
+        local dist = (sp - center).Magnitude
+        if dist < bestDist then
+            bestDist   = dist
+            bestTarget = p
+            bestHead3D = head3D
+        end
+    end
+
+    return bestTarget, bestHead3D
+end
+
+-- BindToRenderStep AFTER camera priority so we always win
+local CAM_PRIORITY = Enum.RenderPriority.Camera.Value + 1
+
+RunService:BindToRenderStep("NriculAimbot", CAM_PRIORITY, function()
+
+    -- Refresh ESP when on
+    if espOn then refreshESP() end
+
+    -- Determine if we should be aiming:
+    -- RightClick held OR toggle mode with U key
+    local shouldAim = aimbotOn or
+        UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+
+    if not shouldAim then
+        fovCircle.ImageColor3 = Color3.fromRGB(255, 60, 60) -- red = not locked
+        return
+    end
+
+    local target, head3D = getBestTarget()
+    if not target or not head3D then
+        fovCircle.ImageColor3 = Color3.fromRGB(255, 60, 60)
+        return
+    end
+
+    -- Locked indicator
+    fovCircle.ImageColor3 = Color3.fromRGB(60, 255, 100)
+
+    local cam     = workspace.CurrentCamera
+    local desired = CFrame.lookAt(cam.CFrame.Position, head3D)
+
+    if CONFIG.AimSmoothing <= 1 then
+        -- Instant snap
+        cam.CFrame = desired
+    else
+        -- Smooth
+        local alpha = math.clamp(1 / CONFIG.AimSmoothing, 0.01, 1)
+        cam.CFrame  = cam.CFrame:Lerp(desired, alpha)
+    end
+end)
