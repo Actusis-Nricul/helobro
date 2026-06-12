@@ -1,0 +1,270 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+local existing = player:WaitForChild("PlayerGui"):FindFirstChild("POtassIumExecutros2026")
+if existing then existing:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "POtassIumExecutros2026"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 50) -- grows with buttons
+frame.Position = UDim2.new(0.5, -160, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 32)
+topBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 8)
+
+-- Fix bottom corners of topbar
+local topFix = Instance.new("Frame")
+topFix.Size = UDim2.new(1, 0, 0.5, 0)
+topFix.Position = UDim2.new(0, 0, 0.5, 0)
+topFix.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+topFix.BorderSizePixel = 0
+topFix.Parent = topBar
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -42, 1, 0)
+title.Position = UDim2.new(0, 8, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Lucky Block Game"
+title.TextColor3 = Color3.fromRGB(80, 160, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 26, 0, 26)
+closeBtn.Position = UDim2.new(1, -30, 0.5, -13)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 12
+closeBtn.BorderSizePixel = 0
+closeBtn.Parent = topBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+
+-- =====================
+-- BUTTON FACTORY
+-- =====================
+local BTN_OFF = Color3.fromRGB(50, 50, 65)
+local BTN_ON  = Color3.fromRGB(25, 110, 60)
+local BTN_TXT = Color3.fromRGB(220, 220, 235)
+
+local btnY = 40
+
+local function makeBtn(labelOff, onToggle)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 36)
+    btn.Position = UDim2.new(0, 10, 0, btnY)
+    btn.BackgroundColor3 = BTN_OFF
+    btn.Text = labelOff .. ": OFF"
+    btn.TextColor3 = BTN_TXT
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 15
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.TextScaled = false
+    btn.Parent = frame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    btnY = btnY + 42
+
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.BackgroundColor3 = state and BTN_ON or BTN_OFF
+        btn.Text = labelOff .. ": " .. (state and "ON" or "OFF")
+        onToggle(state)
+    end)
+
+    return btn
+end
+
+-- Resize frame after all buttons built
+local function finalizeFrame()
+    frame.Size = UDim2.new(0, 320, 0, btnY + 12)
+end
+
+-- =====================
+-- REMOTES SHORTCUT
+-- =====================
+local Remotes = RS:WaitForChild("Remotes")
+local function getRemote(name)
+    return Remotes:WaitForChild(name, 5)
+end
+
+-- =====================
+-- AUTO FARM HP
+-- =====================
+local autoClick = false
+makeBtn("Auto Farm HP (no hold needed)", function(on)
+    autoClick = on
+    if on then
+        task.spawn(function()
+            local ev = getRemote("EnergyEvent")
+            if not ev then return end
+            while autoClick do
+                for i = 1, 10 do
+                    ev:FireServer()
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- AUTO UPGRADE ALL SLOTS
+-- =====================
+local autoUpgrade = false
+makeBtn("Auto Upgrade All Slots", function(on)
+    autoUpgrade = on
+    if on then
+        task.spawn(function()
+            local ev = getRemote("UpgradeBrainrotEvent")
+            if not ev then return end
+            while autoUpgrade do
+                for slot = 1, 10 do
+                    ev:FireServer(slot)
+                end
+                task.wait(0.9)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- AUTO REBIRTH
+-- =====================
+local autoRebirth = false
+makeBtn("Auto Rebirth", function(on)
+    autoRebirth = on
+    if on then
+        task.spawn(function()
+            local ev = getRemote("RebirthEvent")
+            if not ev then return end
+            while autoRebirth do
+                ev:FireServer()
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- AUTO BUY WEIGHTS
+-- All weight names in order
+-- =====================
+local weightNames = {
+    "Dumbbell", "Barbell", "Log", "Boulder", "Gold",
+    "Donut", "Diamond", "Six Seven", "Lucky Block",
+    "Chicleteira", "Bones", "Jandel", "Rainbow",
+    "Sun", "Angel", "Volcano", "Galaxy", "Esok Sekolah"
+}
+
+local autoBuyWeights = false
+makeBtn("Auto Buy Weights", function(on)
+    autoBuyWeights = on
+    if on then
+        task.spawn(function()
+            local ev = getRemote("BuyShovelEvent")
+            if not ev then return end
+            while autoBuyWeights do
+                for _, name in ipairs(weightNames) do
+                    if not autoBuyWeights then break end
+                    ev:FireServer(name)
+                    task.wait(0.5)
+                end
+                task.wait()
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- INFINITE LUCK
+-- Fires DoorEvent with value going 0.1 -> 50000
+-- Resets to 0.1 each time toggled on
+-- =====================
+local infiniteLuck = false
+makeBtn("Infinite Luck", function(on)
+    infiniteLuck = on
+    if on then
+        task.spawn(function()
+            local ev = getRemote("DoorEvent")
+            if not ev then return end
+            local val = 10
+            while infiniteLuck do
+                ev:FireServer(val, "add")
+                val = math.round((val + 10) * 100) / 100 -- avoid float drift
+                if val > 7555 then
+                    val = 10 -- restart from 1 when reaching 50000
+                end
+                task.wait(0.4)
+            end
+            -- reset counter when toggled off so next ON starts fresh
+        end)
+    end
+end)
+
+-- =====================
+-- FINALIZE FRAME SIZE
+-- =====================
+finalizeFrame()
+
+-- =====================
+-- DRAGGING
+-- =====================
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+topBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+-- =====================
+-- RIGHT ALT HIDE/SHOW
+-- =====================
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        frame.Visible = not frame.Visible
+    end
+end)
