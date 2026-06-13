@@ -1,0 +1,589 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+
+-- =====================
+-- DESTROY OLD GUI
+-- =====================
+local oldGui = localPlayer:WaitForChild("PlayerGui"):FindFirstChild("IAMTHEPOTASSIUM")
+if oldGui then oldGui:Destroy() end
+
+-- =====================
+-- GUI SETUP
+-- =====================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "IAMTHEPOTASSIUM"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = localPlayer.PlayerGui
+
+local minimized = false
+local mainSize = UDim2.new(0, 280, 0, 20)
+
+local main = Instance.new("Frame")
+main.Size = mainSize
+main.Position = UDim2.new(0, 14, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(14, 14, 22)
+main.BorderSizePixel = 0
+main.ClipsDescendants = true
+main.Parent = screenGui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+
+local accent = Instance.new("Frame")
+accent.Size = UDim2.new(1, 0, 0, 3)
+accent.BackgroundColor3 = Color3.fromRGB(80, 160, 255)
+accent.BorderSizePixel = 0
+accent.ZIndex = 10
+accent.Parent = main
+Instance.new("UICorner", accent).CornerRadius = UDim.new(0, 10)
+
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 30, 1, 30)
+shadow.Position = UDim2.new(0, -15, 0, -15)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://5554236805"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+shadow.ZIndex = -1
+shadow.Parent = main
+
+-- =====================
+-- TITLE BAR
+-- =====================
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 32)
+titleBar.Position = UDim2.new(0, 0, 0, 3)
+titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+titleBar.BorderSizePixel = 0
+titleBar.ZIndex = 5
+titleBar.Parent = main
+
+local titleFix = Instance.new("Frame")
+titleFix.Size = UDim2.new(1, 0, 0.5, 0)
+titleFix.Position = UDim2.new(0, 0, 0.5, 0)
+titleFix.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+titleFix.BorderSizePixel = 0
+titleFix.Parent = titleBar
+
+local titleLbl = Instance.new("TextLabel")
+titleLbl.Size = UDim2.new(1, -75, 1, 0)
+titleLbl.Position = UDim2.new(0, 10, 0, 0)
+titleLbl.BackgroundTransparency = 1
+titleLbl.Text = "GOD TYCOON"
+titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextSize = 13
+titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+titleLbl.ZIndex = 6
+titleLbl.Parent = titleBar
+
+local hintLbl = Instance.new("TextLabel")
+hintLbl.Size = UDim2.new(1, -75, 0, 12)
+hintLbl.Position = UDim2.new(0, 10, 1, -13)
+hintLbl.BackgroundTransparency = 1
+hintLbl.Text = "Right Alt = Minimize"
+hintLbl.TextColor3 = Color3.fromRGB(80, 100, 160)
+hintLbl.Font = Enum.Font.Gotham
+hintLbl.TextSize = 9
+hintLbl.TextXAlignment = Enum.TextXAlignment.Left
+hintLbl.ZIndex = 6
+hintLbl.Parent = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -30, 0.5, -12)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 11
+closeBtn.BorderSizePixel = 0
+closeBtn.ZIndex = 7
+closeBtn.Parent = titleBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 24, 0, 24)
+minBtn.Position = UDim2.new(1, -58, 0.5, -12)
+minBtn.BackgroundColor3 = Color3.fromRGB(220, 160, 30)
+minBtn.Text = "-"
+minBtn.TextColor3 = Color3.new(1, 1, 1)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 16
+minBtn.BorderSizePixel = 0
+minBtn.ZIndex = 7
+minBtn.Parent = titleBar
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(1, 0)
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    main.Size = minimized and UDim2.new(0, 280, 0, 35) or mainSize
+end)
+
+-- =====================
+-- DRAGGING
+-- =====================
+local dragging, dragStart, startPos
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.RightAlt then
+        minimized = not minimized
+        main.Size = minimized and UDim2.new(0, 280, 0, 35) or mainSize
+    end
+end)
+
+-- =====================
+-- SCROLL AREA
+-- =====================
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, -38)
+scrollFrame.Position = UDim2.new(0, 0, 0, 38)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 3
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 120, 255)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.Parent = main
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 5)
+listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+listLayout.Parent = scrollFrame
+
+local listPad = Instance.new("UIPadding")
+listPad.PaddingTop = UDim.new(0, 6)
+listPad.PaddingBottom = UDim.new(0, 6)
+listPad.Parent = scrollFrame
+
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 14)
+    local newH = math.min(listLayout.AbsoluteContentSize.Y + 56, 520)
+    main.Size = UDim2.new(0, 280, 0, newH)
+    if not minimized then mainSize = main.Size end
+end)
+
+-- =====================
+-- WIDGET FACTORIES
+-- =====================
+local BTN_BASE  = Color3.fromRGB(26, 26, 40)
+local BTN_HOVER = Color3.fromRGB(38, 38, 58)
+local GREEN_ON  = Color3.fromRGB(28, 100, 55)
+local toggleStates = {}
+local connections  = {}
+
+local function createToggle(label, color, callback)
+    color = color or BTN_BASE
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -16, 0, 34)
+    btn.BackgroundColor3 = color
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = scrollFrame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 8, 0, 8)
+    dot.Position = UDim2.new(0, 10, 0.5, -4)
+    dot.BackgroundColor3 = Color3.fromRGB(70, 70, 100)
+    dot.BorderSizePixel = 0
+    dot.Parent = btn
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -28, 1, 0)
+    lbl.Position = UDim2.new(0, 24, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = label
+    lbl.TextColor3 = Color3.fromRGB(200, 200, 220)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = btn
+
+    toggleStates[label] = false
+    btn.MouseButton1Click:Connect(function()
+        toggleStates[label] = not toggleStates[label]
+        local on = toggleStates[label]
+        btn.BackgroundColor3 = on and GREEN_ON or color
+        dot.BackgroundColor3 = on and Color3.fromRGB(80, 255, 130) or Color3.fromRGB(70, 70, 100)
+        lbl.TextColor3 = on and Color3.new(1, 1, 1) or Color3.fromRGB(200, 200, 220)
+        callback(on)
+    end)
+    btn.MouseEnter:Connect(function()
+        if not toggleStates[label] then btn.BackgroundColor3 = BTN_HOVER end
+    end)
+    btn.MouseLeave:Connect(function()
+        if not toggleStates[label] then btn.BackgroundColor3 = color end
+    end)
+    return btn
+end
+
+local function createButton(label, color, callback)
+    color = color or BTN_BASE
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -16, 0, 34)
+    btn.BackgroundColor3 = color
+    btn.Text = label
+    btn.TextColor3 = Color3.fromRGB(220, 220, 240)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 11
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = scrollFrame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
+    btn.MouseButton1Click:Connect(callback)
+    btn.MouseEnter:Connect(function() btn.BackgroundColor3 = BTN_HOVER end)
+    btn.MouseLeave:Connect(function() btn.BackgroundColor3 = color end)
+    return btn
+end
+
+local function createSectionLabel(text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -16, 0, 20)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(80, 120, 200)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = scrollFrame
+    return lbl
+end
+
+-- =====================
+-- HELPERS
+-- =====================
+local tycoonNames = {
+    "Light", "Death", "Fire", "Wind",
+    "Poison", "Ice", "Nature", "Lightning"
+}
+
+local skipButtons = {
+    ["2x Cash"]            = true,
+    ["3x Cash"]            = true,
+    ["Auto Collect"]       = true,
+    ["Forcefield"]         = true,
+    ["Magic Carpet"]       = true,
+    ["GravityCoil"]        = true,
+    ["SpeedCoil"]          = true,
+    ["Start Tycoon"]       = true,
+    ["War Pack"]           = true,
+    ["Gun Pack"]           = true,
+    ["Rainbow Upgrader 1"] = true,
+    ["Rainbow Upgrader 2"] = true,
+    ["Rainbow Upgrader 3"] = true,
+}
+
+local function getRoot()
+    local char = localPlayer.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function getHum()
+    local char = localPlayer.Character
+    return char and char:FindFirstChildOfClass("Humanoid")
+end
+
+-- Fire ALL BaseParts deeply, skip blacklisted names
+local function fireTouchesInModel(model, root)
+    for _, obj in ipairs(model:GetDescendants()) do
+        if skipButtons[obj.Name] then continue end
+        if obj:IsA("BasePart") then
+            pcall(function()
+                firetouchinterest(root, obj, 0)
+                firetouchinterest(root, obj, 1)
+            end)
+        end
+    end
+end
+
+-- Get the Buttons folder for a tycoon
+-- Tries workspace.Tycoons.<Name> and workspace.Tycoons.Tycoons.<Name>
+local function getTycoonButtonsFolder(tycoonName)
+    local tycoons = workspace:FindFirstChild("Tycoons")
+    if not tycoons then return nil end
+
+    -- Try direct child first
+    local direct = tycoons:FindFirstChild(tycoonName)
+    if direct then
+        return direct:FindFirstChild("Buttons") or direct
+    end
+
+    -- Try nested Tycoons folder
+    local inner = tycoons:FindFirstChild("Tycoons")
+    if inner then
+        local nested = inner:FindFirstChild(tycoonName)
+        if nested then
+            return nested:FindFirstChild("Buttons") or nested
+        end
+    end
+
+    return nil
+end
+
+-- Get the Giver part for a tycoon, tries multiple path variants
+local function getGiverPart(tycoonName)
+    local tycoons = workspace:FindFirstChild("Tycoons")
+    if not tycoons then return nil end
+
+    local function tryGet(parent)
+        if not parent then return nil end
+        local t = parent:FindFirstChild(tycoonName)
+        if not t then return nil end
+        local ess = t:FindFirstChild("Essentials")
+        if ess then
+            -- Try Giver as a Part directly
+            local giver = ess:FindFirstChild("Giver")
+            if giver and giver:IsA("BasePart") then return giver end
+            -- Giver might be a Model containing a Part
+            if giver then
+                for _, v in ipairs(giver:GetDescendants()) do
+                    if v:IsA("BasePart") then return v end
+                end
+            end
+        end
+        -- Fallback: search entire tycoon for something called Giver
+        for _, v in ipairs(t:GetDescendants()) do
+            if v.Name == "Giver" and v:IsA("BasePart") then return v end
+        end
+        return nil
+    end
+
+    -- Try workspace.Tycoons.<Name>
+    local result = tryGet(tycoons)
+    if result then return result end
+
+    -- Try workspace.Tycoons.Tycoons.<Name>
+    local inner = tycoons:FindFirstChild("Tycoons")
+    result = tryGet(inner)
+    return result
+end
+
+-- =====================
+-- FIRE ALL TYCOON BUTTONS
+-- =====================
+createSectionLabel("  Tycoon Buttons")
+
+createToggle("Fire All Tycoon Buttons", Color3.fromRGB(26, 30, 55), function(on)
+    if connections.touchLoop then
+        task.cancel(connections.touchLoop)
+        connections.touchLoop = nil
+    end
+    if on then
+        connections.touchLoop = task.spawn(function()
+            while toggleStates["Fire All Tycoon Buttons"] do
+                local root = getRoot()
+                if root then
+                    for _, tycoonName in ipairs(tycoonNames) do
+                        local folder = getTycoonButtonsFolder(tycoonName)
+                        if folder then
+                            fireTouchesInModel(folder, root)
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+end)
+
+-- Per-tycoon
+createSectionLabel("  Per Tycoon")
+
+for _, tycoonName in ipairs(tycoonNames) do
+    local label = tycoonName .. " Tycoon"
+    createToggle(label, Color3.fromRGB(22, 26, 46), function(on)
+        local key = "tycoon_" .. tycoonName
+        if connections[key] then
+            task.cancel(connections[key])
+            connections[key] = nil
+        end
+        if on then
+            connections[key] = task.spawn(function()
+                while toggleStates[label] do
+                    local root = getRoot()
+                    if root then
+                        local folder = getTycoonButtonsFolder(tycoonName)
+                        if folder then
+                            fireTouchesInModel(folder, root)
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end)
+end
+
+-- =====================
+-- TELEPORT TO MIDDLE
+-- =====================
+createSectionLabel("  Teleport")
+
+createButton("Teleport to Middle", Color3.fromRGB(30, 50, 80), function()
+    local root = getRoot()
+    if root then
+        root.CFrame = CFrame.new(75, 135, -171)
+    end
+end)
+
+-- =====================
+-- GIVER TELEPORT
+-- Teleports to each tycoon's Giver and fires its touch
+-- every 0.3s while toggled on
+-- =====================
+createSectionLabel("  Giver Farm")
+
+-- Master toggle: all givers at once
+createToggle("All Givers", Color3.fromRGB(22, 40, 28), function(on)
+    if connections.allGivers then
+        task.cancel(connections.allGivers)
+        connections.allGivers = nil
+    end
+    if on then
+        connections.allGivers = task.spawn(function()
+            while toggleStates["All Givers"] do
+                local root = getRoot()
+                if root then
+                    for _, tycoonName in ipairs(tycoonNames) do
+                        local giver = getGiverPart(tycoonName)
+                        if giver then
+                            -- move root onto the giver
+                            root.CFrame = giver.CFrame + Vector3.new(0, 3, 0)
+                            -- fire touch
+                            pcall(function()
+                                firetouchinterest(root, giver, 0)
+                                firetouchinterest(root, giver, 1)
+                            end)
+                            task.wait(0.1)
+                        end
+                    end
+                end
+                task.wait(0.3)
+            end
+        end)
+    end
+end)
+
+-- Individual per-tycoon giver toggles
+for _, tycoonName in ipairs(tycoonNames) do
+    local label = "Giver: " .. tycoonName
+    createToggle(label, Color3.fromRGB(20, 36, 26), function(on)
+        local key = "giver_" .. tycoonName
+        if connections[key] then
+            task.cancel(connections[key])
+            connections[key] = nil
+        end
+        if on then
+            connections[key] = task.spawn(function()
+                while toggleStates[label] do
+                    local root = getRoot()
+                    if root then
+                        local giver = getGiverPart(tycoonName)
+                        if giver then
+                            root.CFrame = giver.CFrame + Vector3.new(0, 3, 0)
+                            pcall(function()
+                                firetouchinterest(root, giver, 0)
+                                firetouchinterest(root, giver, 1)
+                            end)
+                        end
+                    end
+                    task.wait(0.3)
+                end
+            end)
+        end
+    end)
+end
+
+-- =====================
+-- FLY
+-- =====================
+createSectionLabel("  Movement")
+
+createToggle("Fly  [WASD + Space/Shift]", Color3.fromRGB(26, 26, 50), function(on)
+    if connections.fly then
+        connections.fly:Disconnect()
+        connections.fly = nil
+    end
+
+    local char = localPlayer.Character
+    if not char then return end
+    local hum  = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+
+    if on then
+        hum.PlatformStand = true
+
+        local bg = Instance.new("BodyGyro")
+        bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        bg.P = 9e4
+        bg.Parent = root
+
+        local bv = Instance.new("BodyVelocity")
+        bv.Velocity = Vector3.zero
+        bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        bv.Parent = root
+
+        local FLY_SPEED = 60
+
+        connections.fly = RunService.Heartbeat:Connect(function()
+            local c = localPlayer.Character
+            if not c then return end
+            local r = c:FindFirstChild("HumanoidRootPart")
+            if not r then return end
+
+            local cam = workspace.CurrentCamera
+            local vel = Vector3.zero
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then vel += cam.CFrame.LookVector  * FLY_SPEED end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then vel -= cam.CFrame.LookVector  * FLY_SPEED end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then vel -= cam.CFrame.RightVector * FLY_SPEED end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then vel += cam.CFrame.RightVector * FLY_SPEED end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space)     then vel += Vector3.new(0,  FLY_SPEED, 0) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then vel -= Vector3.new(0,  FLY_SPEED, 0) end
+
+            local bvReal = r:FindFirstChild("BodyVelocity")
+            local bgReal = r:FindFirstChild("BodyGyro")
+            if bvReal then bvReal.Velocity = vel end
+            if bgReal then bgReal.CFrame   = cam.CFrame end
+        end)
+    else
+        local c = localPlayer.Character
+        if c then
+            local h = c:FindFirstChildOfClass("Humanoid")
+            local r = c:FindFirstChild("HumanoidRootPart")
+            if h then h.PlatformStand = false end
+            if r then
+                local bvR = r:FindFirstChild("BodyVelocity")
+                local bgR = r:FindFirstChild("BodyGyro")
+                if bvR then bvR:Destroy() end
+                if bgR then bgR:Destroy() end
+            end
+        end
+    end
+end)
