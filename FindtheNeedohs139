@@ -1,0 +1,35 @@
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local function getRoot()
+    local char = localPlayer.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+task.spawn(function()
+    while true do
+        local root = getRoot()
+        if root then
+            local needohs = workspace:FindFirstChild("Needohs")
+            if needohs then
+                for _, needoh in ipairs(needohs:GetChildren()) do
+                    
+                    local ti = needoh:FindFirstChild("TouchInterest")
+                    if ti then
+                     
+                       
+                        local part = needoh:IsA("BasePart") and needoh
+                            or needoh:FindFirstChildWhichIsA("BasePart", true)
+                        if part then
+                            pcall(function()
+                                firetouchinterest(root, part, 0)
+                                firetouchinterest(root, part, 1)
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.5)
+    end
+end)
