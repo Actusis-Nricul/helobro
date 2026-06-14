@@ -1,4 +1,4 @@
- -- Z-HUB V4 FULL
+ -- V-HUB V4 FULL
 
 local player = game.Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -19,7 +19,7 @@ end
 
 -- GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "Z-HUB"
+gui.Name = "V-HUB"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
@@ -115,7 +115,7 @@ resizeHandle(UDim2.new(0,12,0,12), UDim2.new(1,-12,1,-12),"xy")
 -- Title
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,30)
-title.Text = "Z-HUB"
+title.Text = "V-HUB"
 title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundColor3 = Color3.fromRGB(15,15,15)
 title.Parent = main
@@ -159,7 +159,7 @@ dashboard.Visible = true
 
 local label = Instance.new("TextLabel")
 label.Size = UDim2.new(1,0,0,80)
-label.Text = "Z-HUB"
+label.Text = "V-HUB"
 label.TextScaled = true
 label.Parent = dashboard
 
