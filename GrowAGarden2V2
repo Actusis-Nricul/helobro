@@ -1,0 +1,825 @@
+-- LocalScript in StarterPlayerScripts
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+
+local character = player.Character or player.CharacterAdded:Wait()
+local mouse = player:GetMouse()
+
+local function getRoot()
+    local c = player.Character
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+local function getHum()
+    local c = player.Character
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+-- destroy old gui
+local old = player:WaitForChild("PlayerGui"):FindFirstChild("FarmGui")
+if old then old:Destroy() end
+
+-- =====================
+-- REMOTE SHORTCUT
+-- =====================
+local function getPacketRemote()
+    return ReplicatedStorage
+        :WaitForChild("SharedModules")
+        :WaitForChild("Packet")
+        :WaitForChild("RemoteEvent")
+end
+
+-- build the buffer payload for a fruit/seed name
+-- format: "g\000" + <1-byte length> + <name>
+local function makeSeedBuffer(name)
+    local prefix = "g\000"
+    local lenByte = string.char(#name)
+    return buffer.fromstring(prefix .. lenByte .. name)
+end
+
+-- all known seeds / fruits
+local SEEDS = {
+    "Carrot", "Bamboo", "Blueberry", "Tulip", "Tomato", "Apple",
+    "Strawberry", "Watermelon", "Pumpkin", "Sunflower", "Rose",
+    "Grape", "Cherry", "Corn", "Potato", "Pepper", "Mushroom",
+    "Mango", "Coconut", "Pineapple",
+}
+
+-- field positions (Plot 1-8)
+local FIELD_POSITIONS = {
+    [1] = Vector3.new(429, 145, -131),
+    [2] = Vector3.new(377, 145, -8),
+    [3] = Vector3.new(255, 145,  42),
+    [4] = Vector3.new(132, 145, -9),
+    [5] = Vector3.new( 82, 145, -131),
+    [6] = Vector3.new(132, 145, -254),
+    [7] = Vector3.new(255, 145, -306),
+    [8] = Vector3.new(378, 145, -254),
+}
+
+-- =====================
+-- GUI
+-- =====================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FarmGui"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local minimized = false
+local mainSize  = UDim2.new(0, 310, 0, 30)
+
+local main = Instance.new("Frame")
+main.Size             = mainSize
+main.Position         = UDim2.new(0, 16, 0.3, 0)
+main.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
+main.BorderSizePixel  = 0
+main.ClipsDescendants = true
+main.Parent           = screenGui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+local accent = Instance.new("Frame")
+accent.Size             = UDim2.new(1, 0, 0, 3)
+accent.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
+accent.BorderSizePixel  = 0
+accent.ZIndex           = 10
+accent.Parent           = main
+Instance.new("UICorner", accent).CornerRadius = UDim.new(0, 12)
+local aGrad = Instance.new("UIGradient")
+aGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   Color3.fromRGB(80,  200, 120)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60,  180, 255)),
+    ColorSequenceKeypoint.new(1,   Color3.fromRGB(140,  80, 255)),
+})
+aGrad.Parent = accent
+
+local shadow = Instance.new("ImageLabel")
+shadow.Size               = UDim2.new(1, 40, 1, 40)
+shadow.Position           = UDim2.new(0, -20, 0, -20)
+shadow.BackgroundTransparency = 1
+shadow.Image              = "rbxassetid://5554236805"
+shadow.ImageColor3        = Color3.fromRGB(0,0,0)
+shadow.ImageTransparency  = 0.45
+shadow.ScaleType          = Enum.ScaleType.Slice
+shadow.SliceCenter        = Rect.new(23,23,277,277)
+shadow.ZIndex             = -1
+shadow.Parent             = main
+
+-- title bar
+local titleBar = Instance.new("Frame")
+titleBar.Size             = UDim2.new(1, 0, 0, 38)
+titleBar.Position         = UDim2.new(0, 0, 0, 3)
+titleBar.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+titleBar.BorderSizePixel  = 0
+titleBar.ZIndex           = 5
+titleBar.Parent           = main
+
+local tbFix = Instance.new("Frame")
+tbFix.Size             = UDim2.new(1, 0, 0.5, 0)
+tbFix.Position         = UDim2.new(0, 0, 0.5, 0)
+tbFix.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+tbFix.BorderSizePixel  = 0
+tbFix.Parent           = titleBar
+
+local ic = Instance.new("Frame")
+ic.Size             = UDim2.new(0, 24, 0, 24)
+ic.Position         = UDim2.new(0, 10, 0.5, -12)
+ic.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
+ic.BorderSizePixel  = 0
+ic.ZIndex           = 6
+ic.Parent           = titleBar
+Instance.new("UICorner", ic).CornerRadius = UDim.new(1, 0)
+local icG = Instance.new("UIGradient")
+icG.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(80,  220, 140)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(40,  160, 255)),
+})
+icG.Rotation = 45
+icG.Parent   = ic
+local icL = Instance.new("TextLabel")
+icL.Size                 = UDim2.new(1,0,1,0)
+icL.BackgroundTransparency = 1
+icL.Text                 = "GAG2"
+icL.TextColor3           = Color3.new(1,1,1)
+icL.Font                 = Enum.Font.GothamBold
+icL.TextSize             = 12
+icL.ZIndex               = 7
+icL.Parent               = ic
+
+local titleLbl = Instance.new("TextLabel")
+titleLbl.Size             = UDim2.new(1, -110, 1, 0)
+titleLbl.Position         = UDim2.new(0, 42, 0, -4)
+titleLbl.BackgroundTransparency = 1
+titleLbl.Text             = "Grow A Garden 2"
+titleLbl.TextColor3       = Color3.new(1,1,1)
+titleLbl.Font             = Enum.Font.GothamBold
+titleLbl.TextSize         = 13
+titleLbl.TextXAlignment   = Enum.TextXAlignment.Left
+titleLbl.ZIndex           = 6
+titleLbl.Parent           = titleBar
+
+local subLbl = Instance.new("TextLabel")
+subLbl.Size             = UDim2.new(1, -110, 0, 11)
+subLbl.Position         = UDim2.new(0, 42, 1, -13)
+subLbl.BackgroundTransparency = 1
+subLbl.Text             = "Right Alt = Minimize"
+subLbl.TextColor3       = Color3.fromRGB(80, 160, 100)
+subLbl.Font             = Enum.Font.Gotham
+subLbl.TextSize         = 9
+subLbl.TextXAlignment   = Enum.TextXAlignment.Left
+subLbl.ZIndex           = 6
+subLbl.Parent           = titleBar
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size             = UDim2.new(0, 24, 0, 24)
+closeBtn.Position         = UDim2.new(1, -30, 0.5, -12)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 55, 55)
+closeBtn.Text             = "X"
+closeBtn.TextColor3       = Color3.new(1,1,1)
+closeBtn.Font             = Enum.Font.GothamBold
+closeBtn.TextSize         = 11
+closeBtn.BorderSizePixel  = 0
+closeBtn.ZIndex           = 7
+closeBtn.Parent           = titleBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+local minBtn = Instance.new("TextButton")
+minBtn.Size             = UDim2.new(0, 24, 0, 24)
+minBtn.Position         = UDim2.new(1, -58, 0.5, -12)
+minBtn.BackgroundColor3 = Color3.fromRGB(220, 160, 30)
+minBtn.Text             = "-"
+minBtn.TextColor3       = Color3.new(1,1,1)
+minBtn.Font             = Enum.Font.GothamBold
+minBtn.TextSize         = 16
+minBtn.BorderSizePixel  = 0
+minBtn.ZIndex           = 7
+minBtn.Parent           = titleBar
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(1, 0)
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    main.Size = minimized and UDim2.new(0, 310, 0, 41) or mainSize
+end)
+
+-- dragging
+local dragging, dragStart, startPos
+titleBar.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true; dragStart = i.Position; startPos = main.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local d = i.Position - dragStart
+        main.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + d.X,
+            startPos.Y.Scale, startPos.Y.Offset + d.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+UserInputService.InputBegan:Connect(function(i)
+    if i.KeyCode == Enum.KeyCode.RightAlt then
+        minimized = not minimized
+        main.Size = minimized and UDim2.new(0, 310, 0, 41) or mainSize
+    end
+end)
+
+-- scroll
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size                 = UDim2.new(1, 0, 1, -44)
+scroll.Position             = UDim2.new(0, 0, 0, 44)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness   = 3
+scroll.ScrollBarImageColor3 = Color3.fromRGB(80, 200, 120)
+scroll.BorderSizePixel      = 0
+scroll.Parent               = main
+
+local layout = Instance.new("UIListLayout")
+layout.Padding              = UDim.new(0, 5)
+layout.HorizontalAlignment  = Enum.HorizontalAlignment.Center
+layout.Parent               = scroll
+
+local lpad = Instance.new("UIPadding")
+lpad.PaddingTop    = UDim.new(0, 6)
+lpad.PaddingBottom = UDim.new(0, 6)
+lpad.Parent        = scroll
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 14)
+    local h = math.min(layout.AbsoluteContentSize.Y + 58, 580)
+    main.Size = UDim2.new(0, 310, 0, h)
+    if not minimized then mainSize = main.Size end
+end)
+
+-- =====================
+-- WIDGET FACTORIES
+-- =====================
+local BASE  = Color3.fromRGB(20, 24, 34)
+local HOVER = Color3.fromRGB(30, 36, 50)
+local TON   = Color3.fromRGB(22, 80, 44)
+local toggleStates = {}
+local connections  = {}
+
+local function mkSection(t)
+    local f = Instance.new("Frame")
+    f.Size                 = UDim2.new(1, -16, 0, 20)
+    f.BackgroundTransparency = 1
+    f.Parent               = scroll
+    local l = Instance.new("TextLabel")
+    l.Size                 = UDim2.new(1, 0, 1, 0)
+    l.BackgroundTransparency = 1
+    l.Text                 = "  " .. t:upper()
+    l.TextColor3           = Color3.fromRGB(80, 200, 120)
+    l.Font                 = Enum.Font.GothamBold
+    l.TextSize             = 9
+    l.TextXAlignment       = Enum.TextXAlignment.Left
+    l.Parent               = f
+    local line = Instance.new("Frame")
+    line.Size              = UDim2.new(0.85, 0, 0, 1)
+    line.Position          = UDim2.new(0.08, 0, 1, -1)
+    line.BackgroundColor3  = Color3.fromRGB(40, 60, 45)
+    line.BorderSizePixel   = 0
+    line.Parent            = f
+    return f
+end
+
+local function mkToggle(label, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size             = UDim2.new(1, -16, 0, 34)
+    btn.BackgroundColor3 = BASE
+    btn.Text             = ""
+    btn.AutoButtonColor  = false
+    btn.BorderSizePixel  = 0
+    btn.Parent           = scroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
+
+    local dot = Instance.new("Frame")
+    dot.Size             = UDim2.new(0, 7, 0, 7)
+    dot.Position         = UDim2.new(0, 10, 0.5, -3.5)
+    dot.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    dot.BorderSizePixel  = 0
+    dot.Parent           = btn
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size             = UDim2.new(1, -55, 1, 0)
+    lbl.Position         = UDim2.new(0, 22, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text             = label
+    lbl.TextColor3       = Color3.fromRGB(190, 200, 215)
+    lbl.Font             = Enum.Font.Gotham
+    lbl.TextSize         = 11
+    lbl.TextXAlignment   = Enum.TextXAlignment.Left
+    lbl.Parent           = btn
+
+    local pill = Instance.new("Frame")
+    pill.Size             = UDim2.new(0, 32, 0, 14)
+    pill.Position         = UDim2.new(1, -40, 0.5, -7)
+    pill.BackgroundColor3 = Color3.fromRGB(45, 45, 65)
+    pill.BorderSizePixel  = 0
+    pill.Parent           = btn
+    Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
+
+    local knob = Instance.new("Frame")
+    knob.Size             = UDim2.new(0, 10, 0, 10)
+    knob.Position         = UDim2.new(0, 2, 0.5, -5)
+    knob.BackgroundColor3 = Color3.fromRGB(110, 110, 140)
+    knob.BorderSizePixel  = 0
+    knob.ZIndex           = 2
+    knob.Parent           = pill
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+    toggleStates[label] = false
+    btn.MouseButton1Click:Connect(function()
+        toggleStates[label] = not toggleStates[label]
+        local on = toggleStates[label]
+        btn.BackgroundColor3  = on and TON  or BASE
+        dot.BackgroundColor3  = on and Color3.fromRGB(80,255,130) or Color3.fromRGB(60,60,90)
+        lbl.TextColor3        = on and Color3.new(1,1,1) or Color3.fromRGB(190,200,215)
+        pill.BackgroundColor3 = on and Color3.fromRGB(50,160,80) or Color3.fromRGB(45,45,65)
+        knob.BackgroundColor3 = on and Color3.new(1,1,1) or Color3.fromRGB(110,110,140)
+        knob.Position         = on and UDim2.new(1,-12,0.5,-5) or UDim2.new(0,2,0.5,-5)
+        callback(on)
+    end)
+    btn.MouseEnter:Connect(function() if not toggleStates[label] then btn.BackgroundColor3 = HOVER end end)
+    btn.MouseLeave:Connect(function() if not toggleStates[label] then btn.BackgroundColor3 = BASE  end end)
+    return btn
+end
+
+local function mkButton(label, color, callback)
+    color = color or BASE
+    local btn = Instance.new("TextButton")
+    btn.Size             = UDim2.new(1, -16, 0, 34)
+    btn.BackgroundColor3 = color
+    btn.Text             = label
+    btn.TextColor3       = Color3.fromRGB(220, 230, 220)
+    btn.Font             = Enum.Font.Gotham
+    btn.TextSize         = 11
+    btn.AutoButtonColor  = false
+    btn.BorderSizePixel  = 0
+    btn.Parent           = scroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
+    btn.MouseButton1Click:Connect(callback)
+    btn.MouseEnter:Connect(function() btn.BackgroundColor3 = HOVER end)
+    btn.MouseLeave:Connect(function() btn.BackgroundColor3 = color end)
+    return btn
+end
+
+local function mkLabel(text, color)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size             = UDim2.new(1, -16, 0, 24)
+    lbl.BackgroundColor3 = Color3.fromRGB(16, 22, 16)
+    lbl.BorderSizePixel  = 0
+    lbl.Text             = text
+    lbl.TextColor3       = color or Color3.fromRGB(160, 220, 160)
+    lbl.Font             = Enum.Font.Gotham
+    lbl.TextSize         = 10
+    lbl.Parent           = scroll
+    Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 5)
+    return lbl
+end
+
+-- simple dropdown (scroll-safe, opens downward)
+local function mkDropdown(labelText, options, callback)
+    local selected = options[1]
+
+    local container = Instance.new("Frame")
+    container.Size             = UDim2.new(1, -16, 0, 34)
+    container.BackgroundColor3 = BASE
+    container.BorderSizePixel  = 0
+    container.ClipsDescendants = false
+    container.Parent           = scroll
+    Instance.new("UICorner", container).CornerRadius = UDim.new(0, 7)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size             = UDim2.new(0.5, 0, 1, 0)
+    lbl.Position         = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text             = labelText
+    lbl.TextColor3       = Color3.fromRGB(190, 200, 215)
+    lbl.Font             = Enum.Font.Gotham
+    lbl.TextSize         = 11
+    lbl.TextXAlignment   = Enum.TextXAlignment.Left
+    lbl.Parent           = container
+
+    local valBtn = Instance.new("TextButton")
+    valBtn.Size             = UDim2.new(0.44, 0, 0, 26)
+    valBtn.Position         = UDim2.new(0.53, 0, 0.5, -13)
+    valBtn.BackgroundColor3 = Color3.fromRGB(22, 38, 24)
+    valBtn.Text             = selected .. "  v"
+    valBtn.TextColor3       = Color3.fromRGB(80, 220, 110)
+    valBtn.Font             = Enum.Font.GothamBold
+    valBtn.TextSize         = 11
+    valBtn.BorderSizePixel  = 0
+    valBtn.Parent           = container
+    Instance.new("UICorner", valBtn).CornerRadius = UDim.new(0, 5)
+
+    -- floating drop panel parented to screenGui so it's always on top
+    local dropPanel = Instance.new("Frame")
+    dropPanel.Size             = UDim2.new(0, 130, 0, #options * 28)
+    dropPanel.BackgroundColor3 = Color3.fromRGB(18, 28, 20)
+    dropPanel.BorderSizePixel  = 0
+    dropPanel.Visible          = false
+    dropPanel.ZIndex           = 50
+    dropPanel.Parent           = screenGui
+    Instance.new("UICorner", dropPanel).CornerRadius = UDim.new(0, 6)
+
+    local dpLayout = Instance.new("UIListLayout")
+    dpLayout.Parent = dropPanel
+
+    for _, opt in ipairs(options) do
+        local ob = Instance.new("TextButton")
+        ob.Size             = UDim2.new(1, 0, 0, 28)
+        ob.BackgroundTransparency = 1
+        ob.Text             = "  " .. opt
+        ob.TextColor3       = Color3.fromRGB(180, 230, 180)
+        ob.Font             = Enum.Font.Gotham
+        ob.TextSize         = 11
+        ob.TextXAlignment   = Enum.TextXAlignment.Left
+        ob.ZIndex           = 51
+        ob.Parent           = dropPanel
+        ob.MouseButton1Click:Connect(function()
+            selected         = opt
+            valBtn.Text      = opt .. "  v"
+            dropPanel.Visible = false
+            callback(opt)
+        end)
+        ob.MouseEnter:Connect(function() ob.BackgroundTransparency = 0.7 end)
+        ob.MouseLeave:Connect(function() ob.BackgroundTransparency = 1   end)
+    end
+
+    valBtn.MouseButton1Click:Connect(function()
+        dropPanel.Visible = not dropPanel.Visible
+        if dropPanel.Visible then
+            -- position panel below the valBtn in screen space
+            local abs = valBtn.AbsolutePosition
+            local sz  = valBtn.AbsoluteSize
+            dropPanel.Position = UDim2.new(0, abs.X, 0, abs.Y + sz.Y + 4)
+        end
+    end)
+
+    return container, function() return selected end
+end
+
+-- =====================
+-- STATE
+-- =====================
+local selectedFieldNum  = 1
+local stealActive       = false
+local richestGardenCF   = nil
+local richestPlotName   = "None"
+
+local function tpToField(fieldNum)
+    local root = getRoot(); if not root then return end
+    local pos  = FIELD_POSITIONS[fieldNum]
+    if pos then root.CFrame = CFrame.new(pos) end
+end
+
+local function isNight()
+    local t = game.Lighting.ClockTime
+    return t >= 20 or t < 6
+end
+
+-- =====================
+-- BUY SEED VIA REMOTE
+-- =====================
+local function buySeed(seedName)
+    local remote = getPacketRemote()
+    local buf    = makeSeedBuffer(seedName)
+    pcall(function()
+        remote:FireServer(buf)
+    end)
+end
+
+-- =====================
+-- SCAN RICHEST GARDEN
+-- =====================
+local function scanGardens()
+    local gardens = workspace:FindFirstChild("Gardens")
+    if not gardens then return end
+
+    local bestCount = 0
+    local bestCF    = nil
+    local bestName  = "None"
+
+    for _, plot in ipairs(gardens:GetChildren()) do
+        local plants = plot:FindFirstChild("Plants")
+        if not plants then continue end
+
+        local count = 0
+        for _, plant in ipairs(plants:GetChildren()) do
+            -- count Fruits folder children
+            local fruits = plant:FindFirstChild("Fruits")
+            if fruits then
+                for _, f in ipairs(fruits:GetChildren()) do
+                    count = count + 1
+                    -- each fruit model may have numbered sub-parts
+                    count = count + #f:GetChildren() - 1
+                end
+            end
+            -- count loose numbered parts directly under plant
+            for _, child in ipairs(plant:GetChildren()) do
+                if tonumber(child.Name) then count = count + 1 end
+            end
+        end
+
+        if count > bestCount then
+            bestCount = count
+            bestName  = plot.Name
+            local ref = plot:FindFirstChildWhichIsA("BasePart", true)
+            if ref then bestCF = ref.CFrame + Vector3.new(0, 5, 0) end
+        end
+    end
+
+    richestGardenCF  = bestCF
+    richestPlotName  = bestName .. " (" .. bestCount .. " fruits)"
+end
+
+task.spawn(function()
+    while true do
+        scanGardens()
+        task.wait(180) -- refresh every 3 minutes
+    end
+end)
+
+-- =====================
+-- STEAL LOGIC
+-- =====================
+local function stealFromPlant(plant)
+    local harvestPart = plant:FindFirstChild("HarvestPart")
+    if not harvestPart then return end
+    local stealPrompt = harvestPart:FindFirstChild("StealPrompt")
+    if not stealPrompt or not stealPrompt:IsA("ProximityPrompt") then return end
+    local root = getRoot(); if not root then return end
+    root.CFrame = harvestPart.CFrame + Vector3.new(0, 3, 0)
+    task.wait(0.08)
+    pcall(function() fireproximityprompt(stealPrompt) end)
+    task.wait(0.08)
+end
+
+local function stealFromPlot(plot)
+    local plants = plot:FindFirstChild("Plants")
+    if not plants then return end
+    for _, plant in ipairs(plants:GetChildren()) do
+        if not stealActive then break end
+        stealFromPlant(plant)
+    end
+end
+
+-- =====================
+-- GUI CONTENT
+-- =====================
+
+mkToggle("Infinite Jump", function(on)
+    if connections.infJump then connections.infJump:Disconnect(); connections.infJump = nil end
+    if on then
+        connections.infJump = UserInputService.JumpRequest:Connect(function()
+            local hum = getHum()
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end)
+    end
+end)
+
+mkToggle("Infinite Zoom", function(on)
+    player.CameraMaxZoomDistance = on and 5e15 or 200
+end)
+
+mkToggle("TP to Cursor  [T key]", function(on)
+    if connections.tpCursor then connections.tpCursor:Disconnect(); connections.tpCursor = nil end
+    if on then
+        connections.tpCursor = UserInputService.InputBegan:Connect(function(input, gpe)
+            if gpe then return end
+            if input.KeyCode == Enum.KeyCode.T then
+                local root = getRoot(); if not root then return end
+                local loc  = UserInputService:GetMouseLocation()
+                local ray  = workspace.CurrentCamera:ScreenPointToRay(loc.X, loc.Y)
+                local res  = workspace:Raycast(ray.Origin, ray.Direction * 2000)
+                if res then root.CFrame = CFrame.new(res.Position + Vector3.new(0,3,0)) end
+            end
+        end)
+    end
+end)
+
+local fieldOptions = {
+    "Field 1 (429,145,-131)",
+    "Field 2 (377,145,-8)",
+    "Field 3 (255,145,42)",
+    "Field 4 (132,145,-9)",
+    "Field 5 (82,145,-131)",
+    "Field 6 (132,145,-254)",
+    "Field 7 (255,145,-306)",
+    "Field 8 (378,145,-254)",
+}
+
+local _, getFieldChoice = mkDropdown("My Field", fieldOptions, function(opt)
+    -- extract the number from "Field N ..."
+    local n = tonumber(opt:match("Field (%d+)"))
+    if n then selectedFieldNum = n end
+end)
+
+mkButton("Teleport to My Field", Color3.fromRGB(20, 50, 30), function()
+    tpToField(selectedFieldNum)
+end)
+
+local richestLabel = mkLabel("Richest garden: scanning...", Color3.fromRGB(160, 230, 160))
+
+-- keep label fresh
+task.spawn(function()
+    while true do
+        task.wait(2)
+        if richestLabel and richestLabel.Parent then
+            richestLabel.Text = "Richest: " .. richestPlotName
+        end
+        task.wait(128)
+    end
+end)
+
+mkButton("Refresh Scan Now", Color3.fromRGB(20, 45, 30), function()
+    task.spawn(function()
+        scanGardens()
+        if richestLabel and richestLabel.Parent then
+            richestLabel.Text = "Richest: " .. richestPlotName
+        end
+    end)
+end)
+
+mkButton("TP to Richest Garden", Color3.fromRGB(20, 55, 35), function()
+    if not richestGardenCF then scanGardens() end
+    local root = getRoot(); if not root then return end
+    if richestGardenCF then root.CFrame = richestGardenCF end
+end)
+
+local stealLabel = mkLabel("Auto Steal: OFF", Color3.fromRGB(180,180,180))
+
+mkToggle("Auto Steal at Night", function(on)
+    stealActive = on
+    if on then
+        task.spawn(function()
+            while stealActive do
+                if isNight() then
+                    stealLabel.Text      = "Stealing... (" .. os.date("%H:%M") .. ")"
+                    stealLabel.TextColor3 = Color3.fromRGB(80,255,130)
+
+                    local gardens = workspace:FindFirstChild("Gardens")
+                    if gardens then
+                        for _, plot in ipairs(gardens:GetChildren()) do
+                            if not stealActive then break end
+                            if plot.Name == ("Plot" .. selectedFieldNum) then continue end
+                            stealFromPlot(plot)
+                        end
+                    end
+
+                    -- return to own field
+                    tpToField(selectedFieldNum)
+                    stealLabel.Text      = "Pass done. Next in 10s..."
+                    stealLabel.TextColor3 = Color3.fromRGB(160,230,160)
+                    task.wait(10)
+                else
+                    stealLabel.Text      = "Make sure its Night"
+                    stealLabel.TextColor3 = Color3.fromRGB(200,180,80)
+                    task.wait(5)
+                end
+            end
+            stealLabel.Text      = "Auto Steal: OFF"
+            stealLabel.TextColor3 = Color3.fromRGB(180,180,180)
+        end)
+    end
+end)
+
+mkButton("Steal Richest NOW", Color3.fromRGB(35, 55, 20), function()
+    task.spawn(function()
+        if not richestGardenCF then scanGardens() end
+        local gardens = workspace:FindFirstChild("Gardens")
+        if not gardens then return end
+        for _, plot in ipairs(gardens:GetChildren()) do
+            if plot.Name == richestPlotName:match("^(%S+)") then
+                stealFromPlot(plot)
+                break
+            end
+        end
+        tpToField(selectedFieldNum)
+    end)
+end)
+
+mkButton("Load WalkyHub Script", Color3.fromRGB(60, 30, 100), function()
+    loadstring(game:HttpGet(
+        "https://pastefy.app/sKWZ4X9u/raw"
+    ))()
+end)
+
+mkButton("Load RainHub Script", Color3.fromRGB(30, 60, 100), function()
+    loadstring(game:HttpGet(
+        "https://api.luarmor.net/files/v4/loaders/50145b4a29e70684f96582465ec87ca2.lua"
+    ))()
+end)
+
+local seedLabel = mkLabel("Select seeds and click Buy All", Color3.fromRGB(180,220,160))
+
+-- multi-select seed checkboxes
+local selectedSeeds = {}
+for _, seed in ipairs(SEEDS) do
+    selectedSeeds[seed] = false
+end
+
+-- seed toggle grid (2 per row)
+local seedGrid = Instance.new("Frame")
+seedGrid.Size             = UDim2.new(1, -16, 0, math.ceil(#SEEDS / 2) * 28)
+seedGrid.BackgroundTransparency = 1
+seedGrid.Parent           = scroll
+
+local seedGridLayout = Instance.new("UIGridLayout")
+seedGridLayout.CellSize     = UDim2.new(0.5, -4, 0, 26)
+seedGridLayout.CellPaddingX = UDim.new(0, 4)
+seedGridLayout.CellPaddingY = UDim.new(0, 3)
+seedGridLayout.Parent       = seedGrid
+
+for _, seed in ipairs(SEEDS) do
+    local cb = Instance.new("TextButton")
+    cb.Size             = UDim2.new(1, 0, 1, 0)
+    cb.BackgroundColor3 = Color3.fromRGB(18, 28, 18)
+    cb.Text             = seed
+    cb.TextColor3       = Color3.fromRGB(160, 210, 160)
+    cb.Font             = Enum.Font.Gotham
+    cb.TextSize         = 10
+    cb.AutoButtonColor  = false
+    cb.BorderSizePixel  = 0
+    cb.Parent           = seedGrid
+    Instance.new("UICorner", cb).CornerRadius = UDim.new(0, 5)
+
+    cb.MouseButton1Click:Connect(function()
+        selectedSeeds[seed] = not selectedSeeds[seed]
+        local on = selectedSeeds[seed]
+        cb.BackgroundColor3 = on and Color3.fromRGB(30,80,30) or Color3.fromRGB(18,28,18)
+        cb.TextColor3       = on and Color3.new(1,1,1)        or Color3.fromRGB(160,210,160)
+    end)
+end
+
+mkButton("Buy All Selected Seeds", Color3.fromRGB(25, 60, 25), function()
+    local count = 0
+    for seed, on in pairs(selectedSeeds) do
+        if on then
+            buySeed(seed)
+            count = count + 1
+            task.wait(0.1)
+        end
+    end
+    seedLabel.Text = "Bought " .. count .. " seed type(s)!"
+    seedLabel.TextColor3 = Color3.fromRGB(80, 255, 120)
+end)
+
+mkButton("Select All Seeds", Color3.fromRGB(20, 45, 20), function()
+    for _, seed in ipairs(SEEDS) do
+        selectedSeeds[seed] = true
+    end
+    -- update visuals
+    for _, child in ipairs(seedGrid:GetChildren()) do
+        if child:IsA("TextButton") then
+            child.BackgroundColor3 = Color3.fromRGB(30, 80, 30)
+            child.TextColor3       = Color3.new(1,1,1)
+        end
+    end
+end)
+
+mkButton("Deselect All Seeds", Color3.fromRGB(20, 30, 20), function()
+    for _, seed in ipairs(SEEDS) do
+        selectedSeeds[seed] = false
+    end
+    for _, child in ipairs(seedGrid:GetChildren()) do
+        if child:IsA("TextButton") then
+            child.BackgroundColor3 = Color3.fromRGB(18, 28, 18)
+            child.TextColor3       = Color3.fromRGB(160, 210, 160)
+        end
+    end
+end)
+
+mkToggle("Auto Buy Seeds (loop every 30s)", function(on)
+    if connections.seedLoop then
+        task.cancel(connections.seedLoop); connections.seedLoop = nil
+    end
+    if on then
+        connections.seedLoop = task.spawn(function()
+            while toggleStates["Auto Buy Seeds (loop every 30s)"] do
+                local count = 0
+                for seed, sel in pairs(selectedSeeds) do
+                    if sel then
+                        buySeed(seed); count = count + 1; task.wait(0.1)
+                    end
+                end
+                seedLabel.Text      = "Auto bought " .. count .. " types. Next in 30s..."
+                seedLabel.TextColor3 = Color3.fromRGB(80,255,120)
+                task.wait(30)
+            end
+        end)
+    end
+end)
+
+-- =====================
+-- RESPAWN FIX
+-- =====================
+player.CharacterAdded:Connect(function(char)
+    character = char
+end)
