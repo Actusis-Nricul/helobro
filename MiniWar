@@ -100,7 +100,7 @@ iconGrad.Parent = iconCircle
 local iconLbl = Instance.new("TextLabel")
 iconLbl.Size = UDim2.new(1, 0, 1, 0)
 iconLbl.BackgroundTransparency = 1
-iconLbl.Text = "MiWar"
+iconLbl.Text = "MiWa"
 iconLbl.TextColor3 = Color3.new(1,1,1)
 iconLbl.Font = Enum.Font.GothamBold
 iconLbl.TextSize = 12
@@ -295,7 +295,7 @@ end
 
 createButton("Load Cyraaj Script", Color3.fromRGB(60, 30, 100), function()
     loadstring(game:HttpGet(
-        "https://raw.githubusercontent.com/LynX99-9/komtolmmek2script/refs/heads/main/CyraaHub.lua"))()
+        "https://raw.githubusercontent.com/LynX99-9/komtolmmek2script/refs/heads/main/CyraaHub.lua"
     ))()
 end)
 
