@@ -665,12 +665,33 @@ mkToggle("Auto Steal at Night", function(on)
 
                     local gardens = workspace:FindFirstChild("Gardens")
                     if gardens then
-                        for _, plot in ipairs(gardens:GetChildren()) do
-                            if not stealActive then break end
-                            if plot.Name == ("Plot" .. selectedFieldNum) then continue end
-                            stealFromPlot(plot)
-                        end
-                    end
+for _, plot in ipairs(gardens:GetChildren()) do
+    if not stealActive then break end
+
+    -- skip our own plot by checking if any field position is close to this plot
+    local myPos = FIELD_POSITIONS[selectedFieldNum]
+    local plotPart = plot:FindFirstChildWhichIsA("BasePart", true)
+    local isMyPlot = false
+
+    if myPos and plotPart then
+        -- if this plot's nearest part is within 80 studs of our field position, it's ours
+        if (plotPart.Position - myPos).Magnitude < 80 then
+            isMyPlot = true
+        end
+    end
+end
+    -- also skip by name just in case
+    if plot.Name == ("Plot" .. selectedFieldNum) then
+        isMyPlot = true
+    end
+
+    if isMyPlot then continue end
+
+    stealFromPlot(plot)
+end
+					end     
+					end
+                    end)
 
                     -- return to own field
                     tpToField(selectedFieldNum)
@@ -682,24 +703,37 @@ mkToggle("Auto Steal at Night", function(on)
                     stealLabel.TextColor3 = Color3.fromRGB(200,180,80)
                     task.wait(5)
                 end
-            end
+            end)
             stealLabel.Text      = "Auto Steal: OFF"
             stealLabel.TextColor3 = Color3.fromRGB(180,180,180)
-        end)
-    end
-end)
+
 
 mkButton("Steal Richest NOW", Color3.fromRGB(35, 55, 20), function()
     task.spawn(function()
         if not richestGardenCF then scanGardens() end
         local gardens = workspace:FindFirstChild("Gardens")
         if not gardens then return end
+
+        local myPos = FIELD_POSITIONS[selectedFieldNum]
+
         for _, plot in ipairs(gardens:GetChildren()) do
+            -- skip own plot
+            local plotPart = plot:FindFirstChildWhichIsA("BasePart", true)
+            local isMyPlot = false
+            if myPos and plotPart then
+                if (plotPart.Position - myPos).Magnitude < 80 then
+                    isMyPlot = true
+                end
+            end
+            if plot.Name == ("Plot" .. selectedFieldNum) then isMyPlot = true end
+            if isMyPlot then continue end
+
             if plot.Name == richestPlotName:match("^(%S+)") then
                 stealFromPlot(plot)
                 break
             end
         end
+
         tpToField(selectedFieldNum)
     end)
 end)
