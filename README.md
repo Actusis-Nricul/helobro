@@ -20,5 +20,5 @@ local me = {
     language = "English",
     executor = "Potassium",
     players.player.Brain = true,
-    IQ = math.huge
+    Latent IQ = math.huge
 }
