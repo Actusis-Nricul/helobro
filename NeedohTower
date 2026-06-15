@@ -1,20 +1,25 @@
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- =====================
+-- DESTROY OLD GUI
+-- =====================
+local old = player:WaitForChild("PlayerGui"):FindFirstChild("NEEDOHSINMYTOWER")
+if old then old:Destroy() end
 
 ---------------------------------------------------
 -- GUI
 ---------------------------------------------------
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ICanAffordSynapseZ"
+gui.Name = "NEEDOHSINMYTOWER"
 gui.ResetOnSpawn = false
-gui.Parent = PlayerGui
+gui.Parent = player:waitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 220)
+frame.Size = UDim2.new(0, 300, 0, 590)
 frame.Position = UDim2.new(0.4, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(45,45,45)
 frame.BorderSizePixel = 0
@@ -60,7 +65,7 @@ close.Parent = topBar
 Instance.new("UICorner", close)
 
 close.MouseButton1Click:Connect(function()
-	gui.Enabled = false
+	gui:Destroy()
 end)
 
 ---------------------------------------------------
@@ -150,7 +155,7 @@ end
 -- WORLD 1
 ---------------------------------------------------
 
-local world1Btn = makeButton("Teleport World 1 End", 55)
+local world1Btn = makeButton("Teleport World 1 End", 70)
 
 world1Btn.MouseButton1Click:Connect(function()
 	teleportTo(-139, 358, -400)
@@ -160,7 +165,7 @@ end)
 -- WORLD 2
 ---------------------------------------------------
 
-local world2Btn = makeButton("Teleport World 2 End", 105)
+local world2Btn = makeButton("Teleport World 2 End", 140)
 
 world2Btn.MouseButton1Click:Connect(function()
 	teleportTo(86, 367, 43)
@@ -170,8 +175,48 @@ end)
 -- WORLD 3
 ---------------------------------------------------
 
-local world3Btn = makeButton("Teleport World 3 End", 155)
+local world3Btn = makeButton("Teleport World 3 End", 210)
 
 world3Btn.MouseButton1Click:Connect(function()
 	teleportTo(30, 486, 41)
+end)
+
+---------------------------------------------------
+-- WORLD 4
+---------------------------------------------------
+
+local world3Btn = makeButton("Teleport World 4 End", 280)
+
+world3Btn.MouseButton1Click:Connect(function()
+	teleportTo(87, 470, 18)
+end)
+
+---------------------------------------------------
+-- WORLD 5
+---------------------------------------------------
+
+local world3Btn = makeButton("Teleport World 5 End", 350)
+
+world3Btn.MouseButton1Click:Connect(function()
+	teleportTo(478, 465, -112)
+end)
+
+---------------------------------------------------
+-- WORLD 6
+---------------------------------------------------
+
+local world3Btn = makeButton("Teleport World 6 End", 420)
+
+world3Btn.MouseButton1Click:Connect(function()
+	teleportTo(756, 496, -282)
+end)
+
+---------------------------------------------------
+-- WORLD 7
+---------------------------------------------------
+
+local world3Btn = makeButton("Teleport World 7 End", 490)
+
+world3Btn.MouseButton1Click:Connect(function()
+	teleportTo(320, 297, 349)
 end)
