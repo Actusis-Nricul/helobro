@@ -1,0 +1,44 @@
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local function getRoot()
+    local char = localPlayer.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+task.spawn(function()
+    while true do
+        local root = getRoot()
+
+        if root then
+            local coinScript = workspace:FindFirstChild("CoinScript")
+
+            if coinScript then
+                local collectables = coinScript:FindFirstChild("Collectables")
+
+                if collectables then
+                    for _, coin in ipairs(collectables:GetChildren()) do
+
+                        if coin:IsA("BasePart") then
+                            pcall(function()
+                                firetouchinterest(root, coin, 0)
+                                firetouchinterest(root, coin, 1)
+                            end)
+                        else
+                            for _, part in ipairs(coin:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    pcall(function()
+                                        firetouchinterest(root, part, 0)
+                                        firetouchinterest(root, part, 1)
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        task.wait()
+    end
+end)
