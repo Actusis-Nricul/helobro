@@ -1,0 +1,448 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+local mouse = player:GetMouse()
+
+-- =====================
+-- DESTROY OLD GUI
+-- =====================
+local old = player:WaitForChild("PlayerGui"):FindFirstChild("EVD")
+if old then old:Destroy() end
+
+-- =====================
+-- GUI
+-- =====================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "EVD"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 280, 0, 420)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+-- Accent top bar
+local accentBar = Instance.new("Frame")
+accentBar.Size = UDim2.new(1, 0, 0, 3)
+accentBar.BackgroundColor3 = Color3.fromRGB(140, 60, 255)
+accentBar.BorderSizePixel = 0
+accentBar.ZIndex = 5
+accentBar.Parent = frame
+Instance.new("UICorner", accentBar).CornerRadius = UDim.new(0, 12)
+
+local accentGrad = Instance.new("UIGradient")
+accentGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 60, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 60, 180)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 140, 255)),
+})
+accentGrad.Parent = accentBar
+
+-- Shadow
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 40, 1, 40)
+shadow.Position = UDim2.new(0, -20, 0, -20)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://5554236805"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.4
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+shadow.ZIndex = -1
+shadow.Parent = frame
+
+-- Title bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 42)
+titleBar.Position = UDim2.new(0, 0, 0, 3)
+titleBar.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+titleBar.BorderSizePixel = 0
+titleBar.ZIndex = 4
+titleBar.Parent = frame
+
+local titleBarFix = Instance.new("Frame")
+titleBarFix.Size = UDim2.new(1, 0, 0.5, 0)
+titleBarFix.Position = UDim2.new(0, 0, 0.5, 0)
+titleBarFix.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+titleBarFix.BorderSizePixel = 0
+titleBarFix.ZIndex = 4
+titleBarFix.Parent = titleBar
+
+-- Title icon circle
+local iconCircle = Instance.new("Frame")
+iconCircle.Size = UDim2.new(0, 24, 0, 24)
+iconCircle.Position = UDim2.new(0, 10, 0.5, -12)
+iconCircle.BackgroundColor3 = Color3.fromRGB(140, 60, 255)
+iconCircle.BorderSizePixel = 0
+iconCircle.ZIndex = 5
+iconCircle.Parent = titleBar
+Instance.new("UICorner", iconCircle).CornerRadius = UDim.new(1, 0)
+local iconGrad = Instance.new("UIGradient")
+iconGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 60, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 140, 255)),
+})
+iconGrad.Rotation = 45
+iconGrad.Parent = iconCircle
+local iconLbl = Instance.new("TextLabel")
+iconLbl.Size = UDim2.new(1, 0, 1, 0)
+iconLbl.BackgroundTransparency = 1
+iconLbl.Text = "EVD"
+iconLbl.TextColor3 = Color3.new(1,1,1)
+iconLbl.Font = Enum.Font.GothamBold
+iconLbl.TextSize = 12
+iconLbl.ZIndex = 6
+iconLbl.Parent = iconCircle
+
+local titleLbl = Instance.new("TextLabel")
+titleLbl.Size = UDim2.new(1, -100, 1, 0)
+titleLbl.Position = UDim2.new(0, 42, 0, 0)
+titleLbl.BackgroundTransparency = 1
+titleLbl.Text = "Evade Hub"
+titleLbl.TextColor3 = Color3.new(1, 1, 1)
+titleLbl.Font = Enum.Font.GothamBold
+titleLbl.TextSize = 14
+titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+titleLbl.ZIndex = 5
+titleLbl.Parent = titleBar
+
+local subLbl = Instance.new("TextLabel")
+subLbl.Size = UDim2.new(1, -100, 0, 12)
+subLbl.Position = UDim2.new(0, 42, 1, -14)
+subLbl.BackgroundTransparency = 1
+subLbl.Text = "By Actusis-Nricul"
+subLbl.TextColor3 = Color3.fromRGB(120, 80, 200)
+subLbl.Font = Enum.Font.Gotham
+subLbl.TextSize = 9
+subLbl.TextXAlignment = Enum.TextXAlignment.Left
+subLbl.ZIndex = 5
+subLbl.Parent = titleBar
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -32, 0.5, -12)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 11
+closeBtn.BorderSizePixel = 0
+closeBtn.ZIndex = 6
+closeBtn.Parent = titleBar
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+-- Divider
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -20, 0, 1)
+divider.Position = UDim2.new(0, 10, 0, 47)
+divider.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+divider.BorderSizePixel = 0
+divider.Parent = frame
+
+-- =====================
+-- SCROLL CONTENT
+-- =====================
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, 0, 1, -52)
+scroll.Position = UDim2.new(0, 0, 0, 52)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness = 3
+scroll.ScrollBarImageColor3 = Color3.fromRGB(140, 60, 255)
+scroll.BorderSizePixel = 0
+scroll.Parent = frame
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 6)
+listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+listLayout.Parent = scroll
+
+local listPad = Instance.new("UIPadding")
+listPad.PaddingTop = UDim.new(0, 8)
+listPad.PaddingBottom = UDim.new(0, 8)
+listPad.Parent = scroll
+
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scroll.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 16)
+end)
+
+-- =====================
+-- WIDGET FACTORIES
+-- =====================
+local BASE  = Color3.fromRGB(22, 22, 34)
+local HOVER = Color3.fromRGB(34, 34, 52)
+local ON    = Color3.fromRGB(28, 90, 50)
+local toggleStates = {}
+
+local function createSection(text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -16, 0, 18)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "  " .. text:upper()
+    lbl.TextColor3 = Color3.fromRGB(140, 80, 255)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 9
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = scroll
+    return lbl
+end
+
+local function createToggle(label, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -16, 0, 36)
+    btn.BackgroundColor3 = BASE
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = scroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 8, 0, 8)
+    dot.Position = UDim2.new(0, 10, 0.5, -4)
+    dot.BackgroundColor3 = Color3.fromRGB(70, 70, 100)
+    dot.BorderSizePixel = 0
+    dot.Parent = btn
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -28, 1, 0)
+    lbl.Position = UDim2.new(0, 24, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = label
+    lbl.TextColor3 = Color3.fromRGB(200, 200, 220)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 12
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = btn
+
+    -- pill switch
+    local pill = Instance.new("Frame")
+    pill.Size = UDim2.new(0, 32, 0, 14)
+    pill.Position = UDim2.new(1, -42, 0.5, -7)
+    pill.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    pill.BorderSizePixel = 0
+    pill.Parent = btn
+    Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 10, 0, 10)
+    knob.Position = UDim2.new(0, 2, 0.5, -5)
+    knob.BackgroundColor3 = Color3.fromRGB(120, 120, 150)
+    knob.BorderSizePixel = 0
+    knob.ZIndex = 2
+    knob.Parent = pill
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+
+    toggleStates[label] = false
+
+    btn.MouseButton1Click:Connect(function()
+        toggleStates[label] = not toggleStates[label]
+        local on = toggleStates[label]
+        btn.BackgroundColor3 = on and ON or BASE
+        dot.BackgroundColor3 = on and Color3.fromRGB(80, 255, 130) or Color3.fromRGB(70, 70, 100)
+        lbl.TextColor3 = on and Color3.new(1,1,1) or Color3.fromRGB(200, 200, 220)
+        pill.BackgroundColor3 = on and Color3.fromRGB(100, 50, 200) or Color3.fromRGB(50, 50, 70)
+        knob.BackgroundColor3 = on and Color3.new(1,1,1) or Color3.fromRGB(120, 120, 150)
+        knob.Position = on and UDim2.new(1,-12,0.5,-5) or UDim2.new(0,2,0.5,-5)
+        callback(on)
+    end)
+    btn.MouseEnter:Connect(function()
+        if not toggleStates[label] then btn.BackgroundColor3 = HOVER end
+    end)
+    btn.MouseLeave:Connect(function()
+        if not toggleStates[label] then btn.BackgroundColor3 = BASE end
+    end)
+    return btn
+end
+
+local function createButton(label, color, callback)
+    color = color or BASE
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -16, 0, 36)
+    btn.BackgroundColor3 = color
+    btn.Text = label
+    btn.TextColor3 = Color3.fromRGB(220, 220, 240)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 12
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 0
+    btn.Parent = scroll
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(callback)
+    btn.MouseEnter:Connect(function() btn.BackgroundColor3 = HOVER end)
+    btn.MouseLeave:Connect(function() btn.BackgroundColor3 = color end)
+    return btn
+end
+
+-- =====================
+-- SECTIONS & BUTTONS
+-- =====================
+
+createButton("Load Algolhub Script", Color3.fromRGB(50, 20, 130), function()
+    loadstring(game:HttpGet(
+		"https://api.jnkie.com/api/v1/luascripts/public/1f4cfcbf918d79b6bbb38403eb16857a2c67b0862581e1c3313c8a1b44093c52/download"
+	))()
+end)
+
+createButton("Load 2xrW's Script", Color3.fromRGB(0, 150, 30), function()
+    loadstring(game:HttpGet(
+		"https://raw.githubusercontent.com/2xrW/return/refs/heads/main/hub"
+	))()
+end)
+
+createToggle("Esp Players", function(on)
+_G.EspEnabled = not _G.EspEnabled
+
+local folder = workspace:WaitForChild("Game"):WaitForChild("Players")
+local espConnection
+
+local function createESP(obj)
+	if not _G.EspEnabled then
+		return
+	end
+
+	if obj:FindFirstChild("__ESP") then
+		return
+	end
+
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "__ESP"
+	highlight.FillColor = Color3.fromRGB(255, 50, 50)
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.FillTransparency = 0.65
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Adornee = obj
+	highlight.Parent = obj
+end
+
+local function removeESP()
+	for _, obj in ipairs(folder:GetDescendants()) do
+		local esp = obj:FindFirstChild("__ESP")
+		if esp then
+			esp:Destroy()
+		end
+	end
+end
+
+createToggle("ESP", function(on)
+	_G.EspEnabled = on
+
+	if on then
+		-- ESP existing objects
+		for _, obj in ipairs(folder:GetDescendants()) do
+			if obj:IsA("Model") or obj:IsA("BasePart") then
+				createESP(obj)
+			end
+		end
+
+		-- ESP new objects
+		if espConnection then
+			espConnection:Disconnect()
+		end
+
+		espConnection = folder.DescendantAdded:Connect(function(obj)
+			if _G.EspEnabled and (obj:IsA("Model") or obj:IsA("BasePart")) then
+				task.wait()
+				createESP(obj)
+			end
+		end)
+	else
+		if espConnection then
+			espConnection:Disconnect()
+			espConnection = nil
+		end
+
+		removeESP()
+	end
+end)
+
+-- If you want the script to automatically toggle each time it is executed:
+if _G.EspEnabled then
+	for _, obj in ipairs(folder:GetDescendants()) do
+		if obj:IsA("Model") or obj:IsA("BasePart") then
+			createESP(obj)
+		end
+	end
+
+	espConnection = folder.DescendantAdded:Connect(function(obj)
+		if obj:IsA("Model") or obj:IsA("BasePart") then
+			task.wait()
+			createESP(obj)
+		end
+	end)
+else
+	removeESP()
+	if espConnection then
+		espConnection:Disconnect()
+		espConnection = nil
+	end
+end
+end)
+
+createToggle("Infinite Jump", function(on)
+    -- handled in UIS connection below
+end)
+
+createToggle("Noclip", function(on)
+    -- handled in RunService connection below
+end)
+
+createToggle("TP to Cursor  [T key]", function(on)
+    -- handled in UIS connection below
+end)
+
+-- =====================
+-- Connections
+-- =====================
+
+-- Infinite Jump
+UserInputService.JumpRequest:Connect(function()
+    if toggleStates["Infinite Jump"] then
+        local hum = character and character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+-- Noclip
+RunService.Heartbeat:Connect(function()
+    if toggleStates["Noclip"] and character then
+        for _, v in pairs(character:GetDescendants()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end
+end)
+
+-- TP to Cursor
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.T and toggleStates["TP to Cursor  [T key]"] then
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        if root and mouse.Hit then
+            root.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 3, 0))
+        end
+    end
+end)
+
+-- =====================
+-- RESPAWN FIX
+-- =====================
+
+player.CharacterAdded:Connect(function(char)
+    character = char
+    hrp = char:WaitForChild("HumanoidRootPart")
+end)
