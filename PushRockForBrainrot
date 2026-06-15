@@ -1,0 +1,295 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+
+--// GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "RollRocksandStuff"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 260)
+frame.Position = UDim2.new(0.5, -150, 0.5, -115)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+
+-- Top bar
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1,0,0,30)
+topBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
+topBar.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0) 
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "roll rock for stuff"
+title.TextColor3 = Color3.fromRGB(255,5,180)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-30,0,0)
+close.Text = "X"
+close.Parent = topBar
+
+local autoClickBtn = Instance.new("TextButton")
+autoClickBtn.Size = UDim2.new(1,-20,0,40)
+autoClickBtn.Position = UDim2.new(0,10,0,50)
+autoClickBtn.Text = "Auto Upgrade Power +10"
+autoClickBtn.Parent = frame
+
+local maxbrightBtn = Instance.new("TextButton")
+maxbrightBtn.Size = UDim2.new(1,-20,0,40)
+maxbrightBtn.Position = UDim2.new(0,10,0,100)
+maxbrightBtn.Text = "Auto Teleport Best Zone: OFF"
+maxbrightBtn.Parent = frame
+
+local maxbright2Btn = Instance.new("TextButton")
+maxbright2Btn.Size = UDim2.new(1,-20,0,40)
+maxbright2Btn.Position = UDim2.new(0,10,0,150)
+maxbright2Btn.Text = "Auto Teleport Spawn: OFF"
+maxbright2Btn.Parent = frame
+
+local autoRebirthBtn = Instance.new("TextButton")
+autoRebirthBtn.Size = UDim2.new(1,-20,0,40)
+autoRebirthBtn.Position = UDim2.new(0,10,0,200)
+autoRebirthBtn.Text = "Auto Rebirth: OFF"
+autoRebirthBtn.Parent = frame
+
+local autoRebirth2Btn = Instance.new("TextButton")
+autoRebirth2Btn.Size = UDim2.new(1,-20,0,40)
+autoRebirth2Btn.Position = UDim2.new(0,10,0,200)
+autoRebirth2Btn.Text = "Fly: OFF"
+autoRebirth2Btn.Parent = frame
+
+local dragging = false
+local dragInput, dragStart, startPos
+
+topBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+topBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+close.MouseButton1Click:Connect(function()
+	gui:destroy()
+end)
+
+UIS.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.RightAlt then
+		frame.Visible = not frame.Visible
+	end
+end)
+
+local autoClick = false
+
+autoClickBtn.MouseButton1Click:Connect(function()
+	autoClick = not autoClick
+	autoClickBtn.Text = "Auto upgrading!" .. (autoClick and "ON" or "OFF")
+
+	if autoClick then
+		task.spawn(function()
+			while autoClick do
+		local args = {
+		10
+			}
+		game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("buySoloEvent"):FireServer(unpack(args))
+
+                task.wait()
+			end
+		end)
+	end
+end)
+
+local maxbright = false
+
+maxbrightBtn.MouseButton1Click:Connect(function()
+	maxbright = not maxbright
+	maxbrightBtn.Text = "Teleport to Best Zone: " .. (maxbright and "ON" or "OFF")
+
+	if maxbright then
+		task.spawn(function()
+			while maxbright do
+
+					local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+
+		character:PivotTo(CFrame.new(2168, 764, 3))
+				task.wait()
+			end
+		end)
+	end
+end)
+
+local maxbright2 = false
+
+maxbright2Btn.MouseButton1Click:Connect(function()
+	maxbright2 = not maxbright2
+	maxbright2Btn.Text = "Auto Teleport to Spawn: " .. (maxbright2 and "ON" or "OFF")
+
+	if maxbright2 then
+		task.spawn(function()
+			while maxbright2 do
+
+					local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+
+		character:PivotTo(CFrame.new(40, 14, -26))
+				task.wait()
+			end
+		end)
+	end
+end)
+
+local autoRebirth = false
+
+autoRebirthBtn.MouseButton1Click:Connect(function()
+	autoRebirth = not autoRebirth
+	autoRebirthBtn.Text = "Auto Rebirth: " .. (autoRebirth and "ON" or "OFF")
+
+	if autoRebirth then
+		task.spawn(function()
+			while autoRebirth do
+				game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("doRebirthEvent"):FireServer()
+
+                task.wait(0.2)
+			end
+		end)
+	end
+end)
+
+local autoRebirth2 = false
+
+autoRebirth2Btn.MouseButton1Click:Connect(function()
+	autoRebirth2 = not autoRebirth2
+	autoRebirth2Btn.Text = "Fly: " .. (autoRebirth2 and "ON" or "OFF")
+
+	if autoRebirth2 then
+		task.spawn(function()
+			while autoRebirth2 do
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+_G.FlyEnabled = not _G.FlyEnabled
+
+if not _G.FlyEnabled then
+    if _G.FlyConnection then
+        _G.FlyConnection:Disconnect()
+        _G.FlyConnection = nil
+    end
+    if _G.BodyVelocity then
+        _G.BodyVelocity:Destroy()
+        _G.BodyVelocity = nil
+    end
+    if _G.BodyGyro then
+        _G.BodyGyro:Destroy()
+        _G.BodyGyro = nil
+    end
+    return
+end
+
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local bv = Instance.new("BodyVelocity")
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bv.Velocity = Vector3.zero
+bv.Parent = hrp
+_G.BodyVelocity = bv
+
+local bg = Instance.new("BodyGyro")
+bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+bg.P = 10000
+bg.CFrame = workspace.CurrentCamera.CFrame
+bg.Parent = hrp
+_G.BodyGyro = bg
+
+local keys = {
+    W = false,
+    A = false,
+    S = false,
+    D = false,
+}
+
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if keys[input.KeyCode.Name] ~= nil then
+        keys[input.KeyCode.Name] = true
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if keys[input.KeyCode.Name] ~= nil then
+        keys[input.KeyCode.Name] = false
+    end
+end)
+
+_G.FlyConnection = RunService.RenderStepped:Connect(function()
+    if not _G.FlyEnabled then return end
+
+    local cam = workspace.CurrentCamera
+    bg.CFrame = cam.CFrame
+
+    local dir = Vector3.zero
+
+    if keys.W then
+        dir += cam.CFrame.LookVector
+    end
+    if keys.S then
+        dir -= cam.CFrame.LookVector
+    end
+    if keys.A then
+        dir -= cam.CFrame.RightVector
+    end
+    if keys.D then
+        dir += cam.CFrame.RightVector
+    end
+
+    if dir.Magnitude > 0 then
+        bv.Velocity = dir.Unit * 60
+    else
+        bv.Velocity = Vector3.zero
+    end
+end)
+
+                task.wait(0.2)
+			end
+		end)
+	end
+end)
