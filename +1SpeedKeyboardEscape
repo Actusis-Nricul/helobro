@@ -291,16 +291,40 @@ end
 -- =====================
 -- SECTIONS & BUTTONS
 -- =====================
-createButton("Load Tora's Script", Color3.fromRGB(10, 210, 20), function()
+createButton("Load Tora's Script", Color3.fromRGB(150, 195, 90), function()
     loadstring(game:HttpGet(
         "https://raw.githubusercontent.com/gumanba/Scripts/main/1SpeedKeyboardEscape"
     ))()
 end)
 
-createButton("Load BEST Cyraaj Script", Color3.fromRGB(250, 90, 55), function()
+createButton("Load Cyraaj Script", Color3.fromRGB(250, 90, 55), function()
     loadstring(game:HttpGet(
         "https://api.luarmor.net/files/v4/loaders/180115bec8211cd16c13e86027066440.lua"
     ))()
+end)
+
+createButton("Load CWS APPLIER", Color3.fromRGB(20, 90, 255), function()
+    loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/CONSTANTWSA"
+    ))()
+end)
+
+createButton("Teleport 50K Wins", Color3.fromRGB(255, 100, 255), function()
+ 	local char = player.Character
+
+	if char then
+
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+
+			hrp.CFrame = CFrame.new(-8351, 485, 1472)
+			wait(1)
+			hrp.CFrame = CFrame.new(-8351, 485, 1470)
+			wait(1)
+			hrp.CFrame = CFrame.new(-8351, 485, 1468)
+		end
+	end
 end)
 
 createToggle("Infinite Jump", function(on)
@@ -311,7 +335,7 @@ createToggle("Noclip", function(on)
     -- handled in RunService below
 end)
 
-createToggle("TP to Cursor  [T key]", function(on)
+createToggle("TP to Cursor [T key]", function(on)
     -- handled in UIS connection below
 end)
 
