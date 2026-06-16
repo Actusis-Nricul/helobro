@@ -360,14 +360,6 @@ end)
 -- LOGIC
 -- =====================
 
--- Infinite Jump
-UserInputService.JumpRequest:Connect(function()
-    if toggleStates["Infinite Jump"] then
-        local hum = character and character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
-    end
-end)
-
 -- Noclip
 RunService.Heartbeat:Connect(function()
     if toggleStates["Noclip"] and character then
