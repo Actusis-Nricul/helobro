@@ -1,53 +1,136 @@
--- Constant WalkSpeed Applier (Every Frame)
--- Press H to toggle ON/OFF
--- No UI
+ -- i wnna kms
+  -- ts not easy to make btw
+local player = game.Players.LocalPlayer
 
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local walkSpeedValue = 20
+local enabled = true
 
-local player = Players.LocalPlayer
-local enabled = false
-local WALK_SPEED = 125
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Safely get the Humanoid
-local function getHumanoid()
-	local character = player.Character or player.CharacterAdded:Wait()
-	return character:FindFirstChildOfClass("Humanoid")
-end
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 170)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.new(55, 93, 255)
+frame.Parent = screenGui
 
--- Apply speed every frame while enabled
-RunService.RenderStepped:Connect(function()
-	if not enabled then return end
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 25)
 
-	local humanoid = getHumanoid()
-	if humanoid and humanoid.WalkSpeed ~= WALK_SPEED then
-		humanoid.WalkSpeed = WALK_SPEED
+frame.Active = true
+frame.Draggable = true
+
+
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -20, 0, 40)
+inputBox.Position = UDim2.new(0, 10, 0, 10)
+inputBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+inputBox.TextColor3 = Color3.new(1, 1, 1)
+inputBox.PlaceholderText = "Enter WalkSpeed..."
+inputBox.Parent = frame
+Instance.new("UICorner", inputBox).CornerRadius = UDim.new(0, 6)
+
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -20, 0, 40)
+button.Position = UDim2.new(0, 10, 0, 60)
+button.Text = "Apply"
+button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+button.TextColor3 = Color3.new(1, 1, 1)
+button.Parent = frame
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(1, -20, 0, 40)
+toggleButton.Position = UDim2.new(0, 10, 0, 110)
+toggleButton.Text = "Working: YES"
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Parent = frame
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 6)
+
+
+button.MouseButton1Click:Connect(function()
+	if not enabled then
+		button.Text = "Not Working"
+		task.wait(0.5)
+		button.Text = "Apply"
+		return
+	end
+
+	local text = inputBox.Text:lower()
+	local multiplier = 1
+
+	if text:find("k") then
+		text = text:gsub("k", "")
+		multiplier = 1000
+	elseif text:find("m") then
+		text = text:gsub("m", "")
+		multiplier = 1000000
+	elseif text:find("b") then
+		text = text:gsub("b", "")
+		multiplier = 1000000000
+	elseif text:find("t") then
+		text = text:gsub("t", "")
+		multiplier = 1000000000000
+	elseif text:find("qd") then
+		text = text:gsub("qd", "")
+		multiplier = 1000000000000000
+	elseif text:find("qn") then
+		text = text:gsub("qn", "")
+		multiplier = 1000000000000000000
+	elseif text:find("sx") then
+		text = text:gsub("sx", "")
+		multiplier = 1000000000000000000000
+	end
+
+	local number = tonumber(text)
+
+	if number then
+		walkSpeedValue = math.clamp(number * multiplier, 0, 1000000)
+		inputBox.Text = tostring(walkSpeedValue)
+
+		button.Text = "Applied!"
+		task.wait(2)
+		button.Text = "Apply"
+	else
+		inputBox.Text = "Invalid!"
 	end
 end)
 
--- Reapply after respawn
-player.CharacterAdded:Connect(function()
+
+toggleButton.MouseButton1Click:Connect(function()
+	enabled = not enabled
+
+	local char = player.Character or player.CharacterAdded:Wait()
+	local hum = char:FindFirstChildOfClass("Humanoid")
+
 	if enabled then
-		task.wait()
-		local humanoid = getHumanoid()
-		if humanoid then
-			humanoid.WalkSpeed = WALK_SPEED
+		toggleButton.Text = "Working: YES"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+	else
+		toggleButton.Text = "Working: NO"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+
+		
+		if hum then
+			hum.WalkSpeed = 20
 		end
 	end
 end)
 
--- Toggle with H
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
 
-	if input.KeyCode == Enum.KeyCode.H then
-		enabled = not enabled
-
+task.spawn(function()
+	while true do
 		if enabled then
-			print("WalkSpeed lock enabled (125)")
-		else
-			print("WalkSpeed lock disabled")
+			local char = player.Character or player.CharacterAdded:Wait()
+			local hum = char:FindFirstChildOfClass("Humanoid")
+
+			if hum then
+				hum.WalkSpeed = walkSpeedValue
+			end
 		end
+
+		task.wait()
 	end
 end)
