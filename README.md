@@ -11,8 +11,12 @@ if you need a executor then go to    [cheat.today](https://cheat.today/)      or
 
 ## About Me
 
-```lua
+```luau
 local player = Players.LocalPlayer
+local players = game:GetService("Players")
+local char = player.Character
+local root = getRoot()
+local brain = root
 
 local me = {
     name = "Actusis-Nricul",
