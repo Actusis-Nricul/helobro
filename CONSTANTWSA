@@ -2,7 +2,7 @@
   -- ts not easy to make btw
 local player = game.Players.LocalPlayer
 
-local walkSpeedValue = 20
+local walkSpeedValue = 16
 local enabled = true
 
 local screenGui = Instance.new("ScreenGui")
@@ -114,7 +114,7 @@ toggleButton.MouseButton1Click:Connect(function()
 
 		
 		if hum then
-			hum.WalkSpeed = 20
+			hum.WalkSpeed = 16
 		end
 	end
 end)
