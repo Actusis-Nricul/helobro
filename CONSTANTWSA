@@ -1,5 +1,4 @@
- -- i wnna kms
-  -- ts not easy to make btw
+ -- ts not easy to make btw
 local player = game.Players.LocalPlayer
 
 local walkSpeedValue = 16
