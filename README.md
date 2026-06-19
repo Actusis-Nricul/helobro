@@ -17,8 +17,13 @@ local player = Players.LocalPlayer
 local me = {
     name = "Actusis-Nricul",
     language = "Luau",
-    language = "English",
+    language2 = "English",
     executor = "Potassium",
     players.player.Brain = true,
     Latent IQ = math.huge
 }
+
+
+if me then
+print("im so cool")
+end
