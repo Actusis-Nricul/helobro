@@ -61,7 +61,6 @@ For issues or questions about specific scripts:
 
 1. Join the discord
 2. Message me on discord
-3.
 
 ## 📊 Repository Stats
 
