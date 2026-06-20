@@ -17,14 +17,13 @@ Some of the major games covered include:
 - **Dandy's World** - DandysWorldHub
 - **Pet Simulator 99** - PetSim99Hub
 - **Forsaken** - ForsakenHub
-- **Find the...** Series - Multiple "Find" game scripts
+- **Sell Lemons** - SellLemons
 - And many more!
 
 ## 📁 Script Categories
 
 ### Game-Specific Hubs
 - Complete feature sets for individual games
-- GUI implementations
 - Game-specific utilities and cheats
 
 ### Utility Scripts
@@ -32,64 +31,37 @@ Some of the major games covered include:
 - ESP and visibility mods
 - Physics modifications
 - Server hopping utilities
-- Auto-clicker implementations
-
-### Mini-Games & Fun Scripts
-- Click simulators
-- Parkour helpers
-- Tycoon scripts
-- Game-specific exploits
 
 ## 🚀 Getting Started
 
 ### Requirements
-- Roblox game client
-- Script executor that supports Luau (e.g., Synapse X, Script-Ware, Krnl)
-
-### Installation
-
-1. Download or copy a script from this repository
-2. Load it into your Roblox script executor
-3. Execute the script in your target Roblox game
-4. Follow any in-game prompts or keybinds
+- Roblox game client from rdd (https:/:
+- Script executor that supports high quality scripts(Supported Executers: solara, bytebreaker, real, velocity, any paid executor, madium.)
 
 ## 📝 Script Structure
 
 Most scripts follow this general pattern:
 
-```lua
--- Game-specific initialization
--- GUI creation (if applicable)
--- Feature implementation
--- Event listeners and keybinds
-```
 
 ## ⚠️ Disclaimer
 
-These scripts are provided for **educational purposes only**. Use at your own risk and be aware of:
-
-- Roblox Terms of Service violations
-- Potential account bans
-- Anti-cheat detection
-- Game-specific detection systems
-
-Always use scripts responsibly and be aware of the consequences.
+These scripts are provided for **educational purposes only**. Use at your own risk and be aware of roblox staff
 
 ## 🤝 Contributing
 
 Contributions and improvements are welcome! Feel free to:
 
 - Report bugs or issues
-- Suggest new scripts or improvements
+- Suggest new scripts
 - Optimize existing code
 
 ## 📞 Support
 
 For issues or questions about specific scripts:
 
-1. Check the script comments for usage instructions
-2. Review the script code for configuration options
-3. Open an issue with detailed information
+1. Join the discord
+2. Message me on discord
+3.
 
 ## 📊 Repository Stats
 
@@ -98,10 +70,5 @@ For issues or questions about specific scripts:
 - **Last Updated**: June 2026
 - **Stars**: 1
 
-## 🏷️ Topics
-
-`roblox` `roblox-script-lua` `luau` `game-modification`
-
----
-
-**Remember**: Enjoy responsibly! 🎮
+Subscribe!
+https://youtube.com/@ActusisGames
