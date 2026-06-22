@@ -81,7 +81,7 @@ local Section = ExtraTab:CreateSection("Might Be Useful")
 local Button = ScriptsTab:CreateButton({
    Name = "Item Grabber OP (made by me)",
    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobrov2/refs/heads/main/PiggyItemGrabber"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Actusis-Nricul/helobro/refs/heads/main/PiggyItemGrabber"))()
    end,
 })
 
