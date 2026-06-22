@@ -1,67 +1,20 @@
---[[
-join the discord gng!
-https://discord.gg/ANwZKq8D6a
---]]
-
-local invite = "https://discord.gg/ANwZKq8D6a"
-
----------------------------------------------------
--- COPY TO CLIPBOARD (EASY)
----------------------------------------------------
-
-if setclipboard then
-	setclipboard(invite)
-
-	print("Copied Discord invite to clipboard")
-else
-	warn("Executor does not support setclipboard")
-end
-
----------------------------------------------------
--- TRY OPEN BROWSER
----------------------------------------------------
-
 pcall(function()
-
-	---------------------------------------------------
-	-- SYNAPSE AND SOME EXECUTORS
-	---------------------------------------------------
-
-	if syn and syn.request then
-
-		syn.request({
-			Url = invite,
-			Method = "GET"
-		})
-
-		print("Tried opening Discord")
-	end
-
-	---------------------------------------------------
-	-- SOME EXECUTORS SUPPORT THIS
-	---------------------------------------------------
-
-	if http_request then
-
-		http_request({
-			Url = invite,
-			Method = "GET"
-		})
-
-		print("Tried opening Discord")
-	end
-
-	---------------------------------------------------
-	-- SOME EXECUTORS SUPPORT THIS TO
-	---------------------------------------------------
-
-	if request then
-
-		request({
-			Url = invite,
-			Method = "GET"
-		})
-
-		print("Tried opening Discord")
-	end
-end)
+    local requestFunc = (syn and syn.request) or (fluxus and fluxus.request) or (http and http.request) or http_request or request
+    local DiscordInvite = "ANwZKq8D6a"
+    HttpService = game:GetService("HttpService")
+    if requestFunc then
+            requestFunc({
+                Url = 'http://127.0.0.1:6463/rpc?v=1',
+                Method = 'POST',
+                Headers = {
+                    ['Content-Type'] = 'application/json',
+                    Origin = 'https://discord.com'
+                },
+                Body = HttpService:JSONEncode({
+                    cmd = 'INVITE_BROWSER',
+                    nonce = HttpService:GenerateGUID(false),
+                    args = {code = DiscordInvite}
+                })
+            })
+    end
+    end)
