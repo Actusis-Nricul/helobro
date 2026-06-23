@@ -1,12 +1,12 @@
 # helobro
-![image](AA52229D-7C19-4762-8114-9F349B016E41.png)
+![image](assets/image1.png)
 
 
-A comprehensive collection of **Luau/Roblox scripts** featuring game-specific hubs, utilities, and enhancements for various Roblox games.
+A comprehensive collection of **Luau/Roblox scripts** and this and that.
 
 ## 📚 Overview
 
-This repository contains **100+ Luau scripts** designed for Roblox game modification and enhancement. The scripts range from simple utilities to complex game-specific hubs with multiple features.
+This repository contains **120+ Luau scripts** designed for Roblox game modification and enhancement. The scripts range from simple utilities to complex game-specific hubs with multiple features.
 
 ## 🎮 Featured Games
 
@@ -20,7 +20,7 @@ Some of the major games covered include:
 - **Pet Simulator 99** - PetSim99Hub
 - **Forsaken** - ForsakenHub
 - **Sell Lemons** - SellLemons
-- And many more!
+- *And lots more!*
 
 ## 📁 Script Categories
 
