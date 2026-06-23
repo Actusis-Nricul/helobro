@@ -38,16 +38,11 @@ Some of the major games covered include:
 
 ### Requirements
 - Roblox game client from rdd: [you can get here](https://rdd.weao.gg/)
-- Script executor that supports high quality scripts(Supported Executers: solara, bytebreaker, real, velocity, any paid executor, madium.)
-
-## 📝 Script Structure
-
-Most scripts follow this general pattern:
-
+- Script executor that supports high quality scripts (Supported Executers: solara, bytebreaker, real, velocity, any paid executor, madium, nezur, any mobile executor, reveilx, ronix, vegax.)
 
 ## ⚠️ Disclaimer
 
-These scripts are provided for **educational purposes only**. Use at your own risk and be aware of roblox staff
+These scripts are provided for **educational purposes only**. Use at your own risk and be aware of roblox staff in your servers.
 
 ## 🤝 Contributing
 
@@ -67,9 +62,8 @@ For issues or questions about specific scripts:
 ## 📊 Repository Stats
 
 - **Language**: Luau
-- **Scripts**: 100+
+- **Scripts**: 120+
 - **Last Updated**: June 2026
-- **Stars**: 1
 
 Subscribe!
 https://youtube.com/@ActusisGames
