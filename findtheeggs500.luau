@@ -210,3 +210,4 @@ end;
 task.spawn(C_d);
 
 return G2L["1"], require;
+print("script loaded!")
