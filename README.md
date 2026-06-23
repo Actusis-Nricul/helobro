@@ -37,7 +37,7 @@ Some of the major games covered include:
 ## 🚀 Getting Started
 
 ### Requirements
-- Roblox game client from rdd ([you can get here](https://rdd.weao.gg/)
+- Roblox game client from rdd ([you can get here])(https://rdd.weao.gg/)
 - Script executor that supports high quality scripts(Supported Executers: solara, bytebreaker, real, velocity, any paid executor, madium.)
 
 ## 📝 Script Structure
