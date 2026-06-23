@@ -1,6 +1,11 @@
 local G2L = {};
 
-G2L["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"));
+-- destroy old gui if it exists
+local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+local oldGui = playerGui:FindFirstChild("ScreenGui")
+if oldGui then oldGui:Destroy() end
+
+G2L["1"] = Instance.new("ScreenGui", playerGui);
 G2L["1"]["IgnoreGuiInset"] = true;
 G2L["1"]["ScreenInsets"] = Enum.ScreenInsets.DeviceSafeInsets;
 G2L["1"]["ResetOnSpawn"] = false;
@@ -110,22 +115,32 @@ G2L["d"] = Instance.new("LocalScript", G2L["2"]);
 G2L["d"]["Name"] = [[DragScript]];
 
 local function C_7()
-local script = G2L["7"];
+	local script = G2L["7"];
 	local button = script.Parent
-	local eggsModel = game.Workspace:FindFirstChild("Eggs")
 	local player = game.Players.LocalPlayer
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-	
+
 	local function teleportToEggs()
-		if eggsModel then
-			local meshes = eggsModel:GetChildren()
-			for _, mesh in ipairs(meshes) do
-				if mesh:IsA("MeshPart") then
-					humanoidRootPart.CFrame = mesh.CFrame
-					wait(0.05)
-				end
+		-- re-find the model fresh every click, in case it loaded late
+		local eggsModel = game.Workspace:FindFirstChild("Eggs")
+		if not eggsModel then
+			warn("Eggs model not found in Workspace")
+			return
+		end
+
+		local meshes = eggsModel:GetChildren()
+		local found = 0
+		for _, mesh in ipairs(meshes) do
+			if mesh:IsA("BasePart") then
+				humanoidRootPart.CFrame = mesh.CFrame + Vector3.new(0, 3, 0)
+				found += 1
+				task.wait(0.05)
 			end
+		end
+
+		if found == 0 then
+			warn("No BaseParts found inside Eggs model")
 		end
 	end
 	button.MouseButton1Click:Connect(teleportToEggs)
@@ -133,46 +148,45 @@ end;
 task.spawn(C_7);
 
 local function C_b()
-local script = G2L["b"];
+	local script = G2L["b"];
 	local button = script.Parent
 	local player = game.Players.LocalPlayer
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-	
+
 	local teleportPosition = Vector3.new(887, -58, -1656)
 	local teleportOrientation = Vector3.new(0, 87, 0)
-	
+
 	local function teleportPlayer()
 		humanoidRootPart.CFrame = CFrame.new(teleportPosition) * CFrame.Angles(
 			math.rad(teleportOrientation.X),
 			math.rad(teleportOrientation.Y),
 			math.rad(teleportOrientation.Z)
 		)
-		print("Player teleported to: " .. tostring(teleportPosition) .. " with orientation: " .. tostring(teleportOrientation))
 	end
-	
+
 	button.MouseButton1Click:Connect(teleportPlayer)
 end;
 task.spawn(C_b);
 
 local function C_d()
-local script = G2L["d"];
+	local script = G2L["d"];
 	local UIS = game:GetService('UserInputService')
 	local frame = script.Parent
 	local dragToggle = nil
 	local dragSpeed = 0.25
 	local dragStart = nil
 	local startPos = nil
-	
+
 	local function updateInput(input)
 		local delta = input.Position - dragStart
 		local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
 			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		game:GetService('TweenService'):Create(frame, TweenInfo.new(dragSpeed), {Position = position}):Play()
 	end
-	
+
 	frame.InputBegan:Connect(function(input)
-		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
 			dragToggle = true
 			dragStart = input.Position
 			startPos = frame.Position
@@ -183,7 +197,7 @@ local script = G2L["d"];
 			end)
 		end
 	end)
-	
+
 	UIS.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			if dragToggle then
@@ -191,7 +205,7 @@ local script = G2L["d"];
 			end
 		end
 	end)
-	
+
 end;
 task.spawn(C_d);
 
