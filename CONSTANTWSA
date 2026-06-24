@@ -57,37 +57,87 @@ button.MouseButton1Click:Connect(function()
 		return
 	end
 
-	local text = inputBox.Text:lower()
-	local multiplier = 1
+-- =====================
+-- SUFFIX MULTIPLIER TABLE
+-- Ordered longest-first so "qad" isn't matched by "d" etc.
+-- =====================
+local SUFFIX_MULTIPLIERS = {
+    -- 3-letter suffixes (check these before 2-letter ones)
+    {suffix = "uqag", mult = 1e126}, {suffix = "dqag", mult = 1e129}, {suffix = "tqag", mult = 1e132},
+    {suffix = "qaqag", mult = 1e135}, {suffix = "qiqag", mult = 1e138}, {suffix = "sxqag", mult = 1e141},
+    {suffix = "spqag", mult = 1e144}, {suffix = "ocqag", mult = 1e147}, {suffix = "noqag", mult = 1e150},
+    {suffix = "uqig", mult = 1e156}, {suffix = "dqig", mult = 1e159}, {suffix = "tqig", mult = 1e162},
+    {suffix = "qaqig", mult = 1e165}, {suffix = "qiqig", mult = 1e168}, {suffix = "sxqig", mult = 1e171},
+    {suffix = "spqig", mult = 1e174}, {suffix = "ocqig", mult = 1e177}, {suffix = "noqig", mult = 1e180},
+    {suffix = "usxg", mult = 1e186}, {suffix = "dsxg", mult = 1e189}, {suffix = "tsxg", mult = 1e192},
+    {suffix = "qasxg", mult = 1e195}, {suffix = "qisxg", mult = 1e198}, {suffix = "sxsxg", mult = 1e201},
+    {suffix = "spsxg", mult = 1e204}, {suffix = "ocsxg", mult = 1e207}, {suffix = "nosxg", mult = 1e210},
+    {suffix = "uspg", mult = 1e216}, {suffix = "dspg", mult = 1e219}, {suffix = "tspg", mult = 1e222},
+    {suffix = "qaspg", mult = 1e225}, {suffix = "qispg", mult = 1e228}, {suffix = "sxspg", mult = 1e231},
+    {suffix = "spspg", mult = 1e234}, {suffix = "ocspg", mult = 1e237}, {suffix = "nospg", mult = 1e240},
+    {suffix = "uocg", mult = 1e246}, {suffix = "docg", mult = 1e249}, {suffix = "tocg", mult = 1e252},
+    {suffix = "qaocg", mult = 1e255}, {suffix = "qiocg", mult = 1e258}, {suffix = "sxocg", mult = 1e261},
+    {suffix = "spocg", mult = 1e264}, {suffix = "ococg", mult = 1e267}, {suffix = "noocg", mult = 1e270},
+    {suffix = "unog", mult = 1e276}, {suffix = "dnog", mult = 1e279}, {suffix = "tnog", mult = 1e282},
+    {suffix = "qanog", mult = 1e285}, {suffix = "qinog", mult = 1e288}, {suffix = "sxnog", mult = 1e291},
+    {suffix = "spnog", mult = 1e294}, {suffix = "ocnog", mult = 1e297}, {suffix = "nonog", mult = 1e300},
 
-	if text:find("k") then
-		text = text:gsub("k", "")
-		multiplier = 1000
-	elseif text:find("m") then
-		text = text:gsub("m", "")
-		multiplier = 1000000
-	elseif text:find("b") then
-		text = text:gsub("b", "")
-		multiplier = 1000000000
-	elseif text:find("t") then
-		text = text:gsub("t", "")
-		multiplier = 1000000000000
-	elseif text:find("qd") then
-		text = text:gsub("qd", "")
-		multiplier = 1000000000000000
-	elseif text:find("qn") then
-		text = text:gsub("qn", "")
-		multiplier = 1000000000000000000
-	elseif text:find("sx") then
-		text = text:gsub("sx", "")
-		multiplier = 1000000000000000000000
-	end
+    -- 2-letter prefix + 1-letter group suffixes
+    {suffix = "qdd", mult = 1e45}, {suffix = "qnd", mult = 1e48}, {suffix = "sxd", mult = 1e51},
+    {suffix = "spd", mult = 1e54}, {suffix = "ocd", mult = 1e57}, {suffix = "nod", mult = 1e60},
+    {suffix = "qavg", mult = 1e75}, {suffix = "qivg", mult = 1e78}, {suffix = "sxvg", mult = 1e81},
+    {suffix = "spvg", mult = 1e84}, {suffix = "ocvg", mult = 1e87}, {suffix = "novg", mult = 1e90},
+    {suffix = "qatg", mult = 1e105}, {suffix = "qitg", mult = 1e108}, {suffix = "sxtg", mult = 1e111},
+    {suffix = "sptg", mult = 1e114}, {suffix = "octg", mult = 1e117}, {suffix = "notg", mult = 1e120},
 
-	local number = tonumber(text)
+    -- 2-letter suffixes
+    {suffix = "dc", mult = 1e33}, {suffix = "ud", mult = 1e36}, {suffix = "dd", mult = 1e39},
+    {suffix = "td", mult = 1e42},
+    {suffix = "vg", mult = 1e63}, {suffix = "uvg", mult = 1e66}, {suffix = "dvg", mult = 1e69},
+    {suffix = "tvg", mult = 1e72},
+    {suffix = "tg", mult = 1e93}, {suffix = "utg", mult = 1e96}, {suffix = "dtg", mult = 1e99},
+    {suffix = "ttg", mult = 1e102},
+    {suffix = "qag", mult = 1e123},
+    {suffix = "qig", mult = 1e153},
+    {suffix = "sxg", mult = 1e183},
+    {suffix = "spg", mult = 1e213},
+    {suffix = "ocg", mult = 1e243},
+    {suffix = "nog", mult = 1e273},
 
-	if number then
-		walkSpeedValue = math.clamp(number * multiplier, 0, 1000000)
-		inputBox.Text = tostring(walkSpeedValue)
+    -- short suffixes
+    {suffix = "qd", mult = 1e15}, {suffix = "qn", mult = 1e18}, {suffix = "sx", mult = 1e21},
+    {suffix = "sp", mult = 1e24}, {suffix = "oc", mult = 1e27}, {suffix = "no", mult = 1e30},
+    {suffix = "uc", mult = 1e306},
+
+    -- single letter (check LAST since these are substrings of everything above)
+    {suffix = "k", mult = 1e3},
+    {suffix = "m", mult = 1e6},
+    {suffix = "b", mult = 1e9},
+    {suffix = "t", mult = 1e12},
+    {suffix = "c", mult = 1e303},
+}
+
+-- sort longest suffix first so longer matches always win over shorter substrings
+table.sort(SUFFIX_MULTIPLIERS, function(a, b)
+    return #a.suffix > #b.suffix
+end)
+
+local function parseAbbreviatedNumber(rawText)
+    local text = rawText:lower():gsub("%s", "")
+
+    for _, entry in ipairs(SUFFIX_MULTIPLIERS) do
+        if text:sub(-#entry.suffix) == entry.suffix then
+            local numPart = text:sub(1, -#entry.suffix - 1)
+            local number = tonumber(numPart)
+            if number then
+                return number * entry.mult
+            end
+        end
+    end
+
+    -- no suffix matched, try plain number
+    return tonumber(text)
+end
 
 		button.Text = "Applied!"
 		task.wait(2)
