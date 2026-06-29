@@ -66,6 +66,14 @@ end
 ----------------------------------------------------
 -- GUI
 ----------------------------------------------------
+-- =====================
+-- DESTROY OLD GUI
+-- =====================
+local ol24d = player:WaitForChild("PlayerGui"):FindFirstChild("CJPA2026")
+
+if ol24d then ol24d:Destroy()
+
+end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "CJPA2026"
