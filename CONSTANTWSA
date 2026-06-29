@@ -57,6 +57,19 @@ button.MouseButton1Click:Connect(function()
 		return
 	end
 
+	local value = parseAbbreviatedNumber(inputBox.Text)
+
+	if value then
+		walkSpeedValue = value
+		button.Text = "Applied!"
+		task.wait(2)
+		button.Text = "Apply"
+	else
+		inputBox.Text = ""
+		inputBox.PlaceholderText = "Invalid Number!"
+	end
+end)
+
 -- =====================
 -- SUFFIX MULTIPLIER TABLE
 -- Ordered longest-first so "qad" isn't matched by "d" etc.
@@ -138,15 +151,6 @@ local function parseAbbreviatedNumber(rawText)
     -- no suffix matched, try plain number
     return tonumber(text)
 end
-
-		button.Text = "Applied!"
-		task.wait(2)
-		button.Text = "Apply"
-	else
-		inputBox.Text = "Invalid!"
-	end
-end)
-
 
 toggleButton.MouseButton1Click:Connect(function()
 	enabled = not enabled
